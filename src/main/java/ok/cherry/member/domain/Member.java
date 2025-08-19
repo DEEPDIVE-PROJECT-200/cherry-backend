@@ -1,7 +1,7 @@
 package ok.cherry.member.domain;
 
-import static io.jsonwebtoken.lang.Assert.*;
 import static java.util.Objects.*;
+import static org.springframework.util.Assert.*;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
@@ -70,8 +70,9 @@ public class Member {
 
 	public void updateNickname(String nickname) {
 		state(status == MemberStatus.ACTIVE, "ACTIVE 상태가 아닙니다");
+		requireNonNull(nickname);
 		state(nickname.length() >= 2 && nickname.length() <= 10, "닉네임은 2 ~ 10글자만 가능합니다");
 
-		this.nickname = requireNonNull(nickname);
+		this.nickname = nickname;
 	}
 }
