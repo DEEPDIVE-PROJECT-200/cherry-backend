@@ -1,0 +1,119 @@
+package ok.cherry.global.exception;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.global.exception.error.DomainException;
+import ok.cherry.global.exception.error.ErrorCode;
+import ok.cherry.global.exception.error.GlobalError;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+	/**
+	 * @RequestBody 누락: HttpMessageNotReadableException
+	 */
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException exception, HttpServletRequest request) {
+		return getProblemDetail(GlobalError.INVALID_REQUEST_BODY, exception);
+	}
+
+	/**
+	 * @RequestBody 유효성 검사 실패 처리 : MethodArgumentNotValidException
+	 */
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ProblemDetail handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+		Map<String, String> details = new HashMap<>();
+		exception.getBindingResult().getFieldErrors().forEach(error -> {
+			details.put(error.getField(), error.getDefaultMessage());
+		});
+		return getProblemDetail(GlobalError.INVALID_REQUEST_BODY, exception, details);
+	}
+
+	/**
+	 * @RequestParam 누락 처리 : MissingServletRequestParameterException
+	 */
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ProblemDetail handleMissingServletRequestParameter(MissingServletRequestParameterException exception) {
+		String detail = String.format("필수 파라미터 '%s' 누락되었습니다", exception.getParameterName());
+		return getProblemDetail(GlobalError.MISSING_REQUEST_PARAM, exception, detail);
+	}
+
+	/**
+	 * @PathVariable, @RequestParam 유효성 검사 실패 처리 : ConstraintViolationException
+	 */
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ProblemDetail handleConstraintViolation(ConstraintViolationException exception) {
+		Map<String, String> detail = new HashMap<>();
+		exception.getConstraintViolations().forEach(violation -> {
+			String propertyPath = violation.getPropertyPath().toString();
+			String fieldName = propertyPath.contains(".") ? 
+				propertyPath.substring(propertyPath.lastIndexOf(".") + 1) : propertyPath;
+			String message = violation.getMessage();
+			detail.put(fieldName, message);
+		});
+
+		return getProblemDetail(GlobalError.INVALID_REQUEST_PARAM, exception, detail);
+	}
+
+	/**
+	 * Domain 예외 처리
+	 */
+	@ExceptionHandler(DomainException.class)
+	public ProblemDetail HandleDomainException(DomainException exception) {
+		return getProblemDetail(exception.getErrorCode(), exception);
+	}
+
+	/**
+	 * Business 예외 처리
+	 */
+	@ExceptionHandler(BusinessException.class)
+	public ProblemDetail HandleBusinessException(BusinessException exception) {
+		return getProblemDetail(exception.getErrorCode(), exception);
+	}
+
+	/**
+	 * 예상하지 못한 모든 예외 처리 : Exception
+	 */
+	@ExceptionHandler(Exception.class)
+	public ProblemDetail exceptionHandler(Exception exception) {
+		return getProblemDetail(GlobalError.INTERNAL_SERVER_ERROR, exception);
+	}
+
+	private ProblemDetail getProblemDetail(ErrorCode errorCode, Exception exception) {
+		ProblemDetail problemDetail = ProblemDetail.forStatus(errorCode.getStatus());
+		
+		// BusinessException, DomainException이고 커스텀 메시지가 있으면 title로, 아니면 기본 errorCode 메시지 사용
+		String title = ((exception instanceof BusinessException || exception instanceof DomainException) 
+			&& exception.getMessage() != null && !exception.getMessage().isEmpty()) 
+			? exception.getMessage() 
+			: errorCode.getMessage();
+		problemDetail.setTitle(title);
+		
+		problemDetail.setProperty("code", errorCode.getCode());
+		problemDetail.setProperty("timestamp", LocalDateTime.now());
+		problemDetail.setProperty("exception", exception.getClass().getSimpleName());
+		return problemDetail;
+	}
+
+	private ProblemDetail getProblemDetail(GlobalError errorCode, Exception exception, Object detail) {
+		ProblemDetail problemDetail = ProblemDetail.forStatus(errorCode.getStatus());
+		problemDetail.setTitle(errorCode.getMessage());
+		problemDetail.setProperty("detail", detail);
+		problemDetail.setProperty("code", errorCode.getCode());
+		problemDetail.setProperty("timestamp", LocalDateTime.now());
+		problemDetail.setProperty("exception", exception.getClass().getSimpleName());
+		return problemDetail;
+	}
+}
