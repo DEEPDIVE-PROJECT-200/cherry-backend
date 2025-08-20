@@ -22,7 +22,7 @@ public enum GlobalError implements ErrorCode {
 	// 5xx 서버 에러
 	INTERNAL_SERVER_ERROR("내부 서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, "G_500"),
 	DATABASE_ERROR("데이터베이스 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, "G_501"),
-	EXTERNAL_API_ERROR("외부 API 호출 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, "G_502");
+	EXTERNAL_API_ERROR("외부 API 호출 중 오류가 발생했습니다.", HttpStatus.BAD_GATEWAY, "G_502");
 
 	private final String message;
 	private final HttpStatus status;
