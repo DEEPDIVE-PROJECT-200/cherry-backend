@@ -93,14 +93,12 @@ public class GlobalExceptionHandler {
 
 	private ProblemDetail getProblemDetail(ErrorCode errorCode, Exception exception) {
 		ProblemDetail problemDetail = ProblemDetail.forStatus(errorCode.getStatus());
-		
-		// BusinessException, DomainException이고 커스텀 메시지가 있으면 title로, 아니면 기본 errorCode 메시지 사용
-		String title = ((exception instanceof BusinessException || exception instanceof DomainException) 
-			&& exception.getMessage() != null && !exception.getMessage().isEmpty()) 
-			? exception.getMessage() 
-			: errorCode.getMessage();
-		problemDetail.setTitle(title);
-		
+		problemDetail.setTitle(errorCode.getMessage());
+		if (exception instanceof BusinessException || exception instanceof DomainException) {
+			if (exception.getMessage() != null && !exception.getMessage().isEmpty()) {
+				problemDetail.setDetail(exception.getMessage());
+			}
+		}
 		problemDetail.setProperty("code", errorCode.getCode());
 		problemDetail.setProperty("timestamp", LocalDateTime.now());
 		problemDetail.setProperty("exception", exception.getClass().getSimpleName());
@@ -110,7 +108,11 @@ public class GlobalExceptionHandler {
 	private ProblemDetail getProblemDetail(GlobalError errorCode, Exception exception, Object detail) {
 		ProblemDetail problemDetail = ProblemDetail.forStatus(errorCode.getStatus());
 		problemDetail.setTitle(errorCode.getMessage());
-		problemDetail.setProperty("detail", detail);
+		if (detail instanceof String s) {
+			problemDetail.setDetail(s);
+		} else {
+			problemDetail.setProperty("errors", detail);
+		}
 		problemDetail.setProperty("code", errorCode.getCode());
 		problemDetail.setProperty("timestamp", LocalDateTime.now());
 		problemDetail.setProperty("exception", exception.getClass().getSimpleName());
