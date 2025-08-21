@@ -13,3 +13,12 @@ spring:
   docker:
     compose:
       lifecycle-management: start_only
+
+cors:
+  allowed-origins: http://localhost:3000
+  allowed-methods: GET, POST, PUT, DELETE
+  allowed-headers: Access-Control-Allow-Origin, Content-type, Access-Control-Allow-Headers, Authorization, X-Requested-With
+
+kakao:
+  client_id: 4d988a9b799b7d125daa2c3dedf8fd51
+  redirect_uri: http://localhost:8080/callback
