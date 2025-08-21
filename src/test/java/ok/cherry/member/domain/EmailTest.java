@@ -25,7 +25,7 @@ class EmailTest {
 	@Test
 	@DisplayName("같은 이메일 주소를 가진 Email 객체들은 동등하다")
 	void equality() {
-		// give
+		// given
 		var email1 = new Email("test@test.com");
 		var email2 = new Email("test@test.com");
 
