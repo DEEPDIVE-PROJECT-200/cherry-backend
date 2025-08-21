@@ -14,6 +14,10 @@ public record Email(String address) {
 		Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,63}$");
 
 	public Email {
+		if (address == null) {
+			throw new DomainException(INVALID_EMAIL);
+		}
+
 		if (!EMAIL_PATTERN.matcher(address).matches()) {
 			throw new DomainException(INVALID_EMAIL);
 		}

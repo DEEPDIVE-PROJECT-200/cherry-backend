@@ -80,7 +80,7 @@ public class Member {
 	}
 
 	private static void validateNickname(String nickname) {
-		if (nickname.length() < 2 || nickname.length() > 10) {
+		if (nickname == null || nickname.length() < 2 || nickname.length() > 10) {
 			throw new DomainException(MemberError.INVALID_NICKNAME);
 		}
 	}
