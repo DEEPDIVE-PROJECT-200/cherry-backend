@@ -97,12 +97,12 @@ public class ErrorTestController {
 	@GetMapping("/member-error/{type}")
 	public ResponseEntity<String> testMemberError(@PathVariable String type) {
 		switch (type) {
-			case "not-found":
-				throw new BusinessException(MemberError.USER_NOT_FOUND);
-			case "duplicate-email":
-				throw new BusinessException(MemberError.DUPLICATE_EMAIL);
-			case "invalid-password":
-				throw new BusinessException(MemberError.INVALID_PASSWORD);
+			case "invalid-email":
+				throw new BusinessException(MemberError.INVALID_EMAIL);
+			case "invalid-nickname":
+				throw new BusinessException(MemberError.INVALID_NICKNAME);
+			case "not-active":
+				throw new BusinessException(MemberError.NOT_ACTIVE);
 			default:
 				return ResponseEntity.ok("지원하지 않는 타입: " + type);
 		}
@@ -133,7 +133,7 @@ public class ErrorTestController {
 	 */
 	@GetMapping("/custom-message")
 	public ResponseEntity<String> testCustomMessage() {
-		throw new BusinessException(MemberError.USER_NOT_FOUND, "사용자 ID 123을 찾을 수 없습니다");
+		throw new BusinessException(MemberError.INVALID_NICKNAME, "닉네임에 특수문자를 입력할 수 없습니다");
 	}
 
 	/**
