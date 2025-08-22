@@ -14,10 +14,12 @@ import org.springframework.web.client.RestTemplate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 import ok.cherry.auth.application.dto.response.KakaoTokenResponse;
 import ok.cherry.auth.application.dto.response.KakaoIdResponse;
 import ok.cherry.auth.exception.AuthError;
 import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.member.infrastructure.MemberRepository;
 
 @Slf4j
 @Service
@@ -25,6 +27,7 @@ import ok.cherry.global.exception.error.BusinessException;
 public class KakaoAuthService {
 
 	private final RestTemplate restTemplate; // 카카오 API와 HTTP 통신을 위해 사용
+	private final MemberRepository memberRepository;
 
 	@Value("${kakao.client_id}")
 	private String clientId;
@@ -70,6 +73,11 @@ public class KakaoAuthService {
 
 		log.info("providerId: {}", response.providerId());
 		return response.providerId();
+	}
+
+	public CheckMemberResponse checkMember(String providerId) {
+		boolean isMember = memberRepository.existsByProviderId(providerId);
+		return new CheckMemberResponse(providerId, isMember);
 	}
 
 

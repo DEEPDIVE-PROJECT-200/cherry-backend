@@ -11,4 +11,5 @@ import ok.cherry.member.domain.Member;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
 	Optional<Member> findByProviderId(String providerId);
+	boolean existsByProviderId(String providerId);
 }

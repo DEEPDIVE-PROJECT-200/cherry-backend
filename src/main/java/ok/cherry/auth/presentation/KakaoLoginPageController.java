@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.cherry.auth.application.KakaoAuthService;
+import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 
 @Slf4j
 @Controller
@@ -38,16 +39,13 @@ public class KakaoLoginPageController {
 	}
 
 	@GetMapping("/callback")
-	public ResponseEntity<?> callback(@RequestParam("code") String code) {
+	public ResponseEntity<CheckMemberResponse> callback(@RequestParam("code") String code) {
 		log.info(code);
 		String accessToken = kakaoAuthService.getAccessToken(code);
-		String providerId = kakaoAuthService.getProviderId(accessToken); // providerId 까지는 무조건 가져올 수 있음
+		String providerId = kakaoAuthService.getProviderId(accessToken);
+		CheckMemberResponse response = kakaoAuthService.checkMember(providerId);
 
-		// todo: providerId 값으로 db에 사용자 정보가 있는지 조회
-
-		log.info("callback end");
-		return new ResponseEntity<>(HttpStatus.OK);
+		log.info("CheckMemberResponse: {}", response);
+		return ResponseEntity.ok(response);
 	}
-
-	// todo: 로그인 controller
 }
