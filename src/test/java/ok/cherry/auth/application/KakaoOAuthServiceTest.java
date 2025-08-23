@@ -73,7 +73,7 @@ class KakaoOAuthServiceTest {
 	}
 
 	@Test
-	@DisplayName("발급 받은 AccessToken으로 provideId를 가져올 수 있다")
+	@DisplayName("발급 받은 AccessToken으로 providerId를 가져올 수 있다")
 	void getProviderId() {
 		// given
 		var response = new KakaoIdResponse("provider_id");
