@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ok.cherry.auth.application.KakaoAuthService;
+import ok.cherry.auth.application.KakaoOAuthService;
 import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 
 @Slf4j
@@ -19,7 +19,7 @@ import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 @RequiredArgsConstructor
 public class KakaoLoginController {
 
-	private final KakaoAuthService kakaoAuthService;
+	private final KakaoOAuthService kakaoOAuthService;
 
 	@Value("${kakao.client_id}")
 	private String client_id;
@@ -41,9 +41,9 @@ public class KakaoLoginController {
 	@GetMapping("/callback")
 	public ResponseEntity<CheckMemberResponse> callback(@RequestParam("code") String code) {
 		log.info(code);
-		String accessToken = kakaoAuthService.getAccessToken(code);
-		String providerId = kakaoAuthService.getProviderId(accessToken);
-		CheckMemberResponse response = kakaoAuthService.checkMember(providerId);
+		String accessToken = kakaoOAuthService.getAccessToken(code);
+		String providerId = kakaoOAuthService.getProviderId(accessToken);
+		CheckMemberResponse response = kakaoOAuthService.checkMember(providerId);
 
 		log.info("CheckMemberResponse: {}", response);
 		return ResponseEntity.ok(response);

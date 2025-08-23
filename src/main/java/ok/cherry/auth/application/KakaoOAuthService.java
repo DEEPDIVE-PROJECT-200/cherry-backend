@@ -24,7 +24,7 @@ import ok.cherry.member.infrastructure.MemberRepository;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KakaoAuthService {
+public class KakaoOAuthService implements OAuthService {
 
 	private final RestTemplate restTemplate; // 카카오 API와 HTTP 통신을 위해 사용
 	private final MemberRepository memberRepository;
@@ -35,6 +35,7 @@ public class KakaoAuthService {
 	@Value("${kakao.redirect_uri}")
 	private String redirectUri;
 
+	@Override
 	public String getAccessToken(String code) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -59,6 +60,7 @@ public class KakaoAuthService {
 		return response.accessToken();
 	}
 
+	@Override
 	public String getProviderId(String accessToken) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(accessToken);
@@ -75,10 +77,9 @@ public class KakaoAuthService {
 		return response.providerId();
 	}
 
+	@Override
 	public CheckMemberResponse checkMember(String providerId) {
 		boolean isMember = memberRepository.existsByProviderId(providerId);
 		return new CheckMemberResponse(providerId, isMember);
 	}
-
-
 }
