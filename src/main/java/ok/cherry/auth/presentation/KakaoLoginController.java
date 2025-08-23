@@ -1,7 +1,6 @@
 package ok.cherry.auth.presentation;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +17,7 @@ import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 @Controller
 @RequestMapping()
 @RequiredArgsConstructor
-public class KakaoLoginPageController {
+public class KakaoLoginController {
 
 	private final KakaoAuthService kakaoAuthService;
 
@@ -28,6 +27,7 @@ public class KakaoLoginPageController {
 	@Value("${kakao.redirect_uri}")
 	private String redirect_uri;
 
+	// 카카오 로그인 테스트용 페이지 컨트롤러
 	@GetMapping("/login/page")
 	public String loginPage(Model model) {
 		String location =
