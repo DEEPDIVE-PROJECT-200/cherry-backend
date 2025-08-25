@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -78,6 +79,7 @@ public class KakaoOAuthService implements OAuthService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public CheckMemberResponse checkMember(String providerId) {
 		boolean isMember = memberRepository.existsByProviderId(providerId);
 		return new CheckMemberResponse(providerId, isMember);
