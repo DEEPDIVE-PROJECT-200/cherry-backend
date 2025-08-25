@@ -54,7 +54,7 @@ public class AuthController {
 	public ResponseEntity<Void> logout(
 		HttpServletRequest request,
 		HttpServletResponse response,
-		@AuthenticationPrincipal(expression = "username") String providerId
+		@AuthenticationPrincipal String providerId
 	) {
 		String accessToken = tokenExtractor.resolveToken(request);
 		authService.logout(accessToken, providerId);
