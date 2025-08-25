@@ -42,6 +42,9 @@ public class AuthService {
 	}
 
 	public TokenResponse login(String providerId) {
+		if (!memberRepository.existsByProviderId(providerId)) {
+			throw new BusinessException(MemberError.USER_NOT_FOUND);
+		}
 		TokenResponse tokenResponse = tokenGenerator.generateTokenDTO(providerId);
 		authRedisRepository.saveRefreshToken(providerId, tokenResponse.refreshToken());
 		return tokenResponse;
