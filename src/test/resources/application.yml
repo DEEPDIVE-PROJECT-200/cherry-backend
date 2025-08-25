@@ -29,6 +29,14 @@ cors:
   allowed-methods: GET, POST, PUT, DELETE, OPTIONS, HEAD
   allowed-headers: "*"
 
+jwt:
+  secret: "crailotestjwtsecretkey2025fordevelopmentandtestingonlylonglonglonglonglonglonglonglonglong"
+  access-token-expiration-seconds: 10
+  refresh-token-expiration-seconds: 10
+
+cookie:
+  domain: localhost
+
 kakao:
   client_id: "TestClientId"
   redirect_uri: "http://localhost:8080/callback"
