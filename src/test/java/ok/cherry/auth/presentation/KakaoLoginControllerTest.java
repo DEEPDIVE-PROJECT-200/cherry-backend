@@ -1,6 +1,5 @@
 package ok.cherry.auth.presentation;
 
-import static ok.cherry.AssertThatUtils.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -60,8 +59,8 @@ class KakaoLoginControllerTest {
 		// then
 		assertThat(result).hasStatusOk()
 			.bodyJson()
-			.hasPathSatisfying("$.providerId", equalsTo("12345"))
-			.hasPathSatisfying("$.isMember", isTrue());
+			.hasPathSatisfying("$.providerId", value -> assertThat(value).isEqualTo("12345"))
+			.hasPathSatisfying("$.isMember", value -> assertThat(value).isEqualTo(true));
 	}
 
 	@Test
@@ -69,7 +68,7 @@ class KakaoLoginControllerTest {
 	void callbackWithNewUser() {
 		// given
 		KakaoTokenResponse tokenResponse = createKakaoTokenResponse();
-		KakaoIdResponse idResponse = new KakaoIdResponse("99999");
+		KakaoIdResponse idResponse = new KakaoIdResponse("9999");
 
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class),
 			eq(KakaoTokenResponse.class))).thenReturn(ResponseEntity.ok(tokenResponse));
@@ -83,8 +82,8 @@ class KakaoLoginControllerTest {
 		// then
 		assertThat(result).hasStatusOk()
 			.bodyJson()
-			.hasPathSatisfying("$.providerId", equalsTo("99999"))
-			.hasPathSatisfying("$.isMember", isFalse());
+			.hasPathSatisfying("$.providerId", value -> assertThat(value).isEqualTo("9999"))
+			.hasPathSatisfying("$.isMember", value -> assertThat(value).isEqualTo(false));
 	}
 
 	private KakaoTokenResponse createKakaoTokenResponse() {
