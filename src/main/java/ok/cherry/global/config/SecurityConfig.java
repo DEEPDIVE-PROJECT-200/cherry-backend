@@ -8,8 +8,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
+import ok.cherry.auth.jwt.JwtAuthenticationEntryPoint;
+import ok.cherry.auth.jwt.JwtFilter;
+import ok.cherry.auth.jwt.TokenExtractor;
+import ok.cherry.auth.jwt.TokenValidator;
+import ok.cherry.global.redis.AuthRedisRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -30,18 +36,30 @@ public class SecurityConfig {
 		"/metrics",
 	};
 
+	private final AuthRedisRepository authRedisRepository;
+	private final TokenExtractor tokenExtractor;
+	private final TokenValidator tokenValidator;
+
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		return http.csrf(AbstractHttpConfigurer::disable)
+		return http
+			.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.cors(Customizer.withDefaults())
+			.exceptionHandling(exception -> {
+				exception.authenticationEntryPoint(jwtAuthenticationEntryPoint); // 권한 확인
+			})
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(PERMIT_URL_ARRAY).permitAll()
 				// todo: 추후 인증 관련 권한 설정
 				.anyRequest().permitAll())
+			.addFilterBefore(new JwtFilter(tokenExtractor, tokenValidator, authRedisRepository),
+				UsernamePasswordAuthenticationFilter.class)
 			.build();
 	}
 }
