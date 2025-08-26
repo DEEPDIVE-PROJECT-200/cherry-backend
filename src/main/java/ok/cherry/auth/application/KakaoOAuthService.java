@@ -54,10 +54,6 @@ public class KakaoOAuthService implements OAuthService {
 			tokenUrl, HttpMethod.POST, request, KakaoTokenResponse.class)
 			.getBody())
 			.orElseThrow(() -> new BusinessException(AuthError.KAKAO_TOKEN_RESPONSE_EMPTY));
-
-		log.info("accessToken: {}", response.accessToken());
-		log.info("refreshToken: {}", response.refreshToken());
-
 		return response.accessToken();
 	}
 
@@ -73,8 +69,6 @@ public class KakaoOAuthService implements OAuthService {
 			url, HttpMethod.GET, request, KakaoIdResponse.class)
 			.getBody())
 			.orElseThrow(() -> new BusinessException(AuthError.KAKAO_PROVIDER_ID_EMPTY));
-
-		log.info("providerId: {}", response.providerId());
 		return response.providerId();
 	}
 
