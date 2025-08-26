@@ -63,4 +63,42 @@ public class AuthRedisRepository {
 		Object value = objectRedisTemplate.opsForValue().get(key);
 		return (LogoutToken)value;
 	}
+
+	/**
+	 * OAuth State 저장 (CSRF 보호용)
+	 * Key = auth:oauth:state:{state}
+	 * */
+	public void saveOAuthState(String state, String value, Duration expireTime) {
+		String key = redisKeyGenerator.generateOAuthStateKey(state);
+		stringRedisTemplate.opsForValue().set(key, value, expireTime);
+	}
+
+	public String getOAuthState(String state) {
+		String key = redisKeyGenerator.generateOAuthStateKey(state);
+		return stringRedisTemplate.opsForValue().get(key);
+	}
+
+	public void deleteOAuthState(String state) {
+		String key = redisKeyGenerator.generateOAuthStateKey(state);
+		stringRedisTemplate.delete(key);
+	}
+
+	/**
+	 * 임시 토큰 저장 (회원가입용)
+	 * Key = auth:temp:token:{tempToken}
+	 * */
+	public void saveTempToken(String tempToken, String providerId, Duration expireTime) {
+		String key = redisKeyGenerator.generateTempTokenKey(tempToken);
+		stringRedisTemplate.opsForValue().set(key, providerId, expireTime);
+	}
+
+	public String getTempToken(String tempToken) {
+		String key = redisKeyGenerator.generateTempTokenKey(tempToken);
+		return stringRedisTemplate.opsForValue().get(key);
+	}
+
+	public void deleteTempToken(String tempToken) {
+		String key = redisKeyGenerator.generateTempTokenKey(tempToken);
+		stringRedisTemplate.delete(key);
+	}
 }
