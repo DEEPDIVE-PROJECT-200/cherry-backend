@@ -10,7 +10,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew bootJar
 
 # Development stage
-FROM openjdk:21-jre-alpine AS development
+FROM amazoncorretto:21-alpine-jdk AS development
 
 # 타임존 설정
 RUN apk add --no-cache tzdata
