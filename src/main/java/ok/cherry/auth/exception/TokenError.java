@@ -4,10 +4,11 @@ import org.springframework.http.HttpStatus;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import ok.cherry.global.exception.error.ErrorCode;
 
 @Getter
 @RequiredArgsConstructor
-public enum TokenError implements ok.cherry.global.exception.error.ErrorCode {
+public enum TokenError implements ErrorCode {
 
 	INVALID_TOKEN("유효하지 않은 토큰입니다", HttpStatus.UNAUTHORIZED, "T_001"),
 	INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다", HttpStatus.UNAUTHORIZED, "T_002"),
