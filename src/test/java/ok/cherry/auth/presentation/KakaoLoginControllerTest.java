@@ -19,6 +19,8 @@ import org.springframework.web.client.RestTemplate;
 
 import ok.cherry.auth.application.dto.response.KakaoIdResponse;
 import ok.cherry.auth.application.dto.response.KakaoTokenResponse;
+import ok.cherry.auth.util.StateGenerator;
+import ok.cherry.auth.util.TempTokenGenerator;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.domain.Provider;
 import ok.cherry.member.infrastructure.MemberRepository;
@@ -36,9 +38,15 @@ class KakaoLoginControllerTest {
 
 	@MockitoBean
 	RestTemplate restTemplate;
+	
+	@MockitoBean
+	StateGenerator stateGenerator;
+	
+	@MockitoBean
+	TempTokenGenerator tempTokenGenerator;
 
 	@Test
-	@DisplayName("기존 회원이 카카오 로그인 콜백 시 회원 정보를 반환한다")
+	@DisplayName("기존 회원이 카카오 로그인 콜백 시 JWT 토큰을 반환한다")
 	void callbackWithExistingMember() {
 		// given
 		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
@@ -47,43 +55,56 @@ class KakaoLoginControllerTest {
 		KakaoTokenResponse tokenResponse = createKakaoTokenResponse();
 		KakaoIdResponse idResponse = new KakaoIdResponse("12345");
 
+		when(stateGenerator.validateAndRemoveState("valid_state")).thenReturn(true);
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class),
 			eq(KakaoTokenResponse.class))).thenReturn(ResponseEntity.ok(tokenResponse));
-
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class),
 			eq(KakaoIdResponse.class))).thenReturn(ResponseEntity.ok(idResponse));
 
 		// when
-		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code").exchange();
+		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code&state=valid_state").exchange();
 
 		// then
 		assertThat(result).hasStatusOk()
 			.bodyJson()
-			.hasPathSatisfying("$.providerId", value -> assertThat(value).isEqualTo("12345"))
-			.hasPathSatisfying("$.isMember", value -> assertThat(value).isEqualTo(true));
+			.hasPathSatisfying("$.tokenType", value -> assertThat(value).isEqualTo("Bearer"))
+			.hasPathSatisfying("$.accessToken", value -> assertThat(value).isNotNull());
 	}
 
 	@Test
-	@DisplayName("신규 사용자가 카카오 로그인 콜백 시 비회원 정보를 반환한다")
+	@DisplayName("신규 사용자가 카카오 로그인 콜백 시 임시 토큰을 반환한다")
 	void callbackWithNewUser() {
 		// given
 		KakaoTokenResponse tokenResponse = createKakaoTokenResponse();
 		KakaoIdResponse idResponse = new KakaoIdResponse("9999");
 
+		when(stateGenerator.validateAndRemoveState("valid_state")).thenReturn(true);
+		when(tempTokenGenerator.generateTempToken("9999")).thenReturn("temp_token_12345");
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class),
 			eq(KakaoTokenResponse.class))).thenReturn(ResponseEntity.ok(tokenResponse));
-
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class),
 			eq(KakaoIdResponse.class))).thenReturn(ResponseEntity.ok(idResponse));
 
 		// when
-		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code").exchange();
+		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code&state=valid_state").exchange();
 
 		// then
-		assertThat(result).hasStatusOk()
+		assertThat(result).hasStatus(202)  // Accepted
 			.bodyJson()
-			.hasPathSatisfying("$.providerId", value -> assertThat(value).isEqualTo("9999"))
-			.hasPathSatisfying("$.isMember", value -> assertThat(value).isEqualTo(false));
+			.hasPathSatisfying("$.tempToken", value -> assertThat(value).isEqualTo("temp_token_12345"));
+	}
+
+	@Test
+	@DisplayName("잘못된 State로 콜백 시 400 오류를 반환한다")
+	void callbackWithInvalidState() {
+		// given
+		when(stateGenerator.validateAndRemoveState("invalid_state")).thenReturn(false);
+
+		// when
+		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code&state=invalid_state").exchange();
+
+		// then
+		assertThat(result).hasStatus(400);
 	}
 
 	private KakaoTokenResponse createKakaoTokenResponse() {
