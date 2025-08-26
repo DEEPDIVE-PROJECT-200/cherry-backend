@@ -72,3 +72,29 @@ jobs:
             KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  discord-notify:
+    name: Discord Notify
+    runs-on: ubuntu-latest
+    environment: dev
+    needs: [ build-test, docker-build-push ]
+    if: needs.docker-build-push.result == 'success'  # 배포 성공시에만
+    steps:
+      - name: Send Discord Notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: success
+          title: "백엔드 업데이트 완료"
+          description: |
+            📣 develop 브랜치에 새로운 코드가 배포되었습니다!
+
+            다음 명령어로 최신 백엔드를 받아주세요:
+            ```
+            ./update-backend.sh
+            ```
+
+            - **Branch**: ${{ github.ref_name }}
+            - **Commit**: ${{ github.sha }}
+            - **Author**: ${{ github.actor }}
+          username: Cherry Backend Bot
