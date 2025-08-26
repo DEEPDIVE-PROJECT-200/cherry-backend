@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import ok.cherry.auth.application.dto.request.SignUpRequest;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
