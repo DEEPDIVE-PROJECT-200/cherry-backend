@@ -6,8 +6,8 @@ import jakarta.validation.constraints.Size;
 
 public record SignUpRequest(
 
-	@NotBlank(message = "providerId는 필수입니다")
-	String providerId,
+	@NotBlank(message = "임시 토큰은 필수입니다")
+	String tempToken,
 
 	@Email(message = "올바른 이메일 형식이 아닙니다")
 	@NotBlank(message = "이메일은 필수입니다")
