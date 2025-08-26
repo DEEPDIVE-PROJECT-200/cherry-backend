@@ -71,7 +71,7 @@ public class AuthService {
 		String restoredRefreshToken = authRedisRepository.getRefreshToken(providerId);
 
 		if (!refreshToken.equals(restoredRefreshToken)) {
-			throw new BusinessException(TokenError.NOT_EQUALS_REFRESH_TOKEN);
+			throw new BusinessException(TokenError.REFRESH_TOKEN_MISMATCH);
 		}
 
 		return tokenGenerator.reissueAccessToken(refreshToken);
@@ -79,7 +79,7 @@ public class AuthService {
 
 	private void validateAlreadyRegister(String providerId) {
 		if (memberRepository.existsByProviderId(providerId)) {
-			throw new BusinessException(MemberError.ALREADY_REGISTER);
+			throw new BusinessException(MemberError.ALREADY_REGISTERED);
 		}
 	}
 
