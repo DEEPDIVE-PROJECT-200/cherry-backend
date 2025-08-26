@@ -66,7 +66,7 @@ public class AuthService {
 	}
 
 	public ReissueTokenResponse reissueAccessToken(String refreshToken) {
-		String providerId = tokenExtractor.getProviderId(refreshToken);
+		String providerId = tokenExtractor.parseClaims(refreshToken).getSubject();
 
 		String restoredRefreshToken = authRedisRepository.getRefreshToken(providerId);
 
