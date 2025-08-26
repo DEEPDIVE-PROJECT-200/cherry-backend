@@ -4,6 +4,6 @@ public record ReissueTokenResponse(
 
 	String tokenType,
 	String accessToken,
-	Long accessTokenExpiresIn
+	Long accessTokenExpiresInSeconds
 ) {
 }
