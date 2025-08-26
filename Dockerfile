@@ -1,5 +1,5 @@
 # Build stage
-FROM openjdk:21-jdk-alpine AS builder
+FROM amazoncorretto:21-alpine-jdk AS builder
 WORKDIR /app
 COPY gradlew .
 COPY gradle gradle
@@ -25,7 +25,7 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "app.jar"]
 
 # Production stage
-FROM openjdk:21-jre-alpine AS production
+FROM amazoncorretto:21-alpine-jdk AS production
 
 # 타임존 설정
 RUN apk add --no-cache tzdata
