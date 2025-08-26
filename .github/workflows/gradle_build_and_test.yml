@@ -64,12 +64,6 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/cherry-be-dev:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/cherry-be-dev:${{ github.sha }}
-          build-args: |
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            ACCESS_TOKEN_EXPIRATION_SECONDS=${{ secrets.ACCESS_TOKEN_EXPIRATION_SECONDS }}
-            REFRESH_TOKEN_EXPIRATION_SECONDS=${{ secrets.REFRESH_TOKEN_EXPIRATION_SECONDS }}
-            KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
-            KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
