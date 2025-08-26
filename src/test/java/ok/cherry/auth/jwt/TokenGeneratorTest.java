@@ -51,7 +51,7 @@ class TokenGeneratorTest {
 		var result = tokenGenerator.generateTokenDTO(providerId);
 
 		// then
-		assertThat(result.grantType()).isEqualTo("Bearer");
+		assertThat(result.tokenType()).isEqualTo("Bearer");
 		tokenValidator.validateToken(result.accessToken());
 		tokenValidator.validateToken(result.refreshToken());
 	}
