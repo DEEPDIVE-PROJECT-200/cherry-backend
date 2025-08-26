@@ -1,12 +1,19 @@
 # Build stage
 FROM amazoncorretto:21-alpine-jdk AS builder
 WORKDIR /app
-COPY gradlew .
-COPY gradle gradle
+
+# 의존성 관련 파일들만 먼저 복사
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
-COPY src src
+COPY gradlew .
+COPY gradle gradle
+
+# 의존성 다운로드 (소스 변경과 무관)
 RUN chmod +x ./gradlew
+RUN ./gradlew dependencies
+
+# 소스코드는 마지막에 복사
+COPY src src
 RUN ./gradlew bootJar
 
 # Development stage
