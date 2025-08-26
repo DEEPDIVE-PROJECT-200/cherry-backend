@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: cherry-local
+
+  config:
+    import:
+      - optional:file:.env[.properties]
+
+  docker:
+    compose:
+      lifecycle-management: start_only
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        order_inserts: true
+        format_sql: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-seconds: ${ACCESS_TOKEN_EXPIRATION_SECONDS}
+  refresh-token-expiration-seconds: ${REFRESH_TOKEN_EXPIRATION_SECONDS}
+
+cookie:
+  domain: localhost
+
+cors:
+  allowed-origins: http://localhost:3000
+  allowed-methods: GET, POST, PUT, DELETE, OPTIONS, HEAD
+  allowed-headers: "*"
+
+kakao:
+  client_id: ${KAKAO_CLIENT_ID}
+  redirect_uri: ${KAKAO_REDIRECT_URL}
