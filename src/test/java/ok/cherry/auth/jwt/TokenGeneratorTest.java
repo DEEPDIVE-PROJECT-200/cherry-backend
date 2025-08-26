@@ -9,8 +9,6 @@ import javax.crypto.SecretKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,17 +17,12 @@ import io.jsonwebtoken.security.Keys;
 import ok.cherry.auth.exception.TokenError;
 import ok.cherry.global.exception.error.BusinessException;
 
-@SpringBootTest
 class TokenGeneratorTest {
 
 	private static final String TEST_SECRET_KEY = "crailotestjwtsecretkey2025fordevelopmentandtestingonlylonglonglonglonglonglonglonglonglong==";
 
-	@Autowired
 	private TokenValidator tokenValidator;
-
-	@Autowired
 	private TokenGenerator tokenGenerator;
-
 	private SecretKey testKey;
 
 	@BeforeEach
@@ -52,8 +45,8 @@ class TokenGeneratorTest {
 
 		// then
 		assertThat(result.tokenType()).isEqualTo("Bearer");
-		tokenValidator.validateToken(result.accessToken());
-		tokenValidator.validateToken(result.refreshToken());
+		assertThat(tokenValidator.validateToken(result.accessToken())).isTrue();
+		assertThat(tokenValidator.validateToken(result.refreshToken())).isTrue();
 	}
 
 	@Test
