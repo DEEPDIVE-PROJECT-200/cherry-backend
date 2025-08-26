@@ -54,7 +54,7 @@ class KakaoLoginControllerTest {
 			eq(KakaoIdResponse.class))).thenReturn(ResponseEntity.ok(idResponse));
 
 		// when
-		MvcTestResult result = mvcTester.get().uri("/callback?code=test_code").exchange();
+		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code").exchange();
 
 		// then
 		assertThat(result).hasStatusOk()
@@ -77,7 +77,7 @@ class KakaoLoginControllerTest {
 			eq(KakaoIdResponse.class))).thenReturn(ResponseEntity.ok(idResponse));
 
 		// when
-		MvcTestResult result = mvcTester.get().uri("/callback?code=test_code").exchange();
+		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code").exchange();
 
 		// then
 		assertThat(result).hasStatusOk()
