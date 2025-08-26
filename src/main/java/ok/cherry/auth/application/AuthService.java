@@ -55,8 +55,12 @@ public class AuthService {
 			authRedisRepository.deleteRefreshToken(providerId);
 		}
 
-		// 해당 AccessToken 유효 시간을 가져와 BlackList 에 저장
+		// AccessToken 남은 유효시간 기반으로 블랙리스트 TTL 설정
 		Duration expiration = tokenExtractor.getAccessTokenExpiration(accessToken);
+		if (expiration.isZero()) {
+			// 이미 만료된 토큰은 블랙리스트 저장 불필요
+			return;
+		}
 		LogoutToken logoutToken = new LogoutToken("logout", expiration);
 		authRedisRepository.saveLogoutToken(accessToken, logoutToken, expiration);
 	}

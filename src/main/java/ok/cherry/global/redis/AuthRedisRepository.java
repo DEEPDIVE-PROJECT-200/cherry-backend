@@ -13,7 +13,7 @@ public class AuthRedisRepository {
 	private final RedisTemplate<String, Object> objectRedisTemplate;
 	private final RedisKeyGenerator redisKeyGenerator;
 	private final Duration refreshTokenExpiration;
-	
+
 	public AuthRedisRepository(
 		RedisTemplate<String, String> stringRedisTemplate,
 		RedisTemplate<String, Object> objectRedisTemplate,
@@ -41,9 +41,11 @@ public class AuthRedisRepository {
 	 * Key = auth:accessToken:logout:{token}
 	 * */
 	public void saveLogoutToken(String accessToken, LogoutToken logoutToken, Duration expireTime) {
+		if (expireTime == null || expireTime.isZero() || expireTime.isNegative()) {
+			return; // 이미 만료 또는 유효하지 않은 TTL은 저장하지 않음
+		}
 		String key = redisKeyGenerator.generateLogoutTokenKey(accessToken);
-		objectRedisTemplate.opsForValue()
-			.set(key, logoutToken, expireTime);
+		objectRedisTemplate.opsForValue().set(key, logoutToken, expireTime);
 	}
 
 	public String getRefreshToken(String providerId) {

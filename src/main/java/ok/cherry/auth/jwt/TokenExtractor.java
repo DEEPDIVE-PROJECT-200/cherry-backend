@@ -3,7 +3,6 @@ package ok.cherry.auth.jwt;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -56,10 +55,10 @@ public class TokenExtractor {
 	 * */
 	public Duration getAccessTokenExpiration(String accessToken) {
 		Claims claims = parseClaims(accessToken);
-		Date expiration = claims.getExpiration();
+		long remainingMillis = claims.getExpiration().getTime() - System.currentTimeMillis();
 
-		// 현재시간 기준으로 남은 유효시간 계산
-		return Duration.ofMillis(expiration.getTime() - System.currentTimeMillis());
+		// 음수/0은 만료로 간주하여 0으로 클램프
+		return remainingMillis > 0 ? Duration.ofMillis(remainingMillis) : Duration.ZERO;
 	}
 
 	/**
