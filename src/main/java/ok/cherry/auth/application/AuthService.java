@@ -33,10 +33,10 @@ public class AuthService {
 
 	public SignUpResponse signUp(SignUpRequest request) {
 		validateAlreadyRegister(request.providerId());
-		validateEmailAdress(request.emailAdress());
+		validateEmailAddress(request.emailAddress());
 		validateNickname(request.nickname());
 
-		Member member = Member.register(request.providerId(), Provider.KAKAO, request.emailAdress(), request.nickname());
+		Member member = Member.register(request.providerId(), Provider.KAKAO, request.emailAddress(), request.nickname());
 		memberRepository.save(member);
 		return new SignUpResponse(request.providerId());
 	}
@@ -85,8 +85,8 @@ public class AuthService {
 		}
 	}
 
-	private void validateEmailAdress(String emailAdress) {
-		if (memberRepository.existsByEmailAddress(emailAdress)) {
+	private void validateEmailAddress(String emailAddress) {
+		if (memberRepository.existsByEmailAddress(emailAddress)) {
 			throw new BusinessException(MemberError.DUPLICATE_EMAIL);
 		}
 	}
