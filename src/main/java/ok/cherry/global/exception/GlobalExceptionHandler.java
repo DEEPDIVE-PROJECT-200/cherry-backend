@@ -20,6 +20,7 @@ import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.global.exception.error.ErrorCode;
 import ok.cherry.global.exception.error.GlobalError;
+import io.jsonwebtoken.MalformedJwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -76,6 +77,14 @@ public class GlobalExceptionHandler {
 		});
 
 		return getProblemDetail(GlobalError.INVALID_REQUEST_PARAM, exception, detail);
+	}
+
+	/**
+	 * JWT 형식 오류 처리: MalformedJwtException
+	 */
+	@ExceptionHandler(MalformedJwtException.class)
+	public ProblemDetail handleMalformedJwt(MalformedJwtException exception) {
+		return getProblemDetail(GlobalError.UNAUTHORIZED_ACCESS, exception, "유효하지 않은 JWT 형식입니다.");
 	}
 
 	/**

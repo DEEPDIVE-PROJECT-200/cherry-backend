@@ -6,12 +6,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.jsonwebtoken.MalformedJwtException;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
+import ok.cherry.config.EmbeddedRedisTestConfiguration;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.redis.AuthRedisRepository;
 import ok.cherry.member.domain.Member;
@@ -20,6 +22,7 @@ import ok.cherry.member.exception.MemberError;
 import ok.cherry.member.infrastructure.MemberRepository;
 
 @SpringBootTest
+@Import(EmbeddedRedisTestConfiguration.class)
 @Transactional
 class AuthServiceTest {
 

@@ -59,7 +59,7 @@ dependencies {
     // Test Dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.testcontainers:testcontainers:1.21.3")
+    testImplementation("com.github.codemonstur:embedded-redis:1.4.3")
     testImplementation("org.mockito:mockito-core:5.18.0")
     testCompileOnly("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")

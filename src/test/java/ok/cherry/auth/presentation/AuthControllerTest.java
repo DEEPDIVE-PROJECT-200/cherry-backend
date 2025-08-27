@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
@@ -22,12 +23,14 @@ import ok.cherry.auth.application.dto.request.SignUpRequest;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
 import ok.cherry.auth.util.TempTokenGenerator;
+import ok.cherry.config.EmbeddedRedisTestConfiguration;
 import ok.cherry.global.redis.AuthRedisRepository;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.domain.Provider;
 import ok.cherry.member.infrastructure.MemberRepository;
 
 @SpringBootTest
+@Import(EmbeddedRedisTestConfiguration.class)
 @AutoConfigureMockMvc
 @Transactional
 class AuthControllerTest {
@@ -205,7 +208,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	@DisplayName("유효하지 않은 리프레시 토큰으로 재발급 시 500 오류를 반환한다")
+	@DisplayName("유효하지 않은 리프레시 토큰으로 재발급 시 401 오류를 반환한다")
 	void reissueWithInvalidRefreshToken() {
 		//given
 		String refreshToken = "invalid_refresh_token";
@@ -217,6 +220,6 @@ class AuthControllerTest {
 			.exchange();
 
 		// then
-		assertThat(result).hasStatus(500);
+		assertThat(result).hasStatus(401);
 	}
 }

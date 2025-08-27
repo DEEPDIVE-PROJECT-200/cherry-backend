@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,14 @@ import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 import ok.cherry.auth.application.dto.response.KakaoIdResponse;
 import ok.cherry.auth.application.dto.response.KakaoTokenResponse;
 import ok.cherry.auth.exception.AuthError;
+import ok.cherry.config.EmbeddedRedisTestConfiguration;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.domain.Provider;
 import ok.cherry.member.infrastructure.MemberRepository;
 
 @SpringBootTest
+@Import(EmbeddedRedisTestConfiguration.class)
 @Transactional
 class KakaoOAuthServiceTest {
 
