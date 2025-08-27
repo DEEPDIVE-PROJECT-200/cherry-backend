@@ -73,7 +73,3 @@ tasks.withType<Test> {
     useJUnitPlatform()
     jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
