@@ -2,16 +2,13 @@ package ok.cherry.member.domain;
 
 import static java.util.Objects.*;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,7 +37,7 @@ public class Member {
 	@Enumerated(EnumType.STRING)
 	private MemberStatus status;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@Embedded
 	private MemberDetail detail;
 
 	public static Member register(String providerId, Provider provider, String emailAddress, String nickname) {
@@ -54,6 +51,12 @@ public class Member {
 		member.status = MemberStatus.ACTIVE;
 		member.detail = MemberDetail.create();
 		return member;
+	}
+
+	private static void validateNickname(String nickname) {
+		if (nickname == null || nickname.length() < 2 || nickname.length() > 10) {
+			throw new DomainException(MemberError.INVALID_NICKNAME);
+		}
 	}
 
 	public void deactivate() {
@@ -76,12 +79,6 @@ public class Member {
 	private void validateIsActive() {
 		if (status != MemberStatus.ACTIVE) {
 			throw new DomainException(MemberError.NOT_ACTIVE);
-		}
-	}
-
-	private static void validateNickname(String nickname) {
-		if (nickname == null || nickname.length() < 2 || nickname.length() > 10) {
-			throw new DomainException(MemberError.INVALID_NICKNAME);
 		}
 	}
 }
