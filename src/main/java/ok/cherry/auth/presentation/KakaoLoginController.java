@@ -17,11 +17,8 @@ import ok.cherry.auth.application.KakaoOAuthService;
 import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 import ok.cherry.auth.application.dto.response.SignUpRequiredResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
-import ok.cherry.auth.exception.AuthError;
 import ok.cherry.auth.util.CookieManager;
-import ok.cherry.auth.util.StateGenerator;
 import ok.cherry.auth.util.TempTokenGenerator;
-import ok.cherry.global.exception.error.BusinessException;
 
 @Slf4j
 @Controller
@@ -33,7 +30,6 @@ public class KakaoLoginController {
 	
 	private final KakaoOAuthService kakaoOAuthService;
 	private final AuthService authService;
-	private final StateGenerator stateGenerator;
 	private final TempTokenGenerator tempTokenGenerator;
 	private final CookieManager cookieManager;
 
@@ -46,10 +42,9 @@ public class KakaoLoginController {
 	// 카카오 로그인 테스트용 페이지 컨트롤러
 	@GetMapping("/login/page")
 	public String loginPage(Model model) {
-		String state = stateGenerator.generateState();
 		String location =
 			"https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + client_id 
-			+ "&redirect_uri=" + redirect_uri + "&state=" + state;
+			+ "&redirect_uri=" + redirect_uri;
 		model.addAttribute("location", location);
 
 		return "login";
@@ -59,29 +54,23 @@ public class KakaoLoginController {
 	@GetMapping("/auth/callback")
 	public ResponseEntity<?> callback(
 		HttpServletResponse response,
-		@RequestParam("code") String code,
-		@RequestParam("state") String state
+		@RequestParam("code") String code
 	) {
-		// 1. State 검증 (CSRF 보호)
-		if (!stateGenerator.validateAndRemoveState(state)) {
-			throw new BusinessException(AuthError.INVALID_OAUTH_STATE);
-		}
-
-		// 2. OAuth 인증 처리
+		// 1. OAuth 인증 처리
 		String accessToken = kakaoOAuthService.getAccessToken(code);
 		String providerId = kakaoOAuthService.getProviderId(accessToken);
 		
-		// 3. 회원가입 여부 확인
+		// 2. 회원가입 여부 확인
 		CheckMemberResponse checkResponse = kakaoOAuthService.checkMember(providerId);
 		
 		if (checkResponse.isMember()) {
-			// 4-1. 기존 회원 -> JWT 토큰 발급
+			// 3-1. 기존 회원 -> JWT 토큰 발급
 			TokenResponse tokenResponse = authService.login(providerId);
 			cookieManager.setCookie(response, REFRESH_TOKEN_COOKIE_NAME, tokenResponse.refreshToken());
 
 			return ResponseEntity.ok(tokenResponse);
 		} else {
-			// 4-2. 신규 사용자 -> 임시 토큰 발급 (회원가입 필요)
+			// 3-2. 신규 사용자 -> 임시 토큰 발급 (회원가입 필요)
 			String tempToken = tempTokenGenerator.generateTempToken(providerId);
 			
 			return ResponseEntity.status(202)
