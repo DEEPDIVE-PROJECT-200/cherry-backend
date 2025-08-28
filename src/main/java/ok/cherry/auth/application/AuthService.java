@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import ok.cherry.auth.application.dto.request.SignUpRequest;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
@@ -31,14 +30,14 @@ public class AuthService {
 	private final TokenGenerator tokenGenerator;
 	private final TokenExtractor tokenExtractor;
 
-	public SignUpResponse signUp(SignUpRequest request) {
-		validateAlreadyRegister(request.providerId());
-		validateEmailAddress(request.emailAddress());
-		validateNickname(request.nickname());
+	public SignUpResponse signUp(String providerId, String emailAddress, String nickname) {
+		validateAlreadyRegister(providerId);
+		validateEmailAddress(emailAddress);
+		validateNickname(nickname);
 
-		Member member = Member.register(request.providerId(), Provider.KAKAO, request.emailAddress(), request.nickname());
+		Member member = Member.register(providerId, Provider.KAKAO, emailAddress, nickname);
 		memberRepository.save(member);
-		return new SignUpResponse(request.providerId());
+		return new SignUpResponse(providerId);
 	}
 
 	public TokenResponse login(String providerId) {

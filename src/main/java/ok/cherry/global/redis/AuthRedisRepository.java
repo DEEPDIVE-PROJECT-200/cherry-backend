@@ -10,18 +10,15 @@ import org.springframework.stereotype.Component;
 public class AuthRedisRepository {
 
 	private final RedisTemplate<String, String> stringRedisTemplate;
-	private final RedisTemplate<String, Object> objectRedisTemplate;
 	private final RedisKeyGenerator redisKeyGenerator;
 	private final Duration refreshTokenExpiration;
 
 	public AuthRedisRepository(
 		RedisTemplate<String, String> stringRedisTemplate,
-		RedisTemplate<String, Object> objectRedisTemplate,
 		RedisKeyGenerator redisKeyGenerator,
 		@Value("${jwt.refresh-token-expiration-seconds}") long refreshTokenExpirationSeconds
 	) {
 		this.stringRedisTemplate = stringRedisTemplate;
-		this.objectRedisTemplate = objectRedisTemplate;
 		this.redisKeyGenerator = redisKeyGenerator;
 		this.refreshTokenExpiration = Duration.ofSeconds(refreshTokenExpirationSeconds);
 	}
@@ -45,7 +42,7 @@ public class AuthRedisRepository {
 			return; // 이미 만료 또는 유효하지 않은 TTL은 저장하지 않음
 		}
 		String key = redisKeyGenerator.generateLogoutTokenKey(accessToken);
-		objectRedisTemplate.opsForValue().set(key, logoutToken, expireTime);
+		stringRedisTemplate.opsForValue().set(key, logoutToken.getValue(), expireTime);
 	}
 
 	public String getRefreshToken(String providerId) {
@@ -60,7 +57,48 @@ public class AuthRedisRepository {
 
 	public LogoutToken getLogoutToken(String accessToken) {
 		String key = redisKeyGenerator.generateLogoutTokenKey(accessToken);
-		Object value = objectRedisTemplate.opsForValue().get(key);
-		return (LogoutToken)value;
+		String value = stringRedisTemplate.opsForValue().get(key);
+		if (value == null) {
+			return null;
+		}
+		return new LogoutToken(value, null);
+	}
+
+	/**
+	 * OAuth State 저장 (CSRF 보호용)
+	 * Key = auth:oauth:state:{state}
+	 * */
+	public void saveOAuthState(String state, String value, Duration expireTime) {
+		String key = redisKeyGenerator.generateOAuthStateKey(state);
+		stringRedisTemplate.opsForValue().set(key, value, expireTime);
+	}
+
+	public String getOAuthState(String state) {
+		String key = redisKeyGenerator.generateOAuthStateKey(state);
+		return stringRedisTemplate.opsForValue().get(key);
+	}
+
+	public void deleteOAuthState(String state) {
+		String key = redisKeyGenerator.generateOAuthStateKey(state);
+		stringRedisTemplate.delete(key);
+	}
+
+	/**
+	 * 임시 토큰 저장 (회원가입용)
+	 * Key = auth:temp:token:{tempToken}
+	 * */
+	public void saveTempToken(String tempToken, String providerId, Duration expireTime) {
+		String key = redisKeyGenerator.generateTempTokenKey(tempToken);
+		stringRedisTemplate.opsForValue().set(key, providerId, expireTime);
+	}
+
+	public String getTempToken(String tempToken) {
+		String key = redisKeyGenerator.generateTempTokenKey(tempToken);
+		return stringRedisTemplate.opsForValue().get(key);
+	}
+
+	public void deleteTempToken(String tempToken) {
+		String key = redisKeyGenerator.generateTempTokenKey(tempToken);
+		stringRedisTemplate.delete(key);
 	}
 }
