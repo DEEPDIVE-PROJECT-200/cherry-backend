@@ -62,7 +62,7 @@ class AuthControllerTest {
 
 		// when
 		MvcTestResult result = mvcTester.post()
-			.uri("/auth/signup")
+			.uri("/api/v1/auth/signup")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(requestJson)
 			.exchange();
@@ -94,7 +94,7 @@ class AuthControllerTest {
 
 		// when
 		MvcTestResult result = mvcTester.post()
-			.uri("/auth/signup")
+			.uri("/api/v1/auth/signup")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(requestJson)
 			.exchange();
@@ -115,7 +115,7 @@ class AuthControllerTest {
 
 		// when
 		MvcTestResult result = mvcTester.post()
-			.uri("/auth/signup")
+			.uri("/api/v1/auth/signup")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(requestJson)
 			.exchange();
@@ -141,7 +141,7 @@ class AuthControllerTest {
 
 		// when
 		MvcTestResult result = mvcTester.post()
-			.uri("/auth/signup")
+			.uri("/api/v1/auth/signup")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(requestJson)
 			.exchange();
@@ -164,7 +164,7 @@ class AuthControllerTest {
 		String signUpJson = objectMapper.writeValueAsString(signUpRequest);
 
 		MvcTestResult signUpResult = mvcTester.post()
-			.uri("/auth/signup")
+			.uri("/api/v1/auth/signup")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(signUpJson)
 			.exchange();
@@ -174,7 +174,7 @@ class AuthControllerTest {
 
 		// when
 		MvcTestResult reissueResult = mvcTester.post()
-			.uri("/auth/reissue")
+			.uri("/api/v1/auth/reissue")
 			.cookie(new Cookie("refreshToken", originalTokenResponse.refreshToken()))
 			.exchange();
 
@@ -200,7 +200,7 @@ class AuthControllerTest {
 
 		// when
 		MvcTestResult result = mvcTester.post()
-			.uri("/auth/reissue")
+			.uri("/api/v1/auth/reissue")
 			.exchange();
 
 		// then
@@ -215,7 +215,7 @@ class AuthControllerTest {
 
 		// when
 		MvcTestResult result = mvcTester.post()
-			.uri("/auth/reissue")
+			.uri("/api/v1/auth/reissue")
 			.cookie(new Cookie("refreshToken", refreshToken))
 			.exchange();
 
