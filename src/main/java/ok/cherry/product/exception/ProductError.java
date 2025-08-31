@@ -17,7 +17,9 @@ public enum ProductError implements ErrorCode {
 	INVALID_IMAGE_URL("이미지 URL이 유효하지 않습니다", HttpStatus.BAD_REQUEST, "P_005"),
 	INVALID_DISPLAY_ORDER("표시 순서는 0 이상이어야 합니다", HttpStatus.BAD_REQUEST, "P_006"),
 	DUPLICATE_PRODUCT("동일한 브랜드, 모델의 상품이 이미 존재합니다", HttpStatus.CONFLICT, "P_007"),
-	PRODUCT_NOT_FOUND("상품을 찾을 수 없습니다", HttpStatus.NOT_FOUND, "P_008");
+	PRODUCT_NOT_FOUND("상품을 찾을 수 없습니다", HttpStatus.NOT_FOUND, "P_008"),
+	IMAGE_URL_IS_NOT_EMPTY("이미지 URL은 비어있을 수 없습니다", HttpStatus.BAD_REQUEST, "P_009"),
+	DISPLAY_ORDER_IS_NOT_EMPTY("이미지 표시 순서는 비어있을 수 없습니다", HttpStatus.BAD_REQUEST, "P_010");
 
 	private final String message;
 	private final HttpStatus status;

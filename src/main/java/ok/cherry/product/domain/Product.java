@@ -1,10 +1,14 @@
 package ok.cherry.product.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Access;
 import jakarta.persistence.AccessType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,10 +19,10 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.cherry.product.domain.type.ProductCategory;
+import ok.cherry.global.domain.Brand;
+import ok.cherry.global.domain.Color;
 
 @Entity
-@Access(AccessType.FIELD)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
@@ -29,16 +33,40 @@ public class Product {
 
 	private String name;
 
-	private String brand;
+	@Column(name = "brand")
+	@Enumerated(EnumType.STRING)
+	private Brand brand;
 
 	private String model;
 
-	@Column(name = "category")
+	@ElementCollection
 	@Enumerated(EnumType.STRING)
-	private ProductCategory category;
+	private List<Color> colors = new ArrayList<>();
 
 	private BigDecimal dailyRentalPrice;
 
+	private LocalDateTime launchedAt;
+
 	@Embedded
 	private ProductDetail detail;
+
+	public static Product create(String name, Brand brand, String model, List<Color> colors, BigDecimal dailyRentalPrice, LocalDateTime launchedAt) {
+		Product product = new Product();
+		product.name = name;
+		product.brand = brand;
+		product.model = model;
+		product.colors = colors;
+		product.dailyRentalPrice = dailyRentalPrice;
+		product.launchedAt = launchedAt;
+		product.detail = ProductDetail.create();
+		return product;
+	}
+
+	public void changeProductThumbNailDetails(List<ProductThumbNailDetail> details) {
+		this.detail.changeProductThumbNailDetails(details);
+	}
+
+	public void changeProductImageDetails(List<ProductImageDetail> details) {
+		this.detail.changeProductImageDetails(details);
+	}
 }

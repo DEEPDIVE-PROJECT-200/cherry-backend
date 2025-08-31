@@ -4,6 +4,8 @@ import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ok.cherry.global.exception.error.DomainException;
+import ok.cherry.product.exception.ProductError;
 
 @Embeddable
 @Getter
@@ -31,14 +33,16 @@ public class ProductThumbNailDetail {
 
 	private void setImageUrl(String imageUrl) {
 		if (imageUrl == null || imageUrl.trim().isEmpty()) {
-			throw new IllegalArgumentException("image url");
+			throw new DomainException(ProductError.IMAGE_URL_IS_NOT_EMPTY);
 		}
 		this.imageUrl = imageUrl;
 	}
 
 	private void setDisplayOrder(Integer displayOrder) {
-		if (displayOrder == null || displayOrder < 0) {
-			throw new IllegalArgumentException("display order");
+		if (displayOrder == null) {
+			throw new DomainException(ProductError.DISPLAY_ORDER_IS_NOT_EMPTY);
+		} else if (displayOrder < 0) {
+			throw new DomainException(ProductError.INVALID_DISPLAY_ORDER);
 		}
 		this.displayOrder = displayOrder;
 	}
