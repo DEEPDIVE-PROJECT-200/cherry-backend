@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Access;
-import jakarta.persistence.AccessType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
@@ -19,8 +17,8 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.cherry.global.domain.Brand;
-import ok.cherry.global.domain.Color;
+import ok.cherry.global.value.Brand;
+import ok.cherry.global.value.Color;
 
 @Entity
 @Getter
