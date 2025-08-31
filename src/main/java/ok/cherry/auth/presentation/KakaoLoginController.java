@@ -3,6 +3,7 @@ package ok.cherry.auth.presentation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -31,7 +32,7 @@ public class KakaoLoginController {
 	private final CookieManager cookieManager;
 
 	// 로그인/회원가입 분기 처리
-	@GetMapping("/callback")
+	@PostMapping("/callback")
 	public ResponseEntity<?> callback(
 		HttpServletResponse response,
 		@RequestParam("code") String code
