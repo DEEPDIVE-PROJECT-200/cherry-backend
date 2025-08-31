@@ -31,7 +31,7 @@ class TokenGeneratorTest {
 		testKey = Keys.hmacShaKeyFor(keyBytes);
 		tokenValidator = new TokenValidator(TEST_SECRET_KEY);
 		TokenExtractor tokenExtractor = new TokenExtractor(TEST_SECRET_KEY);
-		tokenGenerator = new TokenGenerator(TEST_SECRET_KEY, 10, 10, tokenValidator, tokenExtractor);
+		tokenGenerator = new TokenGenerator(TEST_SECRET_KEY, 10, 10, 10, tokenValidator, tokenExtractor);
 	}
 
 	@Test

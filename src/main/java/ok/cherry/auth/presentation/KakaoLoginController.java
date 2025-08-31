@@ -2,7 +2,6 @@ package ok.cherry.auth.presentation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,8 +14,8 @@ import ok.cherry.auth.application.KakaoOAuthService;
 import ok.cherry.auth.application.dto.response.CheckMemberResponse;
 import ok.cherry.auth.application.dto.response.SignUpRequiredResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
+import ok.cherry.auth.jwt.TokenGenerator;
 import ok.cherry.auth.util.CookieManager;
-import ok.cherry.auth.util.TempTokenGenerator;
 
 @Slf4j
 @Controller
@@ -28,7 +27,7 @@ public class KakaoLoginController {
 
 	private final KakaoOAuthService kakaoOAuthService;
 	private final AuthService authService;
-	private final TempTokenGenerator tempTokenGenerator;
+	private final TokenGenerator tokenGenerator;
 	private final CookieManager cookieManager;
 
 	// 로그인/회원가입 분기 처리
@@ -52,7 +51,7 @@ public class KakaoLoginController {
 			return ResponseEntity.ok(tokenResponse);
 		} else {
 			// 3-2. 신규 사용자 -> 임시 토큰 발급 (회원가입 필요)
-			String tempToken = tempTokenGenerator.generateTempToken(providerId);
+			String tempToken = tokenGenerator.generateTemporaryToken(providerId);
 
 			return ResponseEntity.status(202)
 				.body(new SignUpRequiredResponse(tempToken));

@@ -20,7 +20,6 @@ import ok.cherry.auth.exception.AuthError;
 import ok.cherry.auth.exception.TokenError;
 import ok.cherry.auth.jwt.TokenExtractor;
 import ok.cherry.auth.util.CookieManager;
-import ok.cherry.auth.util.TempTokenGenerator;
 import ok.cherry.global.exception.error.BusinessException;
 
 @RestController
@@ -32,7 +31,6 @@ public class AuthController {
 
 	private final AuthService authService;
 	private final TokenExtractor tokenExtractor;
-	private final TempTokenGenerator tempTokenGenerator;
 	private final CookieManager cookieManager;
 
 	@PostMapping("/signup")
@@ -41,7 +39,7 @@ public class AuthController {
 		@RequestBody @Valid SignUpRequest request
 	) {
 		// 1. 임시 토큰 검증 및 providerId 추출
-		String providerId = tempTokenGenerator.validateAndRemoveTempToken(request.tempToken());
+		String providerId = tokenExtractor.getProviderId(request.tempToken());
 		if (providerId == null) {
 			throw new BusinessException(AuthError.INVALID_TEMP_TOKEN);
 		}

@@ -22,7 +22,7 @@ import jakarta.servlet.http.Cookie;
 import ok.cherry.auth.application.dto.request.SignUpRequest;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
-import ok.cherry.auth.util.TempTokenGenerator;
+import ok.cherry.auth.jwt.TokenGenerator;
 import ok.cherry.config.EmbeddedRedisTestConfiguration;
 import ok.cherry.global.redis.AuthRedisRepository;
 import ok.cherry.member.domain.Member;
@@ -43,10 +43,10 @@ class AuthControllerTest {
 	
 	@Autowired
 	MemberRepository memberRepository;
-	
+
 	@Autowired
-	TempTokenGenerator tempTokenGenerator;
-	
+	TokenGenerator tokenGenerator;
+
 	@Autowired
 	AuthRedisRepository authRedisRepository;
 
@@ -55,7 +55,7 @@ class AuthControllerTest {
 	void signUpWithValidTempToken() throws JsonProcessingException, UnsupportedEncodingException {
 		// given
 		String providerId = "12345";
-		String tempToken = tempTokenGenerator.generateTempToken(providerId);
+		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
 		
 		SignUpRequest request = new SignUpRequest(tempToken, "test@example.com", "tester");
 		String requestJson = objectMapper.writeValueAsString(request);
@@ -86,7 +86,7 @@ class AuthControllerTest {
 	}
 
 	@Test
-	@DisplayName("유효하지 않은 임시 토큰으로 회원가입 시 400 오류를 반환한다")
+	@DisplayName("유효하지 않은 임시 토큰으로 회원가입 시 401 오류를 반환한다")
 	void signUpWithInvalidTempToken() throws JsonProcessingException {
 		// given
 		SignUpRequest request = new SignUpRequest("invalid_temp_token", "test@example.com", "tester");
@@ -100,7 +100,7 @@ class AuthControllerTest {
 			.exchange();
 
 		// then
-		assertThat(result).hasStatus(400);
+		assertThat(result).hasStatus(401);
 		assertThat(memberRepository.findAll()).isEmpty();
 	}
 
@@ -108,7 +108,7 @@ class AuthControllerTest {
 	@DisplayName("유효하지 않은 이메일로 회원가입 시 400 오류를 반환한다")
 	void signUpWithInvalidEmail() throws JsonProcessingException {
 		String providerId = "12345";
-		String tempToken = tempTokenGenerator.generateTempToken(providerId);
+		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
 		
 		SignUpRequest request = new SignUpRequest(tempToken, "invalid-email", "tester");
 		String requestJson = objectMapper.writeValueAsString(request);
@@ -134,7 +134,7 @@ class AuthControllerTest {
 		memberRepository.save(existingMember);
 		
 		String newProviderId = "new_kakao_456";
-		String tempToken = tempTokenGenerator.generateTempToken(newProviderId);
+		String tempToken = tokenGenerator.generateTemporaryToken(newProviderId);
 		
 		SignUpRequest request = new SignUpRequest(tempToken, "test@example.com", "new");
 		String requestJson = objectMapper.writeValueAsString(request);
@@ -158,7 +158,7 @@ class AuthControllerTest {
 	void reissueWithValidRefreshToken() throws JsonProcessingException, UnsupportedEncodingException {
 		// given
 		String providerId = "12345";
-		String tempToken = tempTokenGenerator.generateTempToken(providerId);
+		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
 		
 		SignUpRequest signUpRequest = new SignUpRequest(tempToken, "test@example.com", "tester");
 		String signUpJson = objectMapper.writeValueAsString(signUpRequest);
