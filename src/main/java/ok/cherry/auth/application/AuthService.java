@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
+import ok.cherry.auth.exception.AuthError;
 import ok.cherry.auth.exception.TokenError;
 import ok.cherry.auth.jwt.TokenExtractor;
 import ok.cherry.auth.jwt.TokenGenerator;
@@ -30,13 +31,15 @@ public class AuthService {
 	private final TokenGenerator tokenGenerator;
 	private final TokenExtractor tokenExtractor;
 
-	public SignUpResponse signUp(String providerId, String emailAddress, String nickname) {
+	public SignUpResponse signUp(String emailAddress, String nickname, String tempToken) {
+		String providerId = getProviderId(tempToken);
 		validateAlreadyRegister(providerId);
 		validateEmailAddress(emailAddress);
 		validateNickname(nickname);
 
 		Member member = Member.register(providerId, Provider.KAKAO, emailAddress, nickname);
 		memberRepository.save(member);
+		authRedisRepository.deleteTempToken(tempToken);
 		return new SignUpResponse(providerId);
 	}
 
@@ -74,6 +77,14 @@ public class AuthService {
 		}
 
 		return tokenGenerator.reissueAccessToken(refreshToken);
+	}
+
+	private String getProviderId(String tempToken) {
+		String providerId = tokenExtractor.getProviderId(tempToken);
+		if (providerId == null) {
+			throw new BusinessException(AuthError.INVALID_TEMP_TOKEN);
+		}
+		return providerId;
 	}
 
 	private void validateAlreadyRegister(String providerId) {

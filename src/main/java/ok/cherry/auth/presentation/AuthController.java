@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 import ok.cherry.auth.application.AuthService;
 import ok.cherry.auth.application.dto.request.SignUpRequest;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
+import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
-import ok.cherry.auth.exception.AuthError;
 import ok.cherry.auth.exception.TokenError;
 import ok.cherry.auth.jwt.TokenExtractor;
 import ok.cherry.auth.util.CookieManager;
@@ -38,19 +38,9 @@ public class AuthController {
 		HttpServletResponse response,
 		@RequestBody @Valid SignUpRequest request
 	) {
-		// 1. 임시 토큰 검증 및 providerId 추출
-		String providerId = tokenExtractor.getProviderId(request.tempToken());
-		if (providerId == null) {
-			throw new BusinessException(AuthError.INVALID_TEMP_TOKEN);
-		}
-
-		// 2. 회원가입 처리 (검증된 providerId 사용)
-		authService.signUp(providerId, request.emailAddress(), request.nickname());
-		
-		// 3. 회원가입 완료 후 즉시 JWT 토큰 발급
-		TokenResponse tokenResponse = authService.login(providerId);
+		SignUpResponse signUpResponse = authService.signUp(request.emailAddress(), request.nickname(), request.tempToken());
+		TokenResponse tokenResponse = authService.login(signUpResponse.providerId());
 		cookieManager.setCookie(response, REFRESH_TOKEN_COOKIE_NAME, tokenResponse.refreshToken());
-		
 		return ResponseEntity.ok(tokenResponse);
 	}
 
