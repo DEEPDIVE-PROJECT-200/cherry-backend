@@ -40,7 +40,7 @@ class KakaoLoginControllerTest {
 
 	@MockitoBean
 	RestTemplate restTemplate;
-	
+
 	@MockitoBean
 	TempTokenGenerator tempTokenGenerator;
 
@@ -60,7 +60,7 @@ class KakaoLoginControllerTest {
 			eq(KakaoIdResponse.class))).thenReturn(ResponseEntity.ok(idResponse));
 
 		// when
-		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code&state=valid_state").exchange();
+		MvcTestResult result = mvcTester.post().uri("/api/v1/oauth/callback?code=test_code&state=valid_state").exchange();
 
 		// then
 		assertThat(result).hasStatusOk()
@@ -83,7 +83,7 @@ class KakaoLoginControllerTest {
 			eq(KakaoIdResponse.class))).thenReturn(ResponseEntity.ok(idResponse));
 
 		// when
-		MvcTestResult result = mvcTester.get().uri("/auth/callback?code=test_code&state=valid_state").exchange();
+		MvcTestResult result = mvcTester.post().uri("/api/v1/oauth/callback?code=test_code&state=valid_state").exchange();
 
 		// then
 		assertThat(result).hasStatus(202)  // Accepted

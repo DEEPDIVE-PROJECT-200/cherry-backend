@@ -24,7 +24,7 @@ import ok.cherry.auth.util.TempTokenGenerator;
 import ok.cherry.global.exception.error.BusinessException;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
