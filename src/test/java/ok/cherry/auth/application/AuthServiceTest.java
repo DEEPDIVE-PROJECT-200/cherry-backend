@@ -44,7 +44,7 @@ class AuthServiceTest {
 	void signUp() {
 		// given
 		String providerId = "1";
-		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
+		String tempToken = tokenGenerator.generateTempToken(providerId);
 		String emailAddress = "test@example.com";
 		String nickname = "tester";
 
@@ -65,7 +65,7 @@ class AuthServiceTest {
 	void signUpWithAlreadyRegisteredUser() {
 		// given
 		String providerId = "1";
-		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
+		String tempToken = tokenGenerator.generateTempToken(providerId);
 		Member existingMember = Member.register(providerId, Provider.KAKAO, "existing@example.com", "existing");
 		memberRepository.save(existingMember);
 
@@ -82,7 +82,7 @@ class AuthServiceTest {
 		String duplicateEmail = "duplicate@example.com";
 		Member existingMember = Member.register("1", Provider.KAKAO, duplicateEmail, "existing");
 		memberRepository.save(existingMember);
-		String tempToken = tokenGenerator.generateTemporaryToken("2");
+		String tempToken = tokenGenerator.generateTempToken("2");
 
 		// when & then
 		assertThatThrownBy(() -> authService.signUp(duplicateEmail, "new", tempToken))
@@ -97,7 +97,7 @@ class AuthServiceTest {
 		String duplicateNickname = "duplicate";
 		Member existingMember = Member.register("1", Provider.KAKAO, "existing@example.com", duplicateNickname);
 		memberRepository.save(existingMember);
-		String tempToken = tokenGenerator.generateTemporaryToken("2");
+		String tempToken = tokenGenerator.generateTempToken("2");
 
 		// when & then
 		assertThatThrownBy(() -> authService.signUp("new@example.com", duplicateNickname, tempToken))

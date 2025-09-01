@@ -51,7 +51,7 @@ public class KakaoLoginController {
 			return ResponseEntity.ok(tokenResponse);
 		} else {
 			// 3-2. 신규 사용자 -> 임시 토큰 발급 (회원가입 필요)
-			String tempToken = tokenGenerator.generateTemporaryToken(providerId);
+			String tempToken = tokenGenerator.generateTempToken(providerId);
 
 			return ResponseEntity.status(202)
 				.body(new SignUpRequiredResponse(tempToken));

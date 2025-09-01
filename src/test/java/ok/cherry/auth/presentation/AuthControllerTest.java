@@ -55,7 +55,7 @@ class AuthControllerTest {
 	void signUpWithValidTempToken() throws JsonProcessingException, UnsupportedEncodingException {
 		// given
 		String providerId = "12345";
-		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
+		String tempToken = tokenGenerator.generateTempToken(providerId);
 		
 		SignUpRequest request = new SignUpRequest(tempToken, "test@example.com", "tester");
 		String requestJson = objectMapper.writeValueAsString(request);
@@ -108,7 +108,7 @@ class AuthControllerTest {
 	@DisplayName("유효하지 않은 이메일로 회원가입 시 400 오류를 반환한다")
 	void signUpWithInvalidEmail() throws JsonProcessingException {
 		String providerId = "12345";
-		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
+		String tempToken = tokenGenerator.generateTempToken(providerId);
 		
 		SignUpRequest request = new SignUpRequest(tempToken, "invalid-email", "tester");
 		String requestJson = objectMapper.writeValueAsString(request);
@@ -134,7 +134,7 @@ class AuthControllerTest {
 		memberRepository.save(existingMember);
 		
 		String newProviderId = "new_kakao_456";
-		String tempToken = tokenGenerator.generateTemporaryToken(newProviderId);
+		String tempToken = tokenGenerator.generateTempToken(newProviderId);
 		
 		SignUpRequest request = new SignUpRequest(tempToken, "test@example.com", "new");
 		String requestJson = objectMapper.writeValueAsString(request);
@@ -158,7 +158,7 @@ class AuthControllerTest {
 	void reissueWithValidRefreshToken() throws JsonProcessingException, UnsupportedEncodingException {
 		// given
 		String providerId = "12345";
-		String tempToken = tokenGenerator.generateTemporaryToken(providerId);
+		String tempToken = tokenGenerator.generateTempToken(providerId);
 		
 		SignUpRequest signUpRequest = new SignUpRequest(tempToken, "test@example.com", "tester");
 		String signUpJson = objectMapper.writeValueAsString(signUpRequest);

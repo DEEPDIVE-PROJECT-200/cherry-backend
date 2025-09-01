@@ -94,7 +94,7 @@ public class TokenGenerator {
 	/**
 	 * TempToken 생성
 	 * */
-	public String generateTemporaryToken(String providerId) {
+	public String generateTempToken(String providerId) {
 		long now = System.currentTimeMillis();
 		Date temporaryTokenExpiresIn = new Date(now + tempTokenExpiration.toMillis());
 		return Jwts.builder()
