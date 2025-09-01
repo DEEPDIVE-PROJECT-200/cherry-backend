@@ -4,12 +4,17 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Embeddable
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RentalDetail {
 
 	@Column(nullable = false)
-	private LocalDateTime createAt;
+	private LocalDateTime createdAt;
 
 	@Column(nullable = false)
 	private LocalDateTime startAt;
@@ -19,7 +24,7 @@ public class RentalDetail {
 
 	static RentalDetail create(LocalDateTime startAt, LocalDateTime endAt) {
 		RentalDetail rentalDetail = new RentalDetail();
-		rentalDetail.createAt = LocalDateTime.now();
+		rentalDetail.createdAt = LocalDateTime.now();
 		rentalDetail.startAt = startAt;
 		rentalDetail.endAt = endAt;
 		return rentalDetail;
