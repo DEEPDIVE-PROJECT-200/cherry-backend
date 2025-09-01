@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.global.exception.error.ErrorCode;
 import ok.cherry.global.exception.error.GlobalError;
-import io.jsonwebtoken.MalformedJwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -80,10 +80,10 @@ public class GlobalExceptionHandler {
 	}
 
 	/**
-	 * JWT 형식 오류 처리: MalformedJwtException
+	 * JWT 형식 오류 처리: JwtException
 	 */
-	@ExceptionHandler(MalformedJwtException.class)
-	public ProblemDetail handleMalformedJwt(MalformedJwtException exception) {
+	@ExceptionHandler(JwtException.class)
+	public ProblemDetail handleMalformedJwt(JwtException exception) {
 		return getProblemDetail(GlobalError.UNAUTHORIZED_ACCESS, exception, "유효하지 않은 JWT 형식입니다.");
 	}
 
