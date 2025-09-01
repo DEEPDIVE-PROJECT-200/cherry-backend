@@ -29,26 +29,32 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Column(nullable = false)
 	private String name;
 
-	@Column(name = "brand")
+	@Column(name = "brand", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Brand brand;
 
+	@Column(nullable = false)
 	private String model;
 
 	@ElementCollection
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private List<Color> colors = new ArrayList<>();
 
+	@Column(nullable = false)
 	private BigDecimal dailyRentalPrice;
 
+	@Column(nullable = false)
 	private LocalDateTime launchedAt;
 
 	@Embedded
 	private ProductDetail detail;
 
-	public static Product create(String name,
+	public static Product create(
+		String name,
 		Brand brand,
 		String model,
 		List<Color> colors,

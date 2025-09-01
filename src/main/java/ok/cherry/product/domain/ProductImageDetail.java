@@ -1,5 +1,6 @@
 package ok.cherry.product.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,8 +13,10 @@ import ok.cherry.product.exception.ProductError;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductImageDetail {
 
+	@Column(nullable = false)
 	private String imageUrl;
 
+	@Column(nullable = false)
 	private Integer displayOrder;
 
 	public static ProductImageDetail create(String imageUrl, Integer displayOrder) {

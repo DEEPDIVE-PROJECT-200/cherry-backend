@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
@@ -21,15 +22,22 @@ import ok.cherry.product.exception.ProductError;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductDetail {
 
+	@Column(nullable = false)
 	private LocalDateTime registeredAt;
 
 	@ElementCollection(fetch = FetchType.LAZY)
-	@CollectionTable(name = "product_thumbnail_details", joinColumns = @JoinColumn(name = "product_id"))
+	@CollectionTable(
+		name = "product_thumbnail_details",
+		joinColumns = @JoinColumn(name = "product_id", nullable = false)
+	)
 	@OrderColumn(name = "thumbnail_idx")
 	private List<ProductThumbNailDetail> productThumbNailDetails = new ArrayList<>();
 
 	@ElementCollection(fetch = FetchType.LAZY)
-	@CollectionTable(name = "product_image_details", joinColumns = @JoinColumn(name = "product_id"))
+	@CollectionTable(
+		name = "product_image_details",
+		joinColumns = @JoinColumn(name = "product_id", nullable = false)
+	)
 	@OrderColumn(name = "image_idx")
 	private List<ProductImageDetail> productImageDetails = new ArrayList<>();
 
