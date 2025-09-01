@@ -17,8 +17,8 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.cherry.global.value.Brand;
-import ok.cherry.global.value.Color;
+import ok.cherry.product.domain.type.Brand;
+import ok.cherry.product.domain.type.Color;
 
 @Entity
 @Getter
@@ -48,7 +48,15 @@ public class Product {
 	@Embedded
 	private ProductDetail detail;
 
-	public static Product create(String name, Brand brand, String model, List<Color> colors, BigDecimal dailyRentalPrice, LocalDateTime launchedAt) {
+	public static Product create(String name,
+		Brand brand,
+		String model,
+		List<Color> colors,
+		BigDecimal dailyRentalPrice,
+		LocalDateTime launchedAt,
+		List<ProductThumbNailDetail> thumbNailDetails,
+		List<ProductImageDetail> imageDetails
+		) {
 		Product product = new Product();
 		product.name = name;
 		product.brand = brand;
@@ -56,6 +64,8 @@ public class Product {
 		product.dailyRentalPrice = dailyRentalPrice;
 		product.launchedAt = launchedAt;
 		product.detail = ProductDetail.create();
+		product.detail.changeProductThumbNailDetails(thumbNailDetails);
+		product.detail.changeProductImageDetails(imageDetails);
 
 		if(colors != null) {
 			product.colors.clear();
@@ -63,13 +73,5 @@ public class Product {
 		}
 
 		return product;
-	}
-
-	public void changeProductThumbNailDetails(List<ProductThumbNailDetail> details) {
-		this.detail.changeProductThumbNailDetails(details);
-	}
-
-	public void changeProductImageDetails(List<ProductImageDetail> details) {
-		this.detail.changeProductImageDetails(details);
 	}
 }
