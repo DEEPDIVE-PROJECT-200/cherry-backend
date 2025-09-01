@@ -53,10 +53,15 @@ public class Product {
 		product.name = name;
 		product.brand = brand;
 		product.model = model;
-		product.colors = colors;
 		product.dailyRentalPrice = dailyRentalPrice;
 		product.launchedAt = launchedAt;
 		product.detail = ProductDetail.create();
+
+		if(colors != null) {
+			product.colors.clear();
+			product.colors.addAll(colors);
+		}
+
 		return product;
 	}
 
