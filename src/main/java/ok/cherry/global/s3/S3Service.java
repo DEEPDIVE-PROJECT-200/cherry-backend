@@ -1,5 +1,6 @@
 package ok.cherry.global.s3;
 
+import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,23 +8,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.s3.exception.S3Error;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetUrlRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3Service {
 
-	private final AmazonS3 amazonS3;
+	private final S3Client s3Client;
 
-	@Value("${cloud.aws.s3.bucket}")
+	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucket;
 
 	/**
@@ -33,17 +35,19 @@ public class S3Service {
 		// S3에 저장될 파일명 생성
 		String fileName = createFileName(file.getOriginalFilename(), dirName);
 
-		// 메타 데이터 설정
-		ObjectMetadata objectMetadata = new ObjectMetadata();
-		objectMetadata.setContentLength(file.getSize());
-		objectMetadata.setContentType(file.getContentType());
-
 		try{
 			// S3에 업로드
-			amazonS3.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), objectMetadata));
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+				.bucket(bucket)
+				.key(fileName)
+				.contentType(file.getContentType())
+				.contentLength(file.getSize())
+				.build();
+
+			s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
 			// 업로드된 파일의 URL 반환
-			return amazonS3.getUrl(bucket, fileName).toString();
+			return getFileUrl(fileName);
 		} catch (Exception e) {
 			log.error("S3 파일 업로드 중 오류 발생: {}", e.getMessage(), e);
 			throw new BusinessException(S3Error.UPLOAD_FAIL);
@@ -69,12 +73,16 @@ public class S3Service {
 
 		try {
 			// S3에서 파일 삭제
-			amazonS3.deleteObject(bucket, fileName);
+			DeleteObjectRequest deletedObjectRequest = DeleteObjectRequest.builder()
+				.bucket(bucket)
+				.key(fileName)
+				.build();
+
+			s3Client.deleteObject(deletedObjectRequest);
 		} catch (Exception e) {
 			log.error("S3 파일 삭제 중 오류 발생: {}", e.getMessage(), e);
 			throw new BusinessException(S3Error.DELETE_FAIL);
 		}
-
 	}
 
 	/**
@@ -85,13 +93,34 @@ public class S3Service {
 		fileUrls.forEach(this::deleteFile);
 	}
 
+	private String getFileUrl(String fileName) {
+		GetUrlRequest getUrlRequest = GetUrlRequest.builder()
+			.bucket(bucket)
+			.key(fileName)
+			.build();
+
+		return s3Client.utilities().getUrl(getUrlRequest).toString();
+	}
+
 	private String createFileName(String originalFileName, String dirName) {
 		return dirName + "/" + UUID.randomUUID() + "_" + originalFileName;
 	}
 
 	private String extractFileName(String fileUrl) {
-		String bucketUrl = amazonS3.getUrl(bucket, "").toString();
-		return fileUrl.substring(bucketUrl.length());
+		try{
+			URL url = new URL(fileUrl);
+			String path = url.getPath();
+
+			if(path.startsWith("/")) {
+				path = path.substring(1);
+			}
+
+			log.info("파일 URL: {}, 추출된 경로: {}", fileUrl, path);
+			return path;
+		} catch (Exception e) {
+			log.error("URL 파싱 중 오류 발생: {}", e.getMessage(), e);
+			throw new BusinessException(S3Error.INVALID_FILE_URL);
+		}
 	}
 
 	private void validateFiles(List<MultipartFile> files) {
@@ -113,6 +142,5 @@ public class S3Service {
 			throw new BusinessException(S3Error.INVALID_FILE_URL);
 		}
 	}
-
 
 }
