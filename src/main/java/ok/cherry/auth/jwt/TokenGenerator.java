@@ -21,10 +21,12 @@ import ok.cherry.global.exception.error.BusinessException;
 @Component
 public class TokenGenerator {
 
+	private static final String AUTHORITIES_KEY = "auth";
 	private static final String BEARER_TYPE = "Bearer";
 
 	private final Duration accessTokenExpiration;
 	private final Duration refreshTokenExpiration;
+	private final Duration tempTokenExpiration;
 	private final TokenValidator tokenValidator;
 	private final TokenExtractor tokenExtractor;
 	private final Key key;
@@ -33,6 +35,7 @@ public class TokenGenerator {
 		@Value("${jwt.secret}") String secretKey,
 		@Value("${jwt.access-token-expiration-seconds}") long accessTokenExpirationSeconds,
 		@Value("${jwt.refresh-token-expiration-seconds}") long refreshTokenExpirationSeconds,
+		@Value("${jwt.temp-token-expiration-seconds}") long tempTokenExpirationSeconds,
 		TokenValidator tokenValidator,
 		TokenExtractor tokenExtractor
 	) {
@@ -40,6 +43,7 @@ public class TokenGenerator {
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 		this.accessTokenExpiration = Duration.ofSeconds(accessTokenExpirationSeconds);
 		this.refreshTokenExpiration = Duration.ofSeconds(refreshTokenExpirationSeconds);
+		this.tempTokenExpiration = Duration.ofSeconds(tempTokenExpirationSeconds);
 		this.tokenValidator = tokenValidator;
 		this.tokenExtractor = tokenExtractor;
 	}
@@ -85,6 +89,21 @@ public class TokenGenerator {
 			newAccessToken,
 			accessTokenExpiresIn.getTime()
 		);
+	}
+
+	/**
+	 * TempToken 생성
+	 * */
+	public String generateTempToken(String providerId) {
+		long now = System.currentTimeMillis();
+		Date temporaryTokenExpiresIn = new Date(now + tempTokenExpiration.toMillis());
+		return Jwts.builder()
+			.setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+			.setSubject(providerId)
+			.claim(AUTHORITIES_KEY, "TEMPORARY_TOKEN")
+			.setExpiration(temporaryTokenExpiresIn)
+			.signWith(key, SignatureAlgorithm.HS512)
+			.compact();
 	}
 
 	/**

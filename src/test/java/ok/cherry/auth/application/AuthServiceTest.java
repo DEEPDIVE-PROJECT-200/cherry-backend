@@ -13,6 +13,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
+import ok.cherry.auth.jwt.TokenGenerator;
 import ok.cherry.config.EmbeddedRedisTestConfiguration;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.redis.AuthRedisRepository;
@@ -35,16 +36,20 @@ class AuthServiceTest {
 	@Autowired
 	AuthRedisRepository authRedisRepository;
 
+	@Autowired
+	TokenGenerator tokenGenerator;
+
 	@Test
 	@DisplayName("신규 사용자가 회원가입에 성공한다")
 	void signUp() {
 		// given
 		String providerId = "1";
+		String tempToken = tokenGenerator.generateTempToken(providerId);
 		String emailAddress = "test@example.com";
 		String nickname = "tester";
 
 		// when
-		SignUpResponse response = authService.signUp(providerId, emailAddress, nickname);
+		SignUpResponse response = authService.signUp(emailAddress, nickname, tempToken);
 
 		// then
 		assertThat(response.providerId()).isEqualTo(providerId);
@@ -60,11 +65,12 @@ class AuthServiceTest {
 	void signUpWithAlreadyRegisteredUser() {
 		// given
 		String providerId = "1";
+		String tempToken = tokenGenerator.generateTempToken(providerId);
 		Member existingMember = Member.register(providerId, Provider.KAKAO, "existing@example.com", "existing");
 		memberRepository.save(existingMember);
 
 		// when & then
-		assertThatThrownBy(() -> authService.signUp(providerId, "new@example.com", "new"))
+		assertThatThrownBy(() -> authService.signUp("new@example.com", "new", tempToken))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(MemberError.ALREADY_REGISTERED.getMessage());
 	}
@@ -76,9 +82,10 @@ class AuthServiceTest {
 		String duplicateEmail = "duplicate@example.com";
 		Member existingMember = Member.register("1", Provider.KAKAO, duplicateEmail, "existing");
 		memberRepository.save(existingMember);
+		String tempToken = tokenGenerator.generateTempToken("2");
 
 		// when & then
-		assertThatThrownBy(() -> authService.signUp("2", duplicateEmail, "new"))
+		assertThatThrownBy(() -> authService.signUp(duplicateEmail, "new", tempToken))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(MemberError.DUPLICATE_EMAIL.getMessage());
 	}
@@ -86,13 +93,14 @@ class AuthServiceTest {
 	@Test
 	@DisplayName("중복 닉네임으로 회원가입 시 실패한다")
 	void signUpWithDuplicateNickname() {
+		// given
 		String duplicateNickname = "duplicate";
-
 		Member existingMember = Member.register("1", Provider.KAKAO, "existing@example.com", duplicateNickname);
 		memberRepository.save(existingMember);
+		String tempToken = tokenGenerator.generateTempToken("2");
 
 		// when & then
-		assertThatThrownBy(() -> authService.signUp("2", "new@example.com", duplicateNickname))
+		assertThatThrownBy(() -> authService.signUp("new@example.com", duplicateNickname, tempToken))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(MemberError.DUPLICATE_NICKNAME.getMessage());
 	}

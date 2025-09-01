@@ -33,6 +33,7 @@ jwt:
   secret: "crailotestjwtsecretkey2025fordevelopmentandtestingonlylonglonglonglonglonglonglonglonglong"
   access-token-expiration-seconds: 10
   refresh-token-expiration-seconds: 10
+  temp-token-expiration-seconds: 10
 
 cookie:
   domain: localhost

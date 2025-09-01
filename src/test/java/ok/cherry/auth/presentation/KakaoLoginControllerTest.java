@@ -20,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 import ok.cherry.auth.application.dto.response.KakaoIdResponse;
 import ok.cherry.auth.application.dto.response.KakaoTokenResponse;
-import ok.cherry.auth.util.TempTokenGenerator;
 import ok.cherry.config.EmbeddedRedisTestConfiguration;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.domain.Provider;
@@ -41,8 +40,6 @@ class KakaoLoginControllerTest {
 	@MockitoBean
 	RestTemplate restTemplate;
 
-	@MockitoBean
-	TempTokenGenerator tempTokenGenerator;
 
 	@Test
 	@DisplayName("기존 회원이 카카오 로그인 콜백 시 JWT 토큰을 반환한다")
@@ -76,7 +73,6 @@ class KakaoLoginControllerTest {
 		KakaoTokenResponse tokenResponse = createKakaoTokenResponse();
 		KakaoIdResponse idResponse = new KakaoIdResponse("9999");
 
-		when(tempTokenGenerator.generateTempToken("9999")).thenReturn("temp_token_12345");
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class),
 			eq(KakaoTokenResponse.class))).thenReturn(ResponseEntity.ok(tokenResponse));
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class),
@@ -88,7 +84,7 @@ class KakaoLoginControllerTest {
 		// then
 		assertThat(result).hasStatus(202)  // Accepted
 			.bodyJson()
-			.hasPathSatisfying("$.tempToken", value -> assertThat(value).isEqualTo("temp_token_12345"));
+			.hasPathSatisfying("$.tempToken", value -> assertThat(value).isNotNull());
 	}
 
 	private KakaoTokenResponse createKakaoTokenResponse() {
