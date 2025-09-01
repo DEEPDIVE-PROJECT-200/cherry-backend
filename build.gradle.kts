@@ -36,6 +36,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
+    // S3
+    implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+
     // Thymeleaf Extensions
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 
