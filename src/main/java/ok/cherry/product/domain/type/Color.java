@@ -1,4 +1,4 @@
-package ok.cherry.global.value;
+package ok.cherry.product.domain.type;
 
 public enum Color {
 	BLACK,
