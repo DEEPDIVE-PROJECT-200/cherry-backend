@@ -70,7 +70,7 @@ class AuthServiceTest {
 		memberRepository.save(existingMember);
 
 		// when & then
-		assertThatThrownBy(() -> authService.signUp(providerId, "new@example.com", tempToken))
+		assertThatThrownBy(() -> authService.signUp("new@example.com", "new", tempToken))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(MemberError.ALREADY_REGISTERED.getMessage());
 	}
