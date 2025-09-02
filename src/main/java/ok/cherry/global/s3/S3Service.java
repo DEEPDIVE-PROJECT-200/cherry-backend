@@ -62,7 +62,7 @@ public class S3Service {
 			// 업로드된 파일의 URL 반환
 			return getFileUrl(fileName);
 		} catch (Exception e) {
-			log.error("S3 파일 업로드 중 오류 발생: {}", e.getMessage(), e);
+			log.error("S3 파일 업로드 실패 - 파일명: {}, 버킷: {}, 오류: {}", fileName, bucket, e.getMessage(), e);
 			throw new BusinessException(S3Error.UPLOAD_FAIL);
 		}
 	}
@@ -93,7 +93,7 @@ public class S3Service {
 
 			s3Client.deleteObject(deletedObjectRequest);
 		} catch (Exception e) {
-			log.error("S3 파일 삭제 중 오류 발생: {}", e.getMessage(), e);
+			log.error("S3 파일 삭제 실패: - 파일명: {}, 버킷: {}, 오류: {}", fileName, bucket, e.getMessage(), e);
 			throw new BusinessException(S3Error.DELETE_FAIL);
 		}
 	}
@@ -135,7 +135,7 @@ public class S3Service {
 			log.info("파일 URL: {}, 추출된 경로: {}", fileUrl, path);
 			return path;
 		} catch (Exception e) {
-			log.error("URL 파싱 중 오류 발생: {}", e.getMessage(), e);
+			log.error("URL 파싱 중 오류 발생: - 파일 URL: {}, 오류: {}", fileUrl, e.getMessage(), e);
 			throw new BusinessException(S3Error.INVALID_FILE_URL);
 		}
 	}
