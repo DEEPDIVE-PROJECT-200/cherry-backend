@@ -17,7 +17,7 @@ class MemberTest {
 		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
 
 		// when & then
-		assertThat(member.getStatus()).isEqualTo(MemberStatus.ACTIVE);
+		assertThat(member.getMemberStatus()).isEqualTo(MemberStatus.ACTIVE);
 		assertThat(member.getDetail().getRegisteredAt()).isNotNull();
 	}
 
@@ -67,7 +67,7 @@ class MemberTest {
 		member.deactivate();
 
 		// then
-		assertThat(member.getStatus()).isEqualTo(MemberStatus.DEACTIVATED);
+		assertThat(member.getMemberStatus()).isEqualTo(MemberStatus.DEACTIVATED);
 		assertThat(member.getDetail().getDeactivatedAt()).isNotNull();
 	}
 
