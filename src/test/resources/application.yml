@@ -33,6 +33,7 @@ spring:
         static: ap-northeast-2
       s3:
         bucket: cherry-dev-assets
+        allowed-mime-types: image/jpeg, image/jpg, image/png, image/gif
       stack:
         auto: false
 
