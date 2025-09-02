@@ -17,6 +17,7 @@ import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
 import ok.cherry.auth.exception.TokenError;
 import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.member.domain.Member;
 
 @Component
 public class TokenGenerator {
@@ -51,10 +52,9 @@ public class TokenGenerator {
 	/**
 	 * 토큰 생성 메서드
 	 * */
-	public TokenResponse generateTokenDTO(String providerId) {
-		String accessToken = generateAccessToken(providerId);
-		String refreshToken = generateRefreshToken(providerId);
-
+	public TokenResponse generateTokenDTO(Member member) {
+		String accessToken = generateAccessToken(member);
+		String refreshToken = generateRefreshToken(member.getProviderId());
 		long now = System.currentTimeMillis();
 		Date accessTokenExpiresIn = new Date(now + accessTokenExpiration.toMillis());
 
@@ -69,7 +69,7 @@ public class TokenGenerator {
 	/**
 	 * AccessToken 재발급
 	 * */
-	public ReissueTokenResponse reissueAccessToken(String refreshToken) {
+	public ReissueTokenResponse reissueAccessToken(String refreshToken, Member member) {
 		// 리프레시 토큰에서 사용자 정보 추출 -> 클레임 확인
 		Claims claims = tokenExtractor.parseClaims(refreshToken);
 
@@ -79,8 +79,7 @@ public class TokenGenerator {
 			throw new BusinessException(TokenError.INVALID_REFRESH_TOKEN);
 		}
 
-		String providerId = claims.getSubject();
-		String newAccessToken = generateAccessToken(providerId);
+		String newAccessToken = generateAccessToken(member);
 		long now = System.currentTimeMillis();
 		Date accessTokenExpiresIn = new Date(now + accessTokenExpiration.toMillis());
 
@@ -109,12 +108,14 @@ public class TokenGenerator {
 	/**
 	 * AccessToken 생성
 	 * */
-	private String generateAccessToken(String providerId) {
+	private String generateAccessToken(Member member) {
 		long now = System.currentTimeMillis();
 		Date accessTokenExpiresIn = new Date(now + accessTokenExpiration.toMillis());
 		return Jwts.builder()
 			.setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-			.setSubject(providerId)
+			.setSubject(member.getProviderId())
+			.claim("nickname", member.getNickname())
+			.claim("email", member.getEmail().address())
 			.setExpiration(accessTokenExpiresIn)
 			.signWith(key, SignatureAlgorithm.HS512)
 			.compact();

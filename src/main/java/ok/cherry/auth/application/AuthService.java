@@ -44,10 +44,10 @@ public class AuthService {
 	}
 
 	public TokenResponse login(String providerId) {
-		if (!memberRepository.existsByProviderId(providerId)) {
-			throw new BusinessException(MemberError.USER_NOT_FOUND);
-		}
-		TokenResponse tokenResponse = tokenGenerator.generateTokenDTO(providerId);
+		Member member = memberRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
+
+		TokenResponse tokenResponse = tokenGenerator.generateTokenDTO(member);
 		authRedisRepository.saveRefreshToken(providerId, tokenResponse.refreshToken());
 		return tokenResponse;
 	}
@@ -69,14 +69,16 @@ public class AuthService {
 
 	public ReissueTokenResponse reissueAccessToken(String refreshToken) {
 		String providerId = tokenExtractor.parseClaims(refreshToken).getSubject();
-
 		String restoredRefreshToken = authRedisRepository.getRefreshToken(providerId);
 
 		if (!refreshToken.equals(restoredRefreshToken)) {
 			throw new BusinessException(TokenError.REFRESH_TOKEN_MISMATCH);
 		}
 
-		return tokenGenerator.reissueAccessToken(refreshToken);
+		Member member = memberRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
+
+		return tokenGenerator.reissueAccessToken(refreshToken, member);
 	}
 
 	private String getProviderId(String tempToken) {
