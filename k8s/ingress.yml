@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cherry-backend-ingress
+  namespace: cherry-prod
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: cherry-issuer
+    # 파일 업로드 관련 설정
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"          # 요청 본문 최대 크기 (파일 업로드 크기 제한)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"       # 백엔드 응답 대기 시간 (초, Spring Boot → nginx)
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"    # 백엔드 연결 대기 시간 (초, nginx → Spring Boot)
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"       # 백엔드로 데이터 전송 대기 시간 (초, nginx → Spring Boot)
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"          # 대용량 파일 업로드 시 메모리 절약을 위한 버퍼링 비활성화
+spec:
+  tls:
+    - hosts:
+        - "server.200cherry.shop"
+      # https설정시에 TLS 인증서가 저장된 certificate의 Secret의 이름(spec.secretName)을 지정
+      # https.yml 의 Certificate 정의의 spec.secretName 와 동일해야 함
+      secretName: server-200cherry-com-tls
+  rules:
+    - host: server.200cherry.shop
+      http:
+        paths:
+          - path: / #모든 url요청을 service로 라우팅
+            pathType: Prefix
+            backend:
+              service:
+                name: cherry-backend-service
+                port:
+                  number: 80
