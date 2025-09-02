@@ -1,9 +1,8 @@
 package ok.cherry.rental.domain.status;
 
-public enum RentalStatus {
+public enum ReviewStatus {
 
 	PENDING,
-	ACTIVE,
-	IN_RETURN,
+	AVAILABLE,
 	COMPLETED
 }

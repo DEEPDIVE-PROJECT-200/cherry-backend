@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.cherry.product.domain.Product;
 import ok.cherry.product.domain.type.Color;
+import ok.cherry.rental.domain.status.ReviewStatus;
 
 @Entity
 @Getter
@@ -42,11 +43,16 @@ public class RentalItem {
 	@Column(nullable = false)
 	private Color color;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ReviewStatus reviewStatus;
+
 	public static RentalItem create(Product product, BigDecimal price, Color color) {
 		RentalItem rentalItem = new RentalItem();
 		rentalItem.product = product;
 		rentalItem.price = price;
 		rentalItem.color = color;
+		rentalItem.reviewStatus = ReviewStatus.PENDING;
 		return rentalItem;
 	}
 
