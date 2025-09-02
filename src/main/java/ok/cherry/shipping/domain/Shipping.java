@@ -1,5 +1,9 @@
 package ok.cherry.shipping.domain;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Random;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -16,8 +20,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.Rental;
-import ok.cherry.shipping.domain.type.Direction;
 import ok.cherry.shipping.domain.status.ShippingStatus;
+import ok.cherry.shipping.domain.type.Direction;
 
 @Entity
 @Getter
@@ -73,6 +77,11 @@ public class Shipping {
 	}
 
 	private static String generateTrackingNumber() {
-		return "";
+		String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
+
+		int randomNumber = new Random().nextInt(100000000);
+		String numericSuffix = String.format("%08d", randomNumber);
+
+		return dateTime + numericSuffix;
 	}
 }
