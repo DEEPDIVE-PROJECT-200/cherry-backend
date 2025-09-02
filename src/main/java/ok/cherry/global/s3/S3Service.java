@@ -1,10 +1,15 @@
 package ok.cherry.global.s3;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +33,9 @@ public class S3Service {
 	@Value("${spring.cloud.aws.s3.bucket}")
 	private String bucket;
 
+	@Value("${spring.cloud.aws.s3.allowed-mime-types}")
+	private List<String> allowedMimeTypes;
+
 	/**
 	 * 단일 파일 업로드
 	 * */
@@ -35,12 +43,17 @@ public class S3Service {
 		// S3에 저장될 파일명 생성
 		String fileName = createFileName(file.getOriginalFilename(), dirName);
 
-		try{
+		// 파일 확장자를 기반으로 MIME 타입 유추
+		String contentType = MediaTypeFactory.getMediaType(file.getOriginalFilename())
+			.orElse(MediaType.APPLICATION_OCTET_STREAM)
+			.toString();
+
+		try {
 			// S3에 업로드
 			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
 				.bucket(bucket)
 				.key(fileName)
-				.contentType(file.getContentType())
+				.contentType(contentType)
 				.contentLength(file.getSize())
 				.build();
 
@@ -93,6 +106,10 @@ public class S3Service {
 		fileUrls.forEach(this::deleteFile);
 	}
 
+	private Set<String> getAllowedMimeTypes() {
+		return new HashSet<>(allowedMimeTypes);
+	}
+
 	private String getFileUrl(String fileName) {
 		GetUrlRequest getUrlRequest = GetUrlRequest.builder()
 			.bucket(bucket)
@@ -107,11 +124,11 @@ public class S3Service {
 	}
 
 	private String extractFileName(String fileUrl) {
-		try{
+		try {
 			URL url = new URL(fileUrl);
 			String path = url.getPath();
 
-			if(path.startsWith("/")) {
+			if (path.startsWith("/")) {
 				path = path.substring(1);
 			}
 
@@ -124,12 +141,24 @@ public class S3Service {
 	}
 
 	private void validateFiles(List<MultipartFile> files) {
-		if(files == null || files.isEmpty()) {
+		if (files == null || files.isEmpty()) {
 			throw new BusinessException(S3Error.EMPTY_FILE_LIST);
 		}
 
-		if(files.stream().anyMatch(file -> file == null || file.isEmpty())) {
+		if (files.stream().anyMatch(file -> file == null || file.isEmpty())) {
 			throw new BusinessException(S3Error.INVALID_FILE);
+		}
+
+		// 파일 확장자 기반으로 Mime 타입 검증
+		Set<String> allowedMimeTypes = getAllowedMimeTypes();
+		boolean hasInvalidType = files.stream()
+			.anyMatch(file -> {
+				Optional<MediaType> mediaType = MediaTypeFactory.getMediaType(file.getOriginalFilename());
+				return mediaType.isEmpty() || !allowedMimeTypes.contains(mediaType.get().toString());
+			});
+
+		if (hasInvalidType) {
+			throw new BusinessException(S3Error.INVALID_FILE_TYPE);
 		}
 	}
 
@@ -138,7 +167,7 @@ public class S3Service {
 			throw new BusinessException(S3Error.EMPTY_FILE_LIST);
 		}
 
-		if(fileUrls.stream().anyMatch(fileUrl -> fileUrl == null || fileUrl.isEmpty())) {
+		if (fileUrls.stream().anyMatch(fileUrl -> fileUrl == null || fileUrl.isEmpty())) {
 			throw new BusinessException(S3Error.INVALID_FILE_URL);
 		}
 	}
