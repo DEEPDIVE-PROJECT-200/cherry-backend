@@ -16,6 +16,8 @@ public class PaymentBuilder {
 	public Rental rental = RentalBuilder.builder().withMember(member).build();
 	public PaymentMethod paymentMethod = PaymentMethod.KAKAO_PAY;
 
+	private boolean rentalExplicitlySet = false;
+
 	public static Payment create() {
 		return builder().build();
 	}
@@ -30,11 +32,15 @@ public class PaymentBuilder {
 
 	public PaymentBuilder withMember(Member member) {
 		this.member = member;
+		if (!rentalExplicitlySet) {
+			this.rental = RentalBuilder.builder().withMember(member).build();
+		}
 		return this;
 	}
 
 	public PaymentBuilder withRental(Rental rental) {
 		this.rental = rental;
+		this.rentalExplicitlySet = true;
 		return this;
 	}
 
