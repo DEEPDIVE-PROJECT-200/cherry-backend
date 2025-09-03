@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -21,6 +23,8 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Slf4j
@@ -49,21 +53,33 @@ public class S3Service {
 			.toString();
 
 		try {
-			// S3에 업로드
-			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+			// 파일 존재 여부 확인
+			HeadObjectRequest headRequest = HeadObjectRequest.builder()
 				.bucket(bucket)
 				.key(fileName)
-				.contentType(contentType)
-				.contentLength(file.getSize())
 				.build();
 
-			s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+			s3Client.headObject(headRequest);
+			throw new BusinessException(S3Error.DUPLICATE_FILE);
+		} catch (NoSuchKeyException e) {
+			try {
+				// S3에 업로드
+				PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+					.bucket(bucket)
+					.key(fileName)
+					.contentType(contentType)
+					.contentLength(file.getSize())
+					.build();
 
-			// 업로드된 파일의 URL 반환
-			return getFileUrl(fileName);
-		} catch (Exception e) {
-			log.error("S3 파일 업로드 실패 - 파일명: {}, 버킷: {}, 오류: {}", fileName, bucket, e.getMessage(), e);
-			throw new BusinessException(S3Error.UPLOAD_FAIL);
+				s3Client.putObject(putObjectRequest,
+					RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+				// 버킷 주소 이후의 prefix 반환
+				return fileName;
+			} catch (Exception ex) {
+				log.error("S3 파일 업로드 실패 - 파일명: {}, 버킷: {}, 오류: {}", fileName, bucket, ex.getMessage(), ex);
+				throw new BusinessException(S3Error.UPLOAD_FAIL);
+			}
 		}
 	}
 
@@ -72,28 +88,51 @@ public class S3Service {
 	 * */
 	public List<String> uploadFiles(List<MultipartFile> files, String dirName) {
 		validateFiles(files);
-		return files.stream()
-			.map(file -> uploadFile(file, dirName))
+
+		List<CompletableFuture<String>> uploadFutures = files.stream()
+			.map(file -> CompletableFuture.supplyAsync(() -> uploadFile(file, dirName)))
 			.toList();
+
+		// 비동기 작업 완료 후 결과 취합
+		CompletableFuture<Void> allOf = CompletableFuture.allOf(uploadFutures.toArray(new CompletableFuture[0]));
+
+		try {
+			allOf.join(); // 모든 작업 완료 대기
+			return uploadFutures.stream()
+				.map(CompletableFuture::join)
+				.toList();
+		} catch (CompletionException e) {
+			log.error("S3 병렬 파일 업로드 실패: {}", e.getMessage(), e);
+			throw new BusinessException(S3Error.UPLOAD_FAIL);
+		}
 	}
 
 	/**
 	 * 단일 파일 삭제
 	 * */
-	public void deleteFile(String fileUrl) {
-		// URL에서 파일 이름(객체 키) 추출
-		String fileName = extractFileName(fileUrl);
-
+	public void deleteFile(String filePrefix) {
 		try {
+			// 파일이 존재 여부 확인
+			HeadObjectRequest headRequest = HeadObjectRequest.builder()
+				.bucket(bucket)
+				.key(filePrefix)
+				.build();
+
+			s3Client.headObject(headRequest);
+			log.info("삭제하려는 파일: {}", filePrefix);
+
 			// S3에서 파일 삭제
 			DeleteObjectRequest deletedObjectRequest = DeleteObjectRequest.builder()
 				.bucket(bucket)
-				.key(fileName)
+				.key(filePrefix)
 				.build();
 
 			s3Client.deleteObject(deletedObjectRequest);
+		} catch (NoSuchKeyException e) {
+			log.warn("삭제하려는 파일이 존재하지 않음: {}", filePrefix);
+			throw new BusinessException(S3Error.FILE_NOT_FOUND);
 		} catch (Exception e) {
-			log.error("S3 파일 삭제 실패: - 파일명: {}, 버킷: {}, 오류: {}", fileName, bucket, e.getMessage(), e);
+			log.error("S3 파일 삭제 실패: - 파일명: {}, 버킷: {}, 오류: {}", filePrefix, bucket, e.getMessage(), e);
 			throw new BusinessException(S3Error.DELETE_FAIL);
 		}
 	}
@@ -103,7 +142,19 @@ public class S3Service {
 	 * */
 	public void deleteFiles(List<String> fileUrls) {
 		validateFileUrls(fileUrls);
-		fileUrls.forEach(this::deleteFile);
+
+		List<CompletableFuture<Void>> deleteFutures = fileUrls.stream()
+			.map(fileUrl -> CompletableFuture.runAsync(() -> deleteFile(fileUrl)))
+			.toList();
+
+		CompletableFuture<Void> allOf = CompletableFuture.allOf(deleteFutures.toArray(new CompletableFuture[0]));
+
+		try {
+			allOf.join();
+		} catch (CompletionException e) {
+			log.error("S3 병렬 파일 삭제 실패: {}", e.getMessage(), e);
+			throw new BusinessException(S3Error.DELETE_FAIL);
+		}
 	}
 
 	private Set<String> getAllowedMimeTypes() {
