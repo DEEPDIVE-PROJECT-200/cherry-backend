@@ -2,6 +2,7 @@ package ok.cherry.member.domain;
 
 import static java.util.Objects.*;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,17 +26,21 @@ public class Member {
 	private Long id;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private Provider provider;
 
+	@Column(nullable = false, unique = true, updatable = false)
 	private String providerId;
 
 	@Embedded
 	private Email email;
 
+	@Column(nullable = false, unique = true)
 	private String nickname;
 
 	@Enumerated(EnumType.STRING)
-	private MemberStatus status;
+	@Column(nullable = false)
+	private MemberStatus memberStatus;
 
 	@Embedded
 	private MemberDetail detail;
@@ -48,7 +53,7 @@ public class Member {
 		member.providerId = requireNonNull(providerId);
 		member.provider = requireNonNull(provider);
 		member.nickname = requireNonNull(nickname);
-		member.status = MemberStatus.ACTIVE;
+		member.memberStatus = MemberStatus.ACTIVE;
 		member.detail = MemberDetail.create();
 		return member;
 	}
@@ -61,7 +66,7 @@ public class Member {
 
 	public void deactivate() {
 		validateIsActive();
-		this.status = MemberStatus.DEACTIVATED;
+		this.memberStatus = MemberStatus.DEACTIVATED;
 		this.detail.deactivate();
 	}
 
@@ -77,7 +82,7 @@ public class Member {
 	}
 
 	private void validateIsActive() {
-		if (status != MemberStatus.ACTIVE) {
+		if (memberStatus != MemberStatus.ACTIVE) {
 			throw new DomainException(MemberError.NOT_ACTIVE);
 		}
 	}
