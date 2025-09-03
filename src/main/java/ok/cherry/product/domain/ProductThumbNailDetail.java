@@ -11,7 +11,7 @@ import ok.cherry.product.exception.ProductError;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductThumbNailDetail {
+public class ProductThumbnailDetail {
 
 	@Column(nullable = false)
 	private String imageUrl;
@@ -19,8 +19,8 @@ public class ProductThumbNailDetail {
 	@Column(nullable = false)
 	private Integer displayOrder;
 
-	public static ProductThumbNailDetail create(String imageUrl, Integer displayOrder) {
-		ProductThumbNailDetail detail = new ProductThumbNailDetail();
+	public static ProductThumbnailDetail create(String imageUrl, Integer displayOrder) {
+		ProductThumbnailDetail detail = new ProductThumbnailDetail();
 		detail.setImageUrl(imageUrl);
 		detail.setDisplayOrder(displayOrder);
 		return detail;
