@@ -1,14 +1,14 @@
 package ok.cherry.product.domain.type;
 
 public enum Brand {
-	MARSHALL,
-	BOSE,
-	BRITZ,
 	SONY,
-	IRIVER,
 	APPLE,
+	BOSE,
 	SENNHEISER,
-	PHILLPS,
+	BANG_OLUFSEN,
+	BOWERS_WILKINS,
+	MARSHALL,
+	DYSON,
 	JBL,
-	QCY
+	NOTHING
 }
