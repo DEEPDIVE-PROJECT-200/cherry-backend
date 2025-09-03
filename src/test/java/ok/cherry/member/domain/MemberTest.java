@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import ok.cherry.global.exception.error.DomainException;
+import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.exception.MemberError;
 
 class MemberTest {
@@ -14,9 +15,14 @@ class MemberTest {
 	@DisplayName("회원 등록 시 상태가 활성화되고 등록일자가 설정된다")
 	void registerMember() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		String providerId = "12345";
+		String nickname = "tester";
+		String email = "test@test.com";
 
-		// when & then
+		// when
+		Member member = Member.register(providerId, Provider.KAKAO, email, nickname);
+
+		// then
 		assertThat(member.getMemberStatus()).isEqualTo(MemberStatus.ACTIVE);
 		assertThat(member.getDetail().getRegisteredAt()).isNotNull();
 	}
@@ -28,7 +34,7 @@ class MemberTest {
 		String invalidEmail = "wrongEmail";
 
 		// when & then
-		assertThatThrownBy(() -> Member.register("12345", Provider.KAKAO, invalidEmail, "tester"))
+		assertThatThrownBy(() -> MemberBuilder.builder().withEmail(invalidEmail).build())
 			.isInstanceOf(DomainException.class)
 			.hasMessage(MemberError.INVALID_EMAIL.getMessage());
 	}
@@ -40,7 +46,7 @@ class MemberTest {
 		String invalidNickname = "x";
 
 		// when & then
-		assertThatThrownBy(() -> Member.register("12345", Provider.KAKAO, "test@test.com", invalidNickname))
+		assertThatThrownBy(() -> MemberBuilder.builder().withNickname(invalidNickname).build())
 			.isInstanceOf(DomainException.class)
 			.hasMessage(MemberError.INVALID_NICKNAME.getMessage());
 	}
@@ -52,7 +58,7 @@ class MemberTest {
 		String invalidNickname = "veryLongNickname";
 
 		// when & then
-		assertThatThrownBy(() -> Member.register("12345", Provider.KAKAO, "test@test.com", invalidNickname))
+		assertThatThrownBy(() -> MemberBuilder.builder().withNickname(invalidNickname).build())
 			.isInstanceOf(DomainException.class)
 			.hasMessage(MemberError.INVALID_NICKNAME.getMessage());
 	}
@@ -61,7 +67,7 @@ class MemberTest {
 	@DisplayName("회원 비활성화 시 상태가 변경되고 비활성화 일자가 설정된다")
 	void deactivate() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when
 		member.deactivate();
@@ -75,7 +81,7 @@ class MemberTest {
 	@DisplayName("이미 비활성화된 회원을 다시 비활성화하려 할 때 예외가 발생한다")
 	void deactivateFail() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when
 		member.deactivate();
@@ -90,7 +96,7 @@ class MemberTest {
 	@DisplayName("활성화된 회원의 이메일을 성공적으로 변경한다")
 	void updateEmail() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when
 		member.updateEmail("new@email.com");
@@ -103,7 +109,7 @@ class MemberTest {
 	@DisplayName("비활성화된 회원의 이메일 변경 시 예외가 발생한다")
 	void updateEmailFail() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when
 		member.deactivate();
@@ -118,7 +124,7 @@ class MemberTest {
 	@DisplayName("잘못된 이메일 형식으로 이메일 변경 시 예외가 발생한다")
 	void updateInvalidEmail() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when & then
 		assertThatThrownBy(() -> member.updateEmail("wrongEmail"))
@@ -130,7 +136,7 @@ class MemberTest {
 	@DisplayName("활성화된 회원의 닉네임을 성공적으로 변경한다")
 	void updateNickname() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when
 		member.updateNickname("newName");
@@ -143,7 +149,7 @@ class MemberTest {
 	@DisplayName("비활성화된 회원의 닉네임 변경 시 예외가 발생한다")
 	void updateNicknameFail() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when
 		member.deactivate();
@@ -158,7 +164,7 @@ class MemberTest {
 	@DisplayName("2글자 미만의 문자열로 닉네임 변경 시 예외가 발생한다")
 	void updateShortNickname() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when & then
 		assertThatThrownBy(() -> member.updateNickname("x"))
@@ -170,7 +176,7 @@ class MemberTest {
 	@DisplayName("10글자가 넘는 문자열로 닉네임을 변경 시 예외가 발생한다")
 	void updateLongNickname() {
 		// given
-		Member member = Member.register("12345", Provider.KAKAO, "test@test.com", "tester");
+		Member member = MemberBuilder.create();
 
 		// when & then
 		assertThatThrownBy(() -> member.updateNickname("veryLongNickname"))
