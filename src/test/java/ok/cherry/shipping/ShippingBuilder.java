@@ -2,8 +2,6 @@ package ok.cherry.shipping;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ok.cherry.member.MemberBuilder;
-import ok.cherry.member.domain.Member;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.shipping.domain.Address;
@@ -13,8 +11,7 @@ import ok.cherry.shipping.domain.type.Direction;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShippingBuilder {
 
-	public Member member = MemberBuilder.create();
-	public Rental rental = RentalBuilder.builder().withMember(member).build();
+	public Rental rental = RentalBuilder.create();
 	public Direction direction = Direction.OUTBOUND;
 	public String receiver = "tester";
 	public String phoneNumber = "010-1234-5678";
@@ -29,7 +26,7 @@ public class ShippingBuilder {
 	}
 
 	public Shipping build() {
-		return Shipping.create(member, rental, direction, receiver, phoneNumber, address);
+		return Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, address);
 	}
 
 	public ShippingBuilder withRental(Rental rental) {
