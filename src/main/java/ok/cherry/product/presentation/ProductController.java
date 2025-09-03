@@ -13,12 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import ok.cherry.product.application.ProductService;
 import ok.cherry.product.application.dto.request.ProductCreateRequest;
 import ok.cherry.product.application.dto.response.ProductCreateResponse;
+import ok.cherry.swagger.product.ProductControllerDoc;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class ProductController {
+public class ProductController implements ProductControllerDoc {
 
 	private final ProductService productService;
 
