@@ -76,7 +76,7 @@ public class SwaggerConfig {
 				.url("https://localhost:8080")
 				.description("개발 서버"),
 			new Server()
-				.url("https://server.cherry.shop")
+				.url("https://server.200cherry.shop")
 				.description("운영 서버")
 		);
 	}
