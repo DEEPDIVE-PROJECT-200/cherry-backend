@@ -19,7 +19,7 @@ class PaymentTest {
 	void createPaymentWithDetail() {
 		// given
 		Member member = MemberBuilder.create();
-		Rental rental = RentalBuilder.builder().build();
+		Rental rental = RentalBuilder.create();
 		PaymentMethod paymentMethod = PaymentMethod.KAKAO_PAY;
 
 		// when
@@ -34,7 +34,7 @@ class PaymentTest {
 	void createPaymentWithDefaultStatus() {
 		// given
 		Member member = MemberBuilder.create();
-		Rental rental = RentalBuilder.builder().build();
+		Rental rental = RentalBuilder.create();
 		PaymentMethod paymentMethod = PaymentMethod.KAKAO_PAY;
 
 		// when

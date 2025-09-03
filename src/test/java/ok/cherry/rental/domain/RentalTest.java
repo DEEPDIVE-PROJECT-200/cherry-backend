@@ -21,7 +21,7 @@ class RentalTest {
 	void createRentalWithDetail() {
 		// given
 		Member member = MemberBuilder.create();
-		RentalItem rentalItem = RentalItemBuilder.builder().build();
+		RentalItem rentalItem = RentalItemBuilder.create();
 		LocalDateTime startAt = LocalDateTime.now();
 		LocalDateTime endAt = LocalDateTime.now().plusDays(7);
 
