@@ -14,6 +14,6 @@ public class RentalNumberGenerator {
 		int randomNumber = random.nextInt(100000000);
 		String numericSuffix = String.format("%08d", randomNumber);
 
-		return "CH" + dateTime + numericSuffix;
+		return "CH-" + dateTime + numericSuffix;
 	}
 }
