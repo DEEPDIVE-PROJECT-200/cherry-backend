@@ -36,13 +36,13 @@ public record ProductCreateRequest(
 	String launchedAt,
 
 	@Schema(description = "상품 썸네일 이미지 URL 목록(최대 10개)",
-		example = "[\"product/thumbnails/thumbnail1.jpg\", \"product/thumbnails/thumbnail2.jpg\"]")
+		example = "[\"21c559ed-e104-44c0-a027-8db0a3036457_01.jpg\", \"f617a6d7-e3bb-484a-9911-cd9b0c4088c0_02.jpg\"]")
 	@NotEmpty(message = "최소 하나 이상의 썸네일 이미지가 필요합니다")
 	@Size(max = 10, message = "썸네일 이미지는 최대 10개까지 가능합니다")
 	List<String> thumbnailImages,
 
 	@Schema(description = "상품 상세 이미지 URL 목록",
-		example = "[\"product/details/detail1.jpg\", \"product/details/detail2.jpg\"]")
+		example = "[\"21c559ed-e104-44c0-a027-8db0a3036457_01.jpg\", \"f617a6d7-e3bb-484a-9911-cd9b0c4088c0_02.jpg\"]")
 	@NotEmpty(message = "최소 하나 이상의 상세 이미지가 필요합니다")
 	List<String> detailImages
 ) {

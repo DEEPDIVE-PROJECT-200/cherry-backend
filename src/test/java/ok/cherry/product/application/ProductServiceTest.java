@@ -43,8 +43,8 @@ class ProductServiceTest {
 			List.of("BLACK", "MIDNIGHT_BLUE"),
 			5000L,
 			"2023-01-15",
-			List.of("product/thumbnails/thumbnail1.jpg", "product/thumbnails/thumbnail2.jpg"),
-			List.of("product/details/detail1.jpg", "product/details/detail2.jpg")
+			List.of("thumbnail1.jpg", "thumbnail2.jpg"),
+			List.of("detail1.jpg", "detail2.jpg")
 		);
 
 		// when
@@ -65,13 +65,13 @@ class ProductServiceTest {
 
 		List<ProductThumbnailDetail> thumbnailDetails = savedProduct.getDetail().getProductThumbnailDetails();
 		assertThat(thumbnailDetails).hasSize(2);
-		assertThat(thumbnailDetails.get(0).getImageUrl()).isEqualTo("product/thumbnails/thumbnail1.jpg");
-		assertThat(thumbnailDetails.get(1).getImageUrl()).isEqualTo("product/thumbnails/thumbnail2.jpg");
+		assertThat(thumbnailDetails.get(0).getImageUrl()).isEqualTo("thumbnail1.jpg");
+		assertThat(thumbnailDetails.get(1).getImageUrl()).isEqualTo("thumbnail2.jpg");
 
 		List<ProductImageDetail> imageDetails = savedProduct.getDetail().getProductImageDetails();
 		assertThat(imageDetails).hasSize(2);
-		assertThat(imageDetails.get(0).getImageUrl()).isEqualTo("product/details/detail1.jpg");
-		assertThat(imageDetails.get(1).getImageUrl()).isEqualTo("product/details/detail2.jpg");
+		assertThat(imageDetails.get(0).getImageUrl()).isEqualTo("detail1.jpg");
+		assertThat(imageDetails.get(1).getImageUrl()).isEqualTo("detail2.jpg");
 	}
 
 	@Test
@@ -85,8 +85,8 @@ class ProductServiceTest {
 			List.of("BLACK", "MIDNIGHT_BLUE"),
 			5000L,
 			"2023-01-15",
-			List.of("product/thumbnails/thumbnail1.jpg", "product/thumbnails/thumbnail2.jpg"),
-			List.of("product/details/detail1.jpg", "product/details/detail2.jpg")
+			List.of("thumbnail1.jpg", "thumbnail2.jpg"),
+			List.of("detail1.jpg", "detail2.jpg")
 		);
 
 		// when & then
@@ -106,8 +106,8 @@ class ProductServiceTest {
 			List.of(invalidColor),
 			5000L,
 			"2023-01-15",
-			List.of("product/thumbnails/thumbnail1.jpg", "product/thumbnails/thumbnail2.jpg"),
-			List.of("product/details/detail1.jpg", "product/details/detail2.jpg")
+			List.of("thumbnail1.jpg", "thumbnail2.jpg"),
+			List.of("detail1.jpg", "detail2.jpg")
 		);
 
 		// when & then
