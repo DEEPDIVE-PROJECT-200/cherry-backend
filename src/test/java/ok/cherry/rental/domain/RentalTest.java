@@ -3,7 +3,7 @@ package ok.cherry.rental.domain;
 import static org.assertj.core.api.Assertions.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -25,8 +25,8 @@ class RentalTest {
 		Member member = MemberBuilder.create();
 		RentalItem rentalItem = RentalItemBuilder.create();
 		String rentalNumber = "CH-25090213363012345678";
-		LocalDateTime startAt = LocalDateTime.now();
-		LocalDateTime endAt = LocalDateTime.now().plusDays(7);
+		LocalDate startAt = LocalDate.now();
+		LocalDate endAt = LocalDate.now().plusDays(7);
 
 		// when
 		Rental rental = Rental.create(member, List.of(rentalItem), rentalNumber, startAt, endAt);

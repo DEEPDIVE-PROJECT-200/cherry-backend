@@ -1,7 +1,7 @@
 package ok.cherry.rental.domain;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,8 +59,8 @@ public class Rental {
 		Member member,
 		List<RentalItem> items,
 		String rentalNumber,
-		LocalDateTime startAt,
-		LocalDateTime endAt
+		LocalDate startAt,
+		LocalDate endAt
 	) {
 		validateRentalNumber(rentalNumber);
 
