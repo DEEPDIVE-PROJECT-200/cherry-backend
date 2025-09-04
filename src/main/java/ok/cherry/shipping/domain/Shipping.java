@@ -14,10 +14,12 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.shipping.domain.status.ShippingStatus;
 import ok.cherry.shipping.domain.type.Direction;
+import ok.cherry.shipping.exception.ShippingError;
 
 @Entity
 @Getter
@@ -62,6 +64,8 @@ public class Shipping {
 		String trackingNumber,
 		Address address
 	) {
+		validateTrackingNumber(trackingNumber);
+
 		Shipping shipping = new Shipping();
 		shipping.member = member;
 		shipping.rental = rental;
@@ -71,5 +75,11 @@ public class Shipping {
 		shipping.status = ShippingStatus.PENDING;
 		shipping.detail = ShippingDetail.create();
 		return shipping;
+	}
+
+	private static void validateTrackingNumber(String trackingNumber) {
+		if (trackingNumber == null || !trackingNumber.matches("^\\d{20}$")) {
+			throw new DomainException(ShippingError.INVALID_TRACKING_NUMBER);
+		}
 	}
 }

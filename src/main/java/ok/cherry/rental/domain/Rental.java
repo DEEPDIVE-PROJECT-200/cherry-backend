@@ -21,8 +21,10 @@ import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.exception.RentalError;
 
 @Entity
 @Getter
@@ -60,6 +62,8 @@ public class Rental {
 		LocalDateTime startAt,
 		LocalDateTime endAt
 	) {
+		validateRentalNumber(rentalNumber);
+
 		Rental rental = new Rental();
 		rental.member = member;
 		rental.totalPrice = calculateTotalPrice(items);
@@ -79,5 +83,11 @@ public class Rental {
 		return items.stream()
 			.map(RentalItem::getPrice)
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	private static void validateRentalNumber(String rentalNumber) {
+		if (rentalNumber == null || !rentalNumber.matches("^CH-\\d{20}$")) {
+			throw new DomainException(RentalError.INVALID_RENTAL_NUMBER);
+		}
 	}
 }

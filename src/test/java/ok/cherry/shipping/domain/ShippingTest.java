@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.domain.Rental;
+import ok.cherry.shipping.ShippingBuilder;
 import ok.cherry.shipping.domain.status.ShippingStatus;
 import ok.cherry.shipping.domain.type.Direction;
+import ok.cherry.shipping.exception.ShippingError;
 
 class ShippingTest {
 
@@ -93,29 +96,14 @@ class ShippingTest {
 	}
 
 	@Test
-	@DisplayName("배송 생성 시 배송번호가 자동으로 생성된다")
+	@DisplayName("배송 생성 시 배송번호가 형식이 다르면 예외가 발생한다")
 	void createShippingWithTrackingNumber() {
 		// given
-		Rental rental = RentalBuilder.create();
-		Direction direction = Direction.OUTBOUND;
-		String receiver = "tester";
-		String phoneNumber = "010-1234-5678";
-		String trackingNumber = "25090213363012345678";
-		Address address = new Address("12345", "postAddress", "detailAddress");
+		String trackingNumber = "wrong_tracking_number";
 
-		// when
-		Shipping shipping = Shipping.create(
-			rental.getMember(),
-			rental,
-			direction,
-			receiver,
-			phoneNumber,
-			trackingNumber,
-			address
-		);
-
-		// then
-		assertThat(shipping.getTrackingNumber()).isNotNull();
-		assertThat(shipping.getTrackingNumber()).hasSize(20);
+		// when & then
+		assertThatThrownBy(() -> ShippingBuilder.builder().withTrackingNumber(trackingNumber).build())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(ShippingError.INVALID_TRACKING_NUMBER.getMessage());
 	}
 }

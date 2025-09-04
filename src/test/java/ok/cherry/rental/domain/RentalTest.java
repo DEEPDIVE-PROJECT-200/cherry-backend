@@ -9,10 +9,12 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.RentalItemBuilder;
+import ok.cherry.rental.exception.RentalError;
 
 class RentalTest {
 
@@ -65,5 +67,17 @@ class RentalTest {
 		assertThat(rental.getRentalItems()).hasSize(2);
 		assertThat(rental.getRentalItems())
 			.allMatch(rentalItem -> rentalItem.getRental() == rental);
+	}
+
+	@Test
+	@DisplayName("대여 생성 시 대여번호가 형식이 다르면 예외가 발생한다")
+	void createShippingWithTrackingNumber() {
+		// given
+		String wrongRentalNumber = "wrong_rental_number";
+
+		// when & then
+		assertThatThrownBy(() -> RentalBuilder.builder().withRentalNumber(wrongRentalNumber).build())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(RentalError.INVALID_RENTAL_NUMBER.getMessage());
 	}
 }
