@@ -34,6 +34,7 @@ public class SecurityConfig {
 		"/static/**",
 		"/actuator/**",
 		"/metrics",
+		"/health",
 	};
 
 	private final AuthRedisRepository authRedisRepository;
