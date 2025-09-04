@@ -40,6 +40,9 @@ public class Rental {
 	@Column(nullable = false)
 	private BigDecimal totalPrice;
 
+	@Column(nullable = false, unique = true)
+	private String rentalNumber;
+
 	@OneToMany(mappedBy = "rental", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<RentalItem> rentalItems = new ArrayList<>();
 
@@ -50,11 +53,18 @@ public class Rental {
 	@Embedded
 	private RentalDetail detail;
 
-	public static Rental create(Member member, List<RentalItem> items, LocalDateTime startAt, LocalDateTime endAt) {
+	public static Rental create(
+		Member member,
+		List<RentalItem> items,
+		String rentalNumber,
+		LocalDateTime startAt,
+		LocalDateTime endAt
+	) {
 		Rental rental = new Rental();
 		rental.member = member;
 		rental.totalPrice = calculateTotalPrice(items);
 		rental.detail = RentalDetail.create(startAt, endAt);
+		rental.rentalNumber = rentalNumber;
 		rental.rentalStatus = RentalStatus.PENDING;
 
 		items.forEach(item -> {
