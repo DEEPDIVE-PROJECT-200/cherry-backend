@@ -11,8 +11,8 @@ import ok.cherry.global.exception.error.ErrorCode;
 public enum ProductError implements ErrorCode {
 
 	INVALID_PRODUCT_NAME("상품명은 필수입니다", HttpStatus.BAD_REQUEST, "P_001"),
-	INVALID_BRAND("지원하지 않는 브랜드입니다.", HttpStatus.BAD_REQUEST, "P_002"),
-	INVALID_COLOR("지원하지 않는 색상 옵션입니다.", HttpStatus.BAD_REQUEST, "P_003"),
+	INVALID_BRAND("지원하지 않는 브랜드입니다", HttpStatus.BAD_REQUEST, "P_002"),
+	INVALID_COLOR("지원하지 않는 색상 옵션입니다", HttpStatus.BAD_REQUEST, "P_003"),
 	INVALID_DAILY_RENTAL_PRICE("일일 대여 가격은 0보다 커야 합니다", HttpStatus.BAD_REQUEST, "P_004"),
 	INVALID_IMAGE_URL("이미지 URL이 유효하지 않습니다", HttpStatus.BAD_REQUEST, "P_005"),
 	INVALID_DISPLAY_ORDER("표시 순서는 0 이상이어야 합니다", HttpStatus.BAD_REQUEST, "P_006"),

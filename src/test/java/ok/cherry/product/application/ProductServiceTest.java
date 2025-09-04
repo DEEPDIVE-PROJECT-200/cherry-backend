@@ -34,7 +34,7 @@ class ProductServiceTest {
 	ProductRepository productRepository;
 
 	@Test
-	@DisplayName("상품 등록에 성공한다.")
+	@DisplayName("상품 등록에 성공한다")
 	void createProduct_success() {
 		// given
 		ProductCreateRequest request = new ProductCreateRequest(
@@ -75,7 +75,7 @@ class ProductServiceTest {
 	}
 
 	@Test
-	@DisplayName("지원하지 않는 브랜드 입력 시 예외가 발생한다.")
+	@DisplayName("지원하지 않는 브랜드 입력 시 예외가 발생한다")
 	void createProduct_fail_invalidBrand() {
 		// given
 		String invalidBrand = "INVALID_BRAND";
@@ -96,7 +96,7 @@ class ProductServiceTest {
 	}
 
 	@Test
-	@DisplayName("지원하지 않는 색상 옵션 입력 시 예외가 발생한다.")
+	@DisplayName("지원하지 않는 색상 옵션 입력 시 예외가 발생한다")
 	void createProduct_fail_invalidColor() {
 		// given
 		String invalidColor = "INVALID_COLOR";
