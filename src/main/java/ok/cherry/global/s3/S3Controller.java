@@ -3,7 +3,6 @@ package ok.cherry.global.s3;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,13 +39,13 @@ public class S3Controller {
 	 * 단일 파일 삭제
 	 * */
 	@DeleteMapping("/image")
-	public ResponseEntity<FilesDeleteResponse> deleteImage(@Param("image") String imagePrefix) {
+	public ResponseEntity<FilesDeleteResponse> deleteImage(@RequestParam("image") String imagePrefix) {
 		s3Service.deleteFile(imagePrefix);
 
-		List<String> fileUrls = new ArrayList<>();
-		fileUrls.add(imagePrefix);
+		List<String> fileNames = new ArrayList<>();
+		fileNames.add(imagePrefix);
 
-		FilesDeleteResponse response = FilesDeleteResponse.of(fileUrls);
+		FilesDeleteResponse response = FilesDeleteResponse.of(fileNames);
 		return ResponseEntity.ok(response);
 	}
 
@@ -55,8 +54,8 @@ public class S3Controller {
 	 * */
 	@DeleteMapping("/images")
 	public ResponseEntity<FilesDeleteResponse> deleteImages(@RequestBody FilesDeleteRequest request) {
-		s3Service.deleteFiles(request.fileUrls());
-		FilesDeleteResponse response = FilesDeleteResponse.of(request.fileUrls());
+		s3Service.deleteFiles(request.fileNames());
+		FilesDeleteResponse response = FilesDeleteResponse.of(request.fileNames());
 		return ResponseEntity.ok(response);
 	}
 
