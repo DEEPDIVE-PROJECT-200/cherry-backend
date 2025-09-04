@@ -1,9 +1,5 @@
 package ok.cherry.shipping.domain;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Random;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -18,10 +14,12 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.shipping.domain.status.ShippingStatus;
 import ok.cherry.shipping.domain.type.Direction;
+import ok.cherry.shipping.exception.ShippingError;
 
 @Entity
 @Getter
@@ -40,7 +38,7 @@ public class Shipping {
 	@JoinColumn(name = "rental_id", nullable = false)
 	private Rental rental;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String trackingNumber;
 
 	@Enumerated(EnumType.STRING)
@@ -63,25 +61,25 @@ public class Shipping {
 		Direction direction,
 		String receiver,
 		String phoneNumber,
+		String trackingNumber,
 		Address address
 	) {
+		validateTrackingNumber(trackingNumber);
+
 		Shipping shipping = new Shipping();
 		shipping.member = member;
 		shipping.rental = rental;
 		shipping.direction = direction;
 		shipping.shippingInfo = ShippingInfo.create(receiver, phoneNumber, address);
-		shipping.trackingNumber = generateTrackingNumber();
+		shipping.trackingNumber = trackingNumber;
 		shipping.status = ShippingStatus.PENDING;
 		shipping.detail = ShippingDetail.create();
 		return shipping;
 	}
 
-	private static String generateTrackingNumber() {
-		String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
-
-		int randomNumber = new Random().nextInt(100000000);
-		String numericSuffix = String.format("%08d", randomNumber);
-
-		return dateTime + numericSuffix;
+	private static void validateTrackingNumber(String trackingNumber) {
+		if (trackingNumber == null || !trackingNumber.matches("^\\d{20}$")) {
+			throw new DomainException(ShippingError.INVALID_TRACKING_NUMBER);
+		}
 	}
 }

@@ -15,6 +15,7 @@ public class RentalBuilder {
 
 	public Member member = MemberBuilder.create();
 	public List<RentalItem> rentalItems = List.of(RentalItemBuilder.create());
+	public String rentalNumber = "CH-25090213363012345678";
 	public LocalDateTime startAt = LocalDateTime.now();
 	public LocalDateTime endAt = LocalDateTime.now().plusDays(7);
 
@@ -27,7 +28,7 @@ public class RentalBuilder {
 	}
 
 	public Rental build() {
-		return Rental.create(member, rentalItems, startAt, endAt);
+		return Rental.create(member, rentalItems, rentalNumber, startAt, endAt);
 	}
 
 	public RentalBuilder withMember(Member member) {
@@ -37,6 +38,11 @@ public class RentalBuilder {
 
 	public RentalBuilder withRentalItems(List<RentalItem> rentalItems) {
 		this.rentalItems = rentalItems;
+		return this;
+	}
+
+	public RentalBuilder withRentalNumber(String rentalNumber) {
+		this.rentalNumber = rentalNumber;
 		return this;
 	}
 
