@@ -39,8 +39,8 @@ class ProductServiceTest {
 		// given
 		ProductCreateRequest request = new ProductCreateRequest(
 			"WH-1000XM5",
-			"SONY",
-			List.of("BLACK", "MIDNIGHT_BLUE"),
+			Brand.SONY,
+			List.of(Color.BLACK, Color.MIDNIGHT_BLUE),
 			5000L,
 			"2023-01-15",
 			List.of("thumbnail1.jpg", "thumbnail2.jpg"),
@@ -52,7 +52,6 @@ class ProductServiceTest {
 
 		// then
 		assertThat(response).isNotNull();
-		assertThat(response.productId()).isEqualTo(1L);
 
 		Product savedProduct = productRepository.findById(response.productId()).orElseThrow();
 
@@ -75,14 +74,25 @@ class ProductServiceTest {
 	}
 
 	@Test
-	@DisplayName("지원하지 않는 브랜드 입력 시 예외가 발생한다")
-	void createProduct_fail_invalidBrand() {
+	@DisplayName("중복된 상품명으로 상품 등록 시 예외가 발생한다.")
+	public void createProduct_fail_duplicate_name() {
 		// given
-		String invalidBrand = "INVALID_BRAND";
 		ProductCreateRequest request = new ProductCreateRequest(
 			"WH-1000XM5",
-			invalidBrand,
-			List.of("BLACK", "MIDNIGHT_BLUE"),
+			Brand.SONY,
+			List.of(Color.BLACK, Color.MIDNIGHT_BLUE),
+			5000L,
+			"2023-01-15",
+			List.of("thumbnail1.jpg", "thumbnail2.jpg"),
+			List.of("detail1.jpg","detail2.jpg")
+		);
+
+		ProductCreateResponse response = productService.createProduct(request);
+
+		ProductCreateRequest duplicateRequest = new ProductCreateRequest(
+			"WH-1000XM5",
+			Brand.SONY,
+			List.of(Color.BLACK, Color.MIDNIGHT_BLUE),
 			5000L,
 			"2023-01-15",
 			List.of("thumbnail1.jpg", "thumbnail2.jpg"),
@@ -90,29 +100,8 @@ class ProductServiceTest {
 		);
 
 		// when & then
-		assertThatThrownBy(() -> productService.createProduct(request))
+		assertThatThrownBy(() -> productService.createProduct(duplicateRequest))
 			.isInstanceOf(BusinessException.class)
-			.hasMessage(ProductError.INVALID_BRAND.getMessage());
-	}
-
-	@Test
-	@DisplayName("지원하지 않는 색상 옵션 입력 시 예외가 발생한다")
-	void createProduct_fail_invalidColor() {
-		// given
-		String invalidColor = "INVALID_COLOR";
-		ProductCreateRequest request = new ProductCreateRequest(
-			"WH-1000XM5",
-			"SONY",
-			List.of(invalidColor),
-			5000L,
-			"2023-01-15",
-			List.of("thumbnail1.jpg", "thumbnail2.jpg"),
-			List.of("detail1.jpg", "detail2.jpg")
-		);
-
-		// when & then
-		assertThatThrownBy(() -> productService.createProduct(request))
-			.isInstanceOf(BusinessException.class)
-			.hasMessage(ProductError.INVALID_COLOR.getMessage());
+			.hasMessage(ProductError.DUPLICATE_PRODUCT.getMessage());
 	}
 }
