@@ -3,7 +3,7 @@ package ok.cherry.product.domain;
 import static org.assertj.core.api.Assertions.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -20,13 +20,12 @@ class ProductTest {
 		// given
 		String name = "SONY WH-1000XM6";
 		Brand brand = Brand.SONY;
-		String model = "WH-1000XM6";
 		List<Color> colors = List.of(Color.BLACK, Color.WHITE);
 		BigDecimal dailyRentalPrice = new BigDecimal(10000);
-		LocalDateTime launchedAt = LocalDateTime.of(2025, 5, 16, 0, 0, 0);
+		LocalDate launchedAt = LocalDate.of(2025, 5, 16);
 
 		// when
-		Product product = Product.create(name, brand, model, colors, dailyRentalPrice, launchedAt, null, null);
+		Product product = Product.create(name, brand, colors, dailyRentalPrice, launchedAt, null, null);
 
 		// then
 		assertThat(product.getDetail().getRegisteredAt()).isNotNull();
