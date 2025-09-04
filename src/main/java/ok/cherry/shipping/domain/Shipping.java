@@ -1,9 +1,5 @@
 package ok.cherry.shipping.domain;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Random;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -40,7 +36,7 @@ public class Shipping {
 	@JoinColumn(name = "rental_id", nullable = false)
 	private Rental rental;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String trackingNumber;
 
 	@Enumerated(EnumType.STRING)
@@ -63,6 +59,7 @@ public class Shipping {
 		Direction direction,
 		String receiver,
 		String phoneNumber,
+		String trackingNumber,
 		Address address
 	) {
 		Shipping shipping = new Shipping();
@@ -70,18 +67,9 @@ public class Shipping {
 		shipping.rental = rental;
 		shipping.direction = direction;
 		shipping.shippingInfo = ShippingInfo.create(receiver, phoneNumber, address);
-		shipping.trackingNumber = generateTrackingNumber();
+		shipping.trackingNumber = trackingNumber;
 		shipping.status = ShippingStatus.PENDING;
 		shipping.detail = ShippingDetail.create();
 		return shipping;
-	}
-
-	private static String generateTrackingNumber() {
-		String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
-
-		int randomNumber = new Random().nextInt(100000000);
-		String numericSuffix = String.format("%08d", randomNumber);
-
-		return dateTime + numericSuffix;
 	}
 }
