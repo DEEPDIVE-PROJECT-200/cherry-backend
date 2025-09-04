@@ -1,5 +1,6 @@
 package ok.cherry.global.swagger.product;
 
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +18,11 @@ public interface ProductControllerDoc {
 	@Operation(method = "POST", summary = "상품 등록", description = "새로운 상품을 등록합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "상품 등록 성공",
-			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductCreateResponse.class)))
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductCreateResponse.class))),
+		@ApiResponse(responseCode = "400", description = "상품 등록 실패 - 유효성 검사 실패",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+		@ApiResponse(responseCode = "400", description = "상품 등록 실패 - 지원하지 않는 색상 옵션, 지원하지 않는 브랜드",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
 	})
 	ResponseEntity<ProductCreateResponse> createProduct(ProductCreateRequest request);
 }
