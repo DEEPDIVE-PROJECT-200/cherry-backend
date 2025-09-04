@@ -21,7 +21,7 @@ public enum Brand {
 		}
 
 		try {
-			Brand.valueOf(value.toUpperCase());
+			Brand.valueOf(value);
 			return true;
 		} catch (Exception e) {
 			log.error("유효하지 않은 Brand 값입니다: {}", value, e);

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,8 +74,11 @@ public class ProductService {
 			imageDetails
 		);
 
-		Product savedProduct = productRepository.save(product);
-
-		return ProductCreateResponse.of(savedProduct.getId());
+		try{
+			Product savedProduct = productRepository.save(product);
+			return ProductCreateResponse.of(savedProduct.getId());
+		} catch (DataIntegrityViolationException e) {
+			throw new BusinessException(ProductError.DUPLICATE_PRODUCT);
+		}
 	}
 }
