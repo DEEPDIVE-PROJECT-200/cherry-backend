@@ -19,9 +19,7 @@ public interface ProductControllerDoc {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "상품 등록 성공",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductCreateResponse.class))),
-		@ApiResponse(responseCode = "400", description = "상품 등록 실패 - 유효성 검사 실패",
-			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
-		@ApiResponse(responseCode = "400", description = "상품 등록 실패 - 지원하지 않는 색상 옵션, 지원하지 않는 브랜드",
+		@ApiResponse(responseCode = "400", description = "상품 등록 실패 - 유효성 검사 실패, 지원하지 않는 색상 옵션, 지원하지 않는 브랜드",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
 	})
 	ResponseEntity<ProductCreateResponse> createProduct(ProductCreateRequest request);
