@@ -41,7 +41,7 @@ public class S3Service {
 	/**
 	 * 단일 파일 업로드
 	 * */
-	public String uploadFile(MultipartFile file) { // todo: 경로 지정 할 필요가 없어서 관련 로직 모두 제거
+	public String uploadFile(MultipartFile file) {
 		// S3에 저장될 파일명 생성
 		String fileName = createFileName(file.getOriginalFilename());
 
@@ -142,7 +142,7 @@ public class S3Service {
 		validateFileUrls(fileNames);
 
 		List<CompletableFuture<Void>> deleteFutures = fileNames.stream()
-			.map(fileUrl -> CompletableFuture.runAsync(() -> deleteFile(fileUrl)))
+			.map(fileName -> CompletableFuture.runAsync(() -> deleteFile(fileName)))
 			.toList();
 
 		CompletableFuture<Void> allOf = CompletableFuture.allOf(deleteFutures.toArray(new CompletableFuture[0]));
