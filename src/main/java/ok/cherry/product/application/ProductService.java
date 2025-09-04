@@ -32,7 +32,7 @@ public class ProductService {
 	public ProductCreateResponse createProduct(ProductCreateRequest request) {
 		// 색상, 브랜드 Enum 타입 유효성 검증
 		String requestedBrand = request.brand().toUpperCase();
-		if (!isValidEnum(Brand.class, requestedBrand)) {
+		if (!Brand.isValid(requestedBrand)) {
 			throw new BusinessException(ProductError.INVALID_BRAND);
 		}
 		Brand brand = Brand.valueOf(requestedBrand);
@@ -40,7 +40,7 @@ public class ProductService {
 		List<Color> colors = new ArrayList<>();
 		for (String color : request.colors()) {
 			String requestedColor = color.toUpperCase();
-			if (!isValidEnum(Color.class, requestedColor)) {
+			if (!Color.isValid(requestedColor)) {
 				throw new BusinessException(ProductError.INVALID_COLOR);
 			}
 			colors.add(Color.valueOf(requestedColor));
@@ -76,19 +76,5 @@ public class ProductService {
 		Product savedProduct = productRepository.save(product);
 
 		return ProductCreateResponse.of(savedProduct.getId());
-	}
-
-	private <E extends Enum<E>> boolean isValidEnum(Class<E> enumClass, String value) {
-		if (value == null) {
-			return false;
-		}
-
-		try {
-			Enum.valueOf(enumClass, value);
-			return true;
-		} catch (Exception e) {
-			log.error("Enum 타입 검증 중 오류가 발생하였습니다. {}", e.getMessage(), e);
-			return false;
-		}
 	}
 }

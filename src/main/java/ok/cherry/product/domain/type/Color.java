@@ -1,5 +1,8 @@
 package ok.cherry.product.domain.type;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public enum Color {
 	BLACK,
 	WHITE,
@@ -23,5 +26,20 @@ public enum Color {
 	COPPER,
 	BLACK_NICKEL,
 	CERAMIC_CINNABAR,
-	TAN
+	TAN;
+
+	public static boolean isValid(String value) {
+		if (value == null) {
+			return false;
+		}
+
+		try {
+			Color.valueOf(value.toUpperCase());
+			return true;
+		} catch (Exception e) {
+			log.error("유효하지 않은 Color 값입니다: {}", value, e);
+			return false;
+		}
 	}
+
+}
