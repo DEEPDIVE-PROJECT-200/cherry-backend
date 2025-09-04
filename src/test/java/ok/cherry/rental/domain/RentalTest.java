@@ -22,11 +22,12 @@ class RentalTest {
 		// given
 		Member member = MemberBuilder.create();
 		RentalItem rentalItem = RentalItemBuilder.create();
+		String rentalNumber = "CH-25090213363012345678";
 		LocalDateTime startAt = LocalDateTime.now();
 		LocalDateTime endAt = LocalDateTime.now().plusDays(7);
 
 		// when
-		Rental rental = Rental.create(member, List.of(rentalItem), startAt, endAt);
+		Rental rental = Rental.create(member, List.of(rentalItem), rentalNumber, startAt, endAt);
 
 		// then
 		assertThat(rental.getDetail().getCreatedAt()).isNotNull();

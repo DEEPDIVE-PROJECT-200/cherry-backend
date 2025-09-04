@@ -20,10 +20,19 @@ class ShippingTest {
 		Direction direction = Direction.OUTBOUND;
 		String receiver = "tester";
 		String phoneNumber = "010-1234-5678";
+		String trackingNumber = "25090213363012345678";
 		Address address = new Address("12345", "postAddress", "detailAddress");
 
 		// when
-		Shipping shipping = Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, address);
+		Shipping shipping = Shipping.create(
+			rental.getMember(),
+			rental,
+			direction,
+			receiver,
+			phoneNumber,
+			trackingNumber,
+			address
+		);
 
 		// then
 		assertThat(shipping.getDetail().getCreatedAt()).isNotNull();
@@ -37,10 +46,19 @@ class ShippingTest {
 		Direction direction = Direction.OUTBOUND;
 		String receiver = "tester";
 		String phoneNumber = "010-1234-5678";
+		String trackingNumber = "25090213363012345678";
 		Address address = new Address("12345", "postAddress", "detailAddress");
 
 		// when
-		Shipping shipping = Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, address);
+		Shipping shipping = Shipping.create(
+			rental.getMember(),
+			rental,
+			direction,
+			receiver,
+			phoneNumber,
+			trackingNumber,
+			address
+		);
 
 		// then
 		assertThat(shipping.getStatus()).isEqualTo(ShippingStatus.PENDING);
@@ -54,10 +72,19 @@ class ShippingTest {
 		Direction direction = Direction.OUTBOUND;
 		String receiver = "tester";
 		String phoneNumber = "010-1234-5678";
+		String trackingNumber = "25090213363012345678";
 		Address address = new Address("12345", "postAddress", "detailAddress");
 
 		// when
-		Shipping shipping = Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, address);
+		Shipping shipping = Shipping.create(
+			rental.getMember(),
+			rental,
+			direction,
+			receiver,
+			phoneNumber,
+			trackingNumber,
+			address
+		);
 
 		// then
 		assertThat(shipping.getShippingInfo().getReceiver()).isEqualTo("tester");
@@ -73,10 +100,19 @@ class ShippingTest {
 		Direction direction = Direction.OUTBOUND;
 		String receiver = "tester";
 		String phoneNumber = "010-1234-5678";
+		String trackingNumber = "25090213363012345678";
 		Address address = new Address("12345", "postAddress", "detailAddress");
 
 		// when
-		Shipping shipping = Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, address);
+		Shipping shipping = Shipping.create(
+			rental.getMember(),
+			rental,
+			direction,
+			receiver,
+			phoneNumber,
+			trackingNumber,
+			address
+		);
 
 		// then
 		assertThat(shipping.getTrackingNumber()).isNotNull();

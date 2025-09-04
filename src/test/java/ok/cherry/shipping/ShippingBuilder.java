@@ -15,6 +15,7 @@ public class ShippingBuilder {
 	public Direction direction = Direction.OUTBOUND;
 	public String receiver = "tester";
 	public String phoneNumber = "010-1234-5678";
+	public String trackingNumber = "25090213363012345678";
 	public Address address = new Address("12345", "postAddress", "detailAddress");
 
 	public static Shipping create() {
@@ -26,7 +27,7 @@ public class ShippingBuilder {
 	}
 
 	public Shipping build() {
-		return Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, address);
+		return Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, trackingNumber, address);
 	}
 
 	public ShippingBuilder withRental(Rental rental) {
@@ -46,6 +47,11 @@ public class ShippingBuilder {
 
 	public ShippingBuilder withPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+		return this;
+	}
+
+	public ShippingBuilder withTrackingNumber(String trackingNumber) {
+		this.trackingNumber = trackingNumber;
 		return this;
 	}
 
