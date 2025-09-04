@@ -1,8 +1,10 @@
 package ok.cherry.global.exception;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.ProblemDetail;
@@ -14,8 +16,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 import io.jsonwebtoken.JwtException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.exception.error.DomainException;
@@ -29,8 +32,41 @@ public class GlobalExceptionHandler {
 	 * @RequestBody 누락: HttpMessageNotReadableException
 	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
-	public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException exception, HttpServletRequest request) {
-		return getProblemDetail(GlobalError.INVALID_REQUEST_BODY, exception);
+	public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+		// Jackson이 던진 가장 구체적인 예외
+		Throwable cause = ex.getMostSpecificCause();
+
+		// 1) Jackson의 형식 불일치(예: String → Enum 변환 실패)
+		if (cause instanceof InvalidFormatException ife) {
+			// 어떤 타입으로 매핑하려다 실패했는지
+			Class<?> targetType = ife.getTargetType();
+
+			// 대상 타입이 Enum이면 "없는 Enum 값" 케이스로 분기
+			if (targetType != null && targetType.isEnum()) {
+				String badValue = String.valueOf(ife.getValue());
+				@SuppressWarnings("unchecked")
+				Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>)targetType;
+
+				// 허용 가능한 값들
+				String allowed = Arrays.stream(enumClass.getEnumConstants())
+					.map(Enum::name)
+					.sorted()
+					.collect(Collectors.joining(", "));
+
+				String fieldPath = ife.getPath() != null && !ife.getPath().isEmpty()
+					? ife.getPath().stream()
+					.map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "[" + ref.getIndex() + "]")
+					.collect(Collectors.joining("."))
+					: null;
+
+				String details = fieldPath != null
+					? "필드 '%s'에 허용되지 않는 값 '%s' 입니다. 허용값: [%s]".formatted(fieldPath, badValue, allowed)
+					: "허용되지 않는 Enum 값 '%s' 입니다. 허용값: [%s]".formatted(badValue, allowed);
+				return getProblemDetail(GlobalError.INVALID_REQUEST_PARAM, ex, details);
+			}
+		}
+		String details = cause.getMessage();
+		return getProblemDetail(GlobalError.INVALID_REQUEST_PARAM, ex, details);
 	}
 
 	/**
