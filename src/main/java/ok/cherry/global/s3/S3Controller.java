@@ -29,9 +29,8 @@ public class S3Controller {
 	 * */
 	@PostMapping
 	public ResponseEntity<ImageUploadResponse> uploadImage(@RequestParam("image") MultipartFile image) {
-		List<String> fileNames = new ArrayList<>();
-		fileNames.add(s3Service.uploadFile(image));
-		ImageUploadResponse response = ImageUploadResponse.of(fileNames);
+		String fileName = s3Service.uploadFile(image);
+		ImageUploadResponse response = ImageUploadResponse.of(fileName);
 		return ResponseEntity.ok(response);
 	}
 
