@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import ok.cherry.product.domain.type.Brand;
+import ok.cherry.product.domain.type.Color;
 
 @Schema(description = "상품 등록 요청 DTO")
 public record ProductCreateRequest(
@@ -18,12 +20,12 @@ public record ProductCreateRequest(
 	String name,
 
 	@Schema(description = "브랜드명", example = "SONY")
-	@NotBlank(message = "브랜드명은 필수입니다.")
-	String brand,
+	@NotNull(message = "브랜드명은 필수입니다.")
+	Brand brand,
 
 	@Schema(description = "상품 색상 옵션", example = "[\"BLACK\", \"MIDNIGHT_BLUE\", \"PLATINUM_SILVER\"]")
-	@NotEmpty(message = "최소 하나 이상의 색상 옵션이 필요합니다.")
-	List<String> colors,
+	@NotNull(message = "최소 하나 이상의 색상 옵션이 필요합니다.")
+	List<Color> colors,
 
 	@Schema(description = "일일 대여 가격(원)", example = "5000")
 	@NotNull(message = "일일 대여 가격은 필수입니다")
