@@ -45,7 +45,7 @@ public class ProductDetail {
 		return detail;
 	}
 
-	void changeProductThumbNailDetails(List<ProductThumbnailDetail> details) {
+	void changeProductThumbnailDetails(List<ProductThumbnailDetail> details) {
 		this.productThumbnailDetails.clear();
 		if (details != null) {
 			this.productThumbnailDetails.addAll(details);

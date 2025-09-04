@@ -65,7 +65,7 @@ public class Product {
 		product.dailyRentalPrice = dailyRentalPrice;
 		product.launchedAt = launchedAt;
 		product.detail = ProductDetail.create();
-		product.detail.changeProductThumbNailDetails(thumbnailDetails);
+		product.detail.changeProductThumbnailDetails(thumbnailDetails);
 		product.detail.changeProductImageDetails(imageDetails);
 
 		if (colors != null) {
