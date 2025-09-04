@@ -26,20 +26,5 @@ public enum Color {
 	COPPER,
 	BLACK_NICKEL,
 	CERAMIC_CINNABAR,
-	TAN;
-
-	public static boolean isValid(String value) {
-		if (value == null) {
-			return false;
-		}
-
-		try {
-			Color.valueOf(value);
-			return true;
-		} catch (Exception e) {
-			log.error("유효하지 않은 Color 값입니다: {}", value, e);
-			return false;
-		}
-	}
-
+	TAN
 }
