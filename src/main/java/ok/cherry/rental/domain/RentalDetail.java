@@ -1,5 +1,6 @@
 package ok.cherry.rental.domain;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -17,12 +18,12 @@ public class RentalDetail {
 	private LocalDateTime createdAt;
 
 	@Column(nullable = false)
-	private LocalDateTime startAt;
+	private LocalDate startAt;
 
 	@Column(nullable = false)
-	private LocalDateTime endAt;
+	private LocalDate endAt;
 
-	static RentalDetail create(LocalDateTime startAt, LocalDateTime endAt) {
+	static RentalDetail create(LocalDate startAt, LocalDate endAt) {
 		RentalDetail rentalDetail = new RentalDetail();
 		rentalDetail.createdAt = LocalDateTime.now();
 		rentalDetail.startAt = startAt;
