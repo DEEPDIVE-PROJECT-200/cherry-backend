@@ -27,7 +27,7 @@ public interface CartControllerDoc {
 
 	@Operation(method = "DELETE", summary = "장바구니 상품 삭제", description = "장바구니에 담긴 상품을 삭제합니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "장바구니 상품 삭제 성공"),
+		@ApiResponse(responseCode = "204", description = "장바구니 상품 삭제 성공"),
 		@ApiResponse(responseCode = "401", description = "장바구니 상품 등록 실패 - 요청에 대한 장바구니 상품 소유자가 일치하지 않음",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
 		@ApiResponse(responseCode = "404", description = "장바구니 상품 등록 실패 - 장바구니 상품을 찾을 수 없음",

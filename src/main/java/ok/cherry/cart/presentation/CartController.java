@@ -34,7 +34,7 @@ public class CartController implements CartControllerDoc {
 	public ResponseEntity<Void> deleteCart(@RequestBody CartDeleteRequest request,
 		@AuthenticationPrincipal String providerId) {
 		cartService.deleteCart(request, providerId);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.noContent().build();
 	}
 
 }
