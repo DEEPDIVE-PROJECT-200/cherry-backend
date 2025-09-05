@@ -20,11 +20,13 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.global.exception.error.ErrorCode;
 import ok.cherry.global.exception.error.GlobalError;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -153,6 +155,7 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(Exception.class)
 	public ProblemDetail exceptionHandler(Exception exception) {
+		log.error("Unhandled exception occurred", exception);
 		return getProblemDetail(GlobalError.INTERNAL_SERVER_ERROR, exception);
 	}
 
