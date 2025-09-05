@@ -1,5 +1,7 @@
 package ok.cherry.cart.application;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,11 +49,16 @@ public class CartService {
 	}
 
 	public void deleteCart(CartDeleteRequest request, String providerId) {
-		request.cartIds().stream().map(cartId -> cartRepository.findById(cartId)
-			.orElseThrow(() -> new BusinessException(CartError.CART_NOT_FOUND))).forEach(cart -> {
-			validateCartOwner(cart, providerId);
-			deleteCart(cart);
-		});
+		List<Cart> cartsToDelete = request.cartIds().stream()
+			.map(cartId -> {
+				Cart cart = cartRepository.findById(cartId)
+					.orElseThrow(() -> new BusinessException(CartError.CART_NOT_FOUND));
+				validateCartOwner(cart, providerId);
+				return cart;
+			})
+			.toList();
+
+		cartRepository.deleteAllInBatch(cartsToDelete);
 	}
 
 	private static void validateCartOwner(Cart cart, String providerId) {
@@ -59,14 +66,4 @@ public class CartService {
 			throw new BusinessException(CartError.UNAUTHORIZED_CART_ACCESS);
 		}
 	}
-
-	private void deleteCart(Cart cart){
-		try {
-			cartRepository.delete(cart);
-		} catch (Exception e) {
-			throw new BusinessException(CartError.CART_DELETE_FAIL);
-		}
-	}
-
-
 }
