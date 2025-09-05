@@ -125,6 +125,7 @@ class CartServiceTest {
 
 		// when
 		cartService.deleteCart(deleteRequest, savedMember.getProviderId());
+		flushAndClear();
 
 		// then
 		assertThat(cartRepository.findById(savedCart.getId())).isEmpty();
