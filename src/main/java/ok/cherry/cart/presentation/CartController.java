@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ok.cherry.cart.application.CartService;
-import ok.cherry.cart.application.dto.request.CartAddRequest;
+import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
-import ok.cherry.cart.application.dto.response.CartAddResponse;
+import ok.cherry.cart.application.dto.response.CartCreateResponse;
 import ok.cherry.global.swagger.cart.CartControllerDoc;
 
 @RestController
@@ -24,9 +24,9 @@ public class CartController implements CartControllerDoc {
 	private final CartService cartService;
 
 	@PostMapping
-	public ResponseEntity<CartAddResponse> createCart(@RequestBody CartAddRequest request,
+	public ResponseEntity<CartCreateResponse> createCart(@RequestBody CartCreateRequest request,
 		@AuthenticationPrincipal String providerId) {
-		CartAddResponse response = cartService.createCart(request, providerId);
+		CartCreateResponse response = cartService.createCart(request, providerId);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
