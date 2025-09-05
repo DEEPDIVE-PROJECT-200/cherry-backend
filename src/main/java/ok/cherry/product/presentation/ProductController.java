@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ok.cherry.product.application.ProductService;
+import ok.cherry.product.application.ProductCreateService;
 import ok.cherry.product.application.dto.request.ProductCreateRequest;
 import ok.cherry.product.application.dto.response.ProductCreateResponse;
 import ok.cherry.global.swagger.product.ProductControllerDoc;
@@ -21,11 +21,11 @@ import ok.cherry.global.swagger.product.ProductControllerDoc;
 @RequiredArgsConstructor
 public class ProductController implements ProductControllerDoc {
 
-	private final ProductService productService;
+	private final ProductCreateService productCreateService;
 
 	@PostMapping("/product")
 	public ResponseEntity<ProductCreateResponse> createProduct(@Valid @RequestBody ProductCreateRequest request) {
-		ProductCreateResponse response = productService.createProduct(request);
+		ProductCreateResponse response = productCreateService.createProduct(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 }
