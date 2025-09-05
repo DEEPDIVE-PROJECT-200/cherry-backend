@@ -1,0 +1,109 @@
+package ok.cherry.auth.application;
+
+import java.time.Duration;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
+import ok.cherry.auth.application.dto.response.SignUpResponse;
+import ok.cherry.auth.application.dto.response.TokenResponse;
+import ok.cherry.auth.exception.AuthError;
+import ok.cherry.auth.exception.TokenError;
+import ok.cherry.auth.jwt.TokenExtractor;
+import ok.cherry.auth.jwt.TokenGenerator;
+import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.global.redis.AuthRedisRepository;
+import ok.cherry.global.redis.LogoutToken;
+import ok.cherry.member.domain.Member;
+import ok.cherry.member.domain.Provider;
+import ok.cherry.member.exception.MemberError;
+import ok.cherry.member.infrastructure.MemberRepository;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class AuthService {
+
+	private final MemberRepository memberRepository;
+	private final AuthRedisRepository authRedisRepository;
+	private final TokenGenerator tokenGenerator;
+	private final TokenExtractor tokenExtractor;
+
+	public SignUpResponse signUp(String emailAddress, String nickname, String tempToken) {
+		String providerId = getProviderId(tempToken);
+		validateAlreadyRegister(providerId);
+		validateEmailAddress(emailAddress);
+		validateNickname(nickname);
+
+		Member member = Member.register(providerId, Provider.KAKAO, emailAddress, nickname);
+		memberRepository.save(member);
+		authRedisRepository.deleteTempToken(tempToken);
+		return new SignUpResponse(providerId);
+	}
+
+	public TokenResponse login(String providerId) {
+		Member member = memberRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
+
+		TokenResponse tokenResponse = tokenGenerator.generateTokenDTO(member);
+		authRedisRepository.saveRefreshToken(providerId, tokenResponse.refreshToken());
+		return tokenResponse;
+	}
+
+	public void logout(String accessToken, String providerId) {
+		if (authRedisRepository.getRefreshToken(providerId) != null) {
+			authRedisRepository.deleteRefreshToken(providerId);
+		}
+
+		// AccessToken 남은 유효시간 기반으로 블랙리스트 TTL 설정
+		Duration expiration = tokenExtractor.getAccessTokenExpiration(accessToken);
+		if (expiration.isZero()) {
+			// 이미 만료된 토큰은 블랙리스트 저장 불필요
+			return;
+		}
+		LogoutToken logoutToken = new LogoutToken("logout", expiration);
+		authRedisRepository.saveLogoutToken(accessToken, logoutToken, expiration);
+	}
+
+	public ReissueTokenResponse reissueAccessToken(String refreshToken) {
+		String providerId = tokenExtractor.parseClaims(refreshToken).getSubject();
+		String restoredRefreshToken = authRedisRepository.getRefreshToken(providerId);
+
+		if (!refreshToken.equals(restoredRefreshToken)) {
+			throw new BusinessException(TokenError.REFRESH_TOKEN_MISMATCH);
+		}
+
+		Member member = memberRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
+
+		return tokenGenerator.reissueAccessToken(refreshToken, member);
+	}
+
+	private String getProviderId(String tempToken) {
+		String providerId = tokenExtractor.getProviderId(tempToken);
+		if (providerId == null) {
+			throw new BusinessException(AuthError.INVALID_TEMP_TOKEN);
+		}
+		return providerId;
+	}
+
+	private void validateAlreadyRegister(String providerId) {
+		if (memberRepository.existsByProviderId(providerId)) {
+			throw new BusinessException(MemberError.ALREADY_REGISTERED);
+		}
+	}
+
+	private void validateNickname(String nickname) {
+		if (memberRepository.existsByNickname(nickname)) {
+			throw new BusinessException(MemberError.DUPLICATE_NICKNAME);
+		}
+	}
+
+	private void validateEmailAddress(String emailAddress) {
+		if (memberRepository.existsByEmailAddress(emailAddress)) {
+			throw new BusinessException(MemberError.DUPLICATE_EMAIL);
+		}
+	}
+}

@@ -1,0 +1,56 @@
+name: deploy raillo raillo-backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 전체 레포를 루트 기준으로 체크아웃
+      - name: checkout github
+        uses: actions/checkout@v4
+
+      - name: install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.25.9"
+        id: install
+
+      # AWS CLI 설치 및 configure
+      - name: configure aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+          aws-region: ap-northeast-2
+
+      # Cluster 세팅
+      - name: update cluster infomation
+        run: aws eks update-kubeconfig --name  cherry-cluster --region ap-northeast-2
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: production
+          push: true
+          tags: |
+            134125630963.dkr.ecr.ap-northeast-2.amazonaws.com/cherry-backend:latest
+            134125630963.dkr.ecr.ap-northeast-2.amazonaws.com/cherry-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: eks kubectl apply
+        run: |
+          kubectl rollout restart deployment cherry-backend -n cherry-prod
+        # kubectl apply -f ./k8s/depl_svc.yml

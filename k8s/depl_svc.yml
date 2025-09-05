@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cherry-backend
+  namespace: cherry-prod
+spec:
+  # Deployment나 StatefulSet이 유지할 "옛날 ReplicaSet"의 수를 제한하는 옵션. 자원공간의 낭비 방지 및 관리의 편의성.
+  revisionHistoryLimit: 2
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cherry-backend
+  template:
+    metadata:
+      labels:
+        app: cherry-backend
+    spec:
+      containers:
+        - name: cherry-backend
+          image: 134125630963.dkr.ecr.ap-northeast-2.amazonaws.com/cherry-backend:latest
+          ports:
+            - containerPort: 8080  # spring의 포트번호와 일치
+          resources:
+            # 컨테이너가 사용할수 있는 리소스의 최대치
+            limits:
+              cpu: "1"
+              memory: "500Mi"
+            # 컨테이너가 시작될떄 보장받아야 하는 최소 자원
+            requests:
+              cpu: "0.5"
+              memory: "250Mi"
+          env:
+            # name값과 yml의 ${변수} 의 변수명과 일치해야함
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: DB_URL
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: DB_USERNAME
+            - name: DB_PW
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: DB_PW
+            - name: AWS_S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: AWS_S3_ACCESS_KEY
+            - name: AWS_S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: AWS_S3_SECRET_KEY
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: JWT_SECRET
+            - name: ACCESS_TOKEN_EXPIRATION_SECONDS
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: ACCESS_TOKEN_EXPIRATION_SECONDS
+            - name: REFRESH_TOKEN_EXPIRATION_SECONDS
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: REFRESH_TOKEN_EXPIRATION_SECONDS
+            - name: TEMP_TOKEN_EXPIRATION_SECONDS
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: TEMP_TOKEN_EXPIRATION_SECONDS
+            - name: KAKAO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: KAKAO_CLIENT_ID
+            - name: KAKAO_REDIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cherry-secrets
+                  key: KAKAO_REDIRECT_URL
+          # 컨테이너 상태 확인을 통해 롤링업데이트 최적화
+          readinessProbe:
+            httpGet:
+              # healthcheck 경로
+              path: /health
+              port: 8080
+            # 컨테이너 시작 후 지연
+            initialDelaySeconds: 10
+            # 확인 반복 주기
+            periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cherry-backend-service
+  namespace: cherry-prod
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: cherry-backend

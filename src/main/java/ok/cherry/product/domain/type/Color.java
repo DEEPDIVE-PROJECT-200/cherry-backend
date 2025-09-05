@@ -1,0 +1,30 @@
+package ok.cherry.product.domain.type;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public enum Color {
+	BLACK,
+	WHITE,
+	PLATINUM_SILVER,
+	MIDNIGHT_BLUE,
+	LUNA_BLUE,
+	WHITE_SMOKE,
+	SANDSTONE,
+	BLUE,
+	MIDNIGHT,
+	STARLIGHT,
+	PURPLE,
+	ORANGE,
+	GRAPHITE,
+	CHAMPAGNE,
+	TIMBER,
+	GOLD,
+	ROYAL_BURGUNDY,
+	DARK_FOREST,
+	DEEP_PLUM,
+	COPPER,
+	BLACK_NICKEL,
+	CERAMIC_CINNABAR,
+	TAN
+}

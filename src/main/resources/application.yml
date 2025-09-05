@@ -1,15 +1,3 @@
 spring:
-  application:
-    name: cherry
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        order_inserts: true
-        format_sql: true
-
-  docker:
-    compose:
-      lifecycle-management: start_only
+  profiles:
+    active: local
