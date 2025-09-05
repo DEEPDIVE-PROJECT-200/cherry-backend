@@ -154,8 +154,8 @@ public class GlobalExceptionHandler {
 	 * 예상하지 못한 모든 예외 처리: Exception
 	 */
 	@ExceptionHandler(Exception.class)
-	public ProblemDetail exceptionHandler(Exception exception) {
-		log.error("Unhandled exception occurred", exception);
+	public ProblemDetail exceptionHandler(Exception exception, jakarta.servlet.http.HttpServletRequest request) {
+		log.error("처리되지 않은 예외 발생: {} {}", request.getMethod(), request.getRequestURI(), exception);
 		return getProblemDetail(GlobalError.INTERNAL_SERVER_ERROR, exception);
 	}
 
