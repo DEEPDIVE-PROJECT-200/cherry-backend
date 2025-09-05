@@ -10,17 +10,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ok.cherry.cart.application.CartService;
 import ok.cherry.cart.application.dto.request.CartAddRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
 import ok.cherry.cart.application.dto.response.CartAddResponse;
+import ok.cherry.global.swagger.cart.CartControllerDoc;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
-public class CartController {
+public class CartController implements CartControllerDoc {
 
 	private final CartService cartService;
 
