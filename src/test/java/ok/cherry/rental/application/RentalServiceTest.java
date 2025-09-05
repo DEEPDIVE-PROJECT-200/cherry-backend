@@ -20,7 +20,7 @@ import ok.cherry.product.ProductBuilder;
 import ok.cherry.product.domain.Product;
 import ok.cherry.product.infrastructure.ProductRepository;
 import ok.cherry.rental.RentalItemBuilder;
-import ok.cherry.rental.application.dto.request.RentalCreateRequest;
+import ok.cherry.rental.application.command.CreateRentalCommand;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.rental.domain.RentalItem;
 import ok.cherry.rental.domain.status.RentalStatus;
@@ -55,10 +55,10 @@ class RentalServiceTest {
 		RentalItem rentalItem = RentalItemBuilder.builder().withProduct(savedProduct).build();
 		LocalDate startAt = LocalDate.now();
 		LocalDate endAt = startAt.plusDays(7);
-		RentalCreateRequest request = new RentalCreateRequest(List.of(rentalItem), startAt, endAt);
+		CreateRentalCommand command = new CreateRentalCommand(List.of(rentalItem), startAt, endAt);
 
 		// when
-		Rental rental = rentalService.createRental(savedMember, request);
+		Rental rental = rentalService.createRental(savedMember, command);
 		flushAndClear();
 
 		// then
@@ -66,7 +66,7 @@ class RentalServiceTest {
 		assertThat(savedRental.getMember().getId()).isEqualTo(savedMember.getId());
 		assertThat(savedRental.getRentalStatus()).isEqualTo(RentalStatus.PENDING);
 		assertThat(savedRental.getRentalItems()).hasSize(1);
-		assertThat(savedRental.getRentalItems().get(0).getId()).isEqualTo(rentalItem.getId());
+		assertThat(savedRental.getRentalItems().getFirst().getId()).isEqualTo(rentalItem.getId());
 	}
 
 	@Test
@@ -80,10 +80,10 @@ class RentalServiceTest {
 		RentalItem rentalItem2 = RentalItemBuilder.builder().withProduct(product2).build();
 		LocalDate startAt = LocalDate.now();
 		LocalDate endAt = startAt.plusDays(7);
-		RentalCreateRequest request = new RentalCreateRequest(List.of(rentalItem1, rentalItem2), startAt, endAt);
+		CreateRentalCommand command = new CreateRentalCommand(List.of(rentalItem1, rentalItem2), startAt, endAt);
 
 		// when
-		Rental rental = rentalService.createRental(savedMember, request);
+		Rental rental = rentalService.createRental(savedMember, command);
 		flushAndClear();
 
 		// then
@@ -101,10 +101,10 @@ class RentalServiceTest {
 		Member savedMember = memberRepository.save(MemberBuilder.create());
 		LocalDate startAt = LocalDate.now();
 		LocalDate endAt = startAt.plusDays(7);
-		RentalCreateRequest request = new RentalCreateRequest(List.of(), startAt, endAt);
+		CreateRentalCommand command = new CreateRentalCommand(List.of(), startAt, endAt);
 
 		// when & then
-		assertThatThrownBy(() -> rentalService.createRental(savedMember, request))
+		assertThatThrownBy(() -> rentalService.createRental(savedMember, command))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(RentalError.RENTAL_ITEMS_NOT_EMPTY.getMessage());
 	}
@@ -118,10 +118,10 @@ class RentalServiceTest {
 		RentalItem rentalItem = RentalItemBuilder.builder().withProduct(savedProduct).build();
 		LocalDate startAt = LocalDate.now().plusDays(7);
 		LocalDate endAt = LocalDate.now();
-		RentalCreateRequest request = new RentalCreateRequest(List.of(rentalItem), startAt, endAt);
+		CreateRentalCommand command = new CreateRentalCommand(List.of(rentalItem), startAt, endAt);
 
 		// when & then
-		assertThatThrownBy(() -> rentalService.createRental(savedMember, request))
+		assertThatThrownBy(() -> rentalService.createRental(savedMember, command))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(RentalError.INVALID_RENTAL_PERIOD.getMessage());
 	}
@@ -135,10 +135,10 @@ class RentalServiceTest {
 		RentalItem rentalItem = RentalItemBuilder.builder().withProduct(savedProduct).build();
 		LocalDate startAt = LocalDate.now();
 		LocalDate endAt = startAt.plusDays(7);
-		RentalCreateRequest request = new RentalCreateRequest(List.of(rentalItem), startAt, endAt);
+		CreateRentalCommand command = new CreateRentalCommand(List.of(rentalItem), startAt, endAt);
 
 		// when
-		Rental rental = rentalService.createRental(savedMember, request);
+		Rental rental = rentalService.createRental(savedMember, command);
 		flushAndClear();
 
 		// then

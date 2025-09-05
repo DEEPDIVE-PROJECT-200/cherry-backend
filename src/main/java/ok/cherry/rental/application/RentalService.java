@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.domain.Member;
-import ok.cherry.rental.application.dto.request.RentalCreateRequest;
+import ok.cherry.rental.application.command.CreateRentalCommand;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.rental.domain.RentalItem;
 import ok.cherry.rental.exception.RentalError;
@@ -25,16 +25,16 @@ public class RentalService {
 
 	private final RentalRepository rentalRepository;
 
-	public Rental createRental(Member member, RentalCreateRequest request) {
-		validateRentalItems(request.items());
-		validateRentalPeriod(request.rentStartAt(), request.rentEndAt());
+	public Rental createRental(Member member, CreateRentalCommand command) {
+		validateRentalItems(command.items());
+		validateRentalPeriod(command.rentStartAt(), command.rentEndAt());
 
 		Rental rental = Rental.create(
 			member,
-			request.items(),
+			command.items(),
 			RentalNumberGenerator.generate(),
-			request.rentStartAt(),
-			request.rentEndAt()
+			command.rentStartAt(),
+			command.rentEndAt()
 		);
 
 		return rentalRepository.save(rental);
