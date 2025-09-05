@@ -20,11 +20,13 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.global.exception.error.ErrorCode;
 import ok.cherry.global.exception.error.GlobalError;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -152,7 +154,8 @@ public class GlobalExceptionHandler {
 	 * 예상하지 못한 모든 예외 처리: Exception
 	 */
 	@ExceptionHandler(Exception.class)
-	public ProblemDetail exceptionHandler(Exception exception) {
+	public ProblemDetail exceptionHandler(Exception exception, jakarta.servlet.http.HttpServletRequest request) {
+		log.error("처리되지 않은 예외 발생: {} {}", request.getMethod(), request.getRequestURI(), exception);
 		return getProblemDetail(GlobalError.INTERNAL_SERVER_ERROR, exception);
 	}
 
