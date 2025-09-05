@@ -1,7 +1,7 @@
 package ok.cherry.product.domain;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,15 +29,12 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String name;
 
 	@Column(name = "brand", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Brand brand;
-
-	@Column(nullable = false)
-	private String model;
 
 	@ElementCollection
 	@Enumerated(EnumType.STRING)
@@ -48,7 +45,7 @@ public class Product {
 	private BigDecimal dailyRentalPrice;
 
 	@Column(nullable = false)
-	private LocalDateTime launchedAt;
+	private LocalDate launchedAt;
 
 	@Embedded
 	private ProductDetail detail;
@@ -56,24 +53,22 @@ public class Product {
 	public static Product create(
 		String name,
 		Brand brand,
-		String model,
 		List<Color> colors,
 		BigDecimal dailyRentalPrice,
-		LocalDateTime launchedAt,
-		List<ProductThumbNailDetail> thumbNailDetails,
+		LocalDate launchedAt,
+		List<ProductThumbnailDetail> thumbnailDetails,
 		List<ProductImageDetail> imageDetails
-		) {
+	) {
 		Product product = new Product();
 		product.name = name;
 		product.brand = brand;
-		product.model = model;
 		product.dailyRentalPrice = dailyRentalPrice;
 		product.launchedAt = launchedAt;
 		product.detail = ProductDetail.create();
-		product.detail.changeProductThumbNailDetails(thumbNailDetails);
+		product.detail.changeProductThumbnailDetails(thumbnailDetails);
 		product.detail.changeProductImageDetails(imageDetails);
 
-		if(colors != null) {
+		if (colors != null) {
 			product.colors.clear();
 			product.colors.addAll(colors);
 		}

@@ -1,14 +1,17 @@
 package ok.cherry.product.domain.type;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public enum Brand {
-	MARSHALL,
-	BOSE,
-	BRITZ,
 	SONY,
-	IRIVER,
 	APPLE,
+	BOSE,
 	SENNHEISER,
-	PHILLPS,
+	BANG_OLUFSEN,
+	BOWERS_WILKINS,
+	MARSHALL,
+	DYSON,
 	JBL,
-	QCY
+	NOTHING
 }

@@ -14,8 +14,6 @@ import jakarta.persistence.OrderColumn;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ok.cherry.global.exception.error.DomainException;
-import ok.cherry.product.exception.ProductError;
 
 @Embeddable
 @Getter
@@ -31,7 +29,7 @@ public class ProductDetail {
 		joinColumns = @JoinColumn(name = "product_id", nullable = false)
 	)
 	@OrderColumn(name = "thumbnail_idx")
-	private List<ProductThumbNailDetail> productThumbNailDetails = new ArrayList<>();
+	private List<ProductThumbnailDetail> productThumbnailDetails = new ArrayList<>();
 
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(
@@ -47,10 +45,10 @@ public class ProductDetail {
 		return detail;
 	}
 
-	void changeProductThumbNailDetails(List<ProductThumbNailDetail> details) {
-		this.productThumbNailDetails.clear();
+	void changeProductThumbnailDetails(List<ProductThumbnailDetail> details) {
+		this.productThumbnailDetails.clear();
 		if (details != null) {
-			this.productThumbNailDetails.addAll(details);
+			this.productThumbnailDetails.addAll(details);
 		}
 	}
 
