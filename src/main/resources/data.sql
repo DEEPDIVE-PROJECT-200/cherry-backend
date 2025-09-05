@@ -1,0 +1,75 @@
+-- data.sql
+
+-- Member 데이터 (기존 데이터가 없다면)
+-- Member 데이터 (Email 임베디드 타입 고려)
+INSERT INTO member (id, provider, provider_id, address, nickname, member_status, registered_at, deactivated_at)
+VALUES (1, 'KAKAO', 'kakao_12345', 'test1@test.com', 'tester1', 'ACTIVE', NOW(), NULL),
+       (2, 'KAKAO', 'kakao_67890', 'test2@test.com', 'tester2', 'ACTIVE', NOW(), NULL),
+       (3, 'KAKAO', 'kakao_11111', 'test3@test.com', 'tester3', 'ACTIVE', NOW(), NULL);
+
+-- Product 데이터 (기존 데이터가 없다면)
+INSERT INTO product (id, name, brand, daily_rental_price, launched_at, registered_at)
+VALUES (1, 'SONY WH-1000XM6', 'SONY', 10000.00, '2025-01-01 00:00:00', NOW()),
+       (2, 'BOSE QuietComfort Ultra', 'BOSE', 12000.00, '2025-01-01 00:00:00', NOW()),
+       (3, 'Apple AirPods Max', 'APPLE', 15000.00, '2025-01-01 00:00:00', NOW());
+
+-- Product 색상 데이터
+INSERT INTO product_colors (product_id, colors)
+VALUES (1, 'BLACK'),
+       (1, 'WHITE'),
+       (2, 'BLACK'),
+       (2, 'WHITE_SMOKE'),
+       (3, 'STARLIGHT'),
+       (3, 'MIDNIGHT');
+
+-- Rental 데이터
+INSERT INTO rental (id, member_id, rental_number, total_price, rental_status, created_at, start_at, end_at)
+VALUES (1, 1, 'CH-25090213363012345678', 37000.00, 'ACTIVE', '2025-01-10 10:00:00', '2025-01-15', '2025-01-22'),
+       (2, 2, 'CH-25091113363012345679', 37000.00, 'ACTIVE', '2025-01-11 14:00:00', '2025-01-16', '2025-01-19'),
+       (3, 3, 'CH-25090513363012345680', 37000.00, 'COMPLETED', '2025-01-05 09:00:00', '2025-01-08', '2025-01-11');
+
+-- RentalItem 데이터
+INSERT INTO rental_item (id, product_id, rental_id, price, color, review_status)
+VALUES (1, 1, 1, 10000.00, 'BLACK', 'PENDING'),
+       (2, 2, 1, 12000.00, 'BLACK', 'PENDING'),
+       (3, 3, 1, 15000.00, 'STARLIGHT', 'PENDING'),
+       (4, 2, 2, 12000.00, 'WHITE_SMOKE', 'AVAILABLE'),
+       (5, 1, 2, 10000.00, 'WHITE', 'AVAILABLE'),
+       (6, 3, 2, 15000.00, 'MIDNIGHT', 'AVAILABLE'),
+       (7, 3, 3, 15000.00, 'STARLIGHT', 'COMPLETED'),
+       (8, 1, 3, 10000.00, 'BLACK', 'COMPLETED'),
+       (9, 2, 3, 12000.00, 'BLACK', 'COMPLETED');
+
+-- Payment 메인 데이터
+INSERT INTO payment (id, member_id, rental_id, status, payment_method, rental_amount, total_amount,
+                     rental_start_at, rental_end_at, shipping_fee, cleaning_fee, created_at)
+VALUES (1, 1, 1, 'COMPLETED', 'KAKAO_PAY', 37000.00, 42000.00,
+        '2025-01-15 10:00:00', '2025-01-22 10:00:00', 3000.00, 2000.00, '2025-01-10 10:30:00'),
+       (2, 2, 2, 'COMPLETED', 'CREDIT_CARD', 36000.00, 40000.00,
+        '2025-01-16 10:00:00', '2025-01-19 10:00:00', 2500.00, 1500.00, '2025-01-11 14:15:00'),
+       (3, 3, 3, 'COMPLETED', 'TOSS_PAY', 37000.00, 41000.00,
+        '2025-01-08 10:00:00', '2025-01-11 10:00:00', 2000.00, 2000.00, '2025-01-05 09:20:00'),
+       (4, 1, 1, 'PENDING', 'NAVER_PAY', 25000.00, 28000.00,
+        '2025-01-20 10:00:00', '2025-01-25 10:00:00', 2000.00, 1000.00, '2025-01-15 11:00:00');
+
+-- PaymentItem 데이터 (payment_items 테이블) - unitPrice와 totalPrice 컬럼 추가
+INSERT INTO payment_items (payment_id, payment_item_idx, product_name, brand, color, quantity, unit_price, total_price)
+VALUES
+-- Payment 1의 아이템들
+(1, 0, 'SONY WH-1000XM6', 'SONY', 'BLACK', 1, 10000.00, 10000.00),
+(1, 1, 'BOSE QuietComfort Ultra', 'BOSE', 'BLACK', 1, 12000.00, 12000.00),
+(1, 2, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 15000.00, 15000.00),
+
+-- Payment 2의 아이템들
+(2, 0, 'BOSE QuietComfort Ultra', 'BOSE', 'WHITE_SMOKE', 1, 12000.00, 12000.00),
+(2, 1, 'SONY WH-1000XM6', 'SONY', 'WHITE', 1, 10000.00, 10000.00),
+(2, 2, 'Apple AirPods Max', 'APPLE', 'MIDNIGHT', 1, 15000.00, 15000.00),
+
+-- Payment 3의 아이템들
+(3, 0, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 15000.00, 15000.00),
+(3, 1, 'SONY WH-1000XM6', 'SONY', 'BLACK', 1, 10000.00, 10000.00),
+(3, 2, 'BOSE QuietComfort Ultra', 'BOSE', 'BLACK', 1, 12000.00, 12000.00),
+
+-- Payment 4의 아이템들 (미결제) - 수량 2개인 케이스 추가
+(4, 0, 'SONY WH-1000XM6', 'SONY', 'BLACK', 2, 10000.00, 20000.00),
+(4, 1, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 15000.00, 15000.00);
