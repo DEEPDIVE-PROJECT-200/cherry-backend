@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import ok.cherry.cart.application.dto.request.CartAddRequest;
+import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
-import ok.cherry.cart.application.dto.response.CartAddResponse;
+import ok.cherry.cart.application.dto.response.CartCreateResponse;
 import ok.cherry.cart.domain.Cart;
 import ok.cherry.cart.exception.CartError;
 import ok.cherry.cart.infrastructure.CartRepository;
@@ -27,7 +27,7 @@ public class CartService {
 	private final MemberRepository memberRepository;
 	private final ProductRepository productRepository;
 
-	public CartAddResponse createCart(CartAddRequest request, String providerId) {
+	public CartCreateResponse createCart(CartCreateRequest request, String providerId) {
 		Member member = memberRepository.findByProviderId(providerId)
 			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
 
@@ -43,7 +43,7 @@ public class CartService {
 
 		Cart savedCart = cartRepository.save(cart);
 
-		return CartAddResponse.of(savedCart.getId());
+		return CartCreateResponse.of(savedCart.getId());
 	}
 
 	public void deleteCart(CartDeleteRequest request, String providerId) {
