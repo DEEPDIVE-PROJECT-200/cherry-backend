@@ -25,10 +25,10 @@ import ok.cherry.product.infrastructure.ProductRepository;
 
 @SpringBootTest
 @Transactional
-class ProductServiceTest {
+class ProductCreateServiceTest {
 
 	@Autowired
-	ProductService productService;
+	ProductCreateService productCreateService;
 
 	@Autowired
 	ProductRepository productRepository;
@@ -48,7 +48,7 @@ class ProductServiceTest {
 		);
 
 		// when
-		ProductCreateResponse response = productService.createProduct(request);
+		ProductCreateResponse response = productCreateService.createProduct(request);
 
 		// then
 		assertThat(response).isNotNull();
@@ -57,6 +57,7 @@ class ProductServiceTest {
 
 		assertThat(savedProduct.getName()).isEqualTo("WH-1000XM5");
 		assertThat(savedProduct.getBrand()).isEqualTo(Brand.SONY);
+		assertThat(savedProduct.getThumbnailUrl()).isEqualTo("thumbnail1.jpg");
 		assertThat(savedProduct.getColors()).hasSize(2)
 			.containsExactly(Color.BLACK, Color.MIDNIGHT_BLUE);
 		assertThat(savedProduct.getDailyRentalPrice()).isEqualTo(BigDecimal.valueOf(5000L));
@@ -87,7 +88,7 @@ class ProductServiceTest {
 			List.of("detail1.jpg","detail2.jpg")
 		);
 
-		ProductCreateResponse response = productService.createProduct(request);
+		ProductCreateResponse response = productCreateService.createProduct(request);
 
 		ProductCreateRequest duplicateRequest = new ProductCreateRequest(
 			"WH-1000XM5",
@@ -100,7 +101,7 @@ class ProductServiceTest {
 		);
 
 		// when & then
-		assertThatThrownBy(() -> productService.createProduct(duplicateRequest))
+		assertThatThrownBy(() -> productCreateService.createProduct(duplicateRequest))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(ProductError.DUPLICATE_PRODUCT.getMessage());
 	}

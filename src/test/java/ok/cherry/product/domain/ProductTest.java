@@ -25,7 +25,7 @@ class ProductTest {
 		LocalDate launchedAt = LocalDate.of(2025, 5, 16);
 
 		// when
-		Product product = Product.create(name, brand, colors, dailyRentalPrice, launchedAt, null, null);
+		Product product = Product.create(name, brand, "test.jpg", colors, dailyRentalPrice, launchedAt, null, null);
 
 		// then
 		assertThat(product.getDetail().getRegisteredAt()).isNotNull();

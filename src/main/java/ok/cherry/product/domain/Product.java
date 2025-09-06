@@ -32,6 +32,9 @@ public class Product {
 	@Column(nullable = false, unique = true)
 	private String name;
 
+	@Column(nullable = false)
+	private String thumbnailUrl;
+
 	@Column(name = "brand", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Brand brand;
@@ -53,6 +56,7 @@ public class Product {
 	public static Product create(
 		String name,
 		Brand brand,
+		String thumbnailUrl,
 		List<Color> colors,
 		BigDecimal dailyRentalPrice,
 		LocalDate launchedAt,
@@ -61,6 +65,7 @@ public class Product {
 	) {
 		Product product = new Product();
 		product.name = name;
+		product.thumbnailUrl = thumbnailUrl;
 		product.brand = brand;
 		product.dailyRentalPrice = dailyRentalPrice;
 		product.launchedAt = launchedAt;

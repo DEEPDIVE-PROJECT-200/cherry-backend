@@ -15,6 +15,7 @@ public class ProductBuilder {
 
 	public String name = "SONY WH-1000XM6";
 	public Brand brand = Brand.SONY;
+	public String thumbnailUrl = "test.jpg";
 	public List<Color> colors = List.of(Color.BLACK, Color.WHITE);
 	public BigDecimal dailyRentalPrice = BigDecimal.valueOf(10000);
 	public LocalDate launchedAt = LocalDate.of(2025, 5, 16);
@@ -28,7 +29,7 @@ public class ProductBuilder {
 	}
 
 	public Product build() {
-		return Product.create(name, brand, colors, dailyRentalPrice, launchedAt, null, null);
+		return Product.create(name, brand, thumbnailUrl, colors, dailyRentalPrice, launchedAt, null, null);
 	}
 
 	public ProductBuilder withName(String name) {
@@ -38,6 +39,11 @@ public class ProductBuilder {
 
 	public ProductBuilder withBrand(Brand brand) {
 		this.brand = brand;
+		return this;
+	}
+
+	public ProductBuilder withThumbnailUrl(String thumbnailUrl) {
+		this.thumbnailUrl = thumbnailUrl;
 		return this;
 	}
 
