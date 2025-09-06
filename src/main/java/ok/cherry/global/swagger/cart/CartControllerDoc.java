@@ -20,7 +20,11 @@ public interface CartControllerDoc {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "장바구니 상품 등록 성공",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartCreateResponse.class))),
+		@ApiResponse(responseCode = "400", description = "장바구니 상품 등록 실패 - 상품은 장바구니에 회원당 최대 3개까지만 담을 수 있음",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
 		@ApiResponse(responseCode = "404", description = "장바구니 상품 등록 실패: \n- 사용자 정보를 찾을 수 없음\n- 상품 정보를 찾을 수 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+		@ApiResponse(responseCode = "409", description = "장바구니 상품 등록 실패 - 장바구니에 이미 동일한 옵션의 상품이 존재함",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
 	})
 	ResponseEntity<CartCreateResponse> createCart(CartCreateRequest request, String providerId);
@@ -32,7 +36,7 @@ public interface CartControllerDoc {
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
 		@ApiResponse(responseCode = "404", description = "장바구니 상품 삭제 실패 - 장바구니 상품을 찾을 수 없음",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
-		@ApiResponse(responseCode = "500", description = "장바구니 상품 삭제 실패 - 장바구니 상품 삭제 실패",
+		@ApiResponse(responseCode = "500", description = "장바구니 상품 삭제 실패 - 서버 오류로 장바구니 상품 삭제 실패",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
 	})
 	ResponseEntity<Void> deleteCart(CartDeleteRequest request, String providerId);
