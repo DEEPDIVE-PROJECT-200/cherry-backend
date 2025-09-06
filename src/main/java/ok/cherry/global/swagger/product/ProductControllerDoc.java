@@ -37,7 +37,7 @@ public interface ProductControllerDoc {
 		@ApiResponse(responseCode = "200", description = "상품 목록 조회 성공",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductSearchResponse.class))),
 		@ApiResponse(responseCode = "400",
-			description = "상품 등록 실패:\n" +
+			description = "상품 목록 조회 실패:\n" +
 				"- sortType 필드 누락\n" +
 				"- 존재하지 않는 정렬 옵션\n" +
 				"- 존재하지 않는 브랜드",
