@@ -17,6 +17,7 @@ import ok.cherry.member.domain.Member;
 import ok.cherry.member.exception.MemberError;
 import ok.cherry.member.infrastructure.MemberRepository;
 import ok.cherry.product.domain.Product;
+import ok.cherry.product.domain.type.Color;
 import ok.cherry.product.exception.ProductError;
 import ok.cherry.product.infrastructure.ProductRepository;
 
@@ -35,6 +36,8 @@ public class CartService {
 
 		Product product = productRepository.findById(request.productId())
 			.orElseThrow(() -> new BusinessException(ProductError.PRODUCT_NOT_FOUND));
+
+		validateCart(member.getId(), product.getId(), request.color());
 
 		Cart cart = Cart.create(
 			member,
@@ -64,6 +67,20 @@ public class CartService {
 	private static void validateCartOwner(Cart cart, String providerId) {
 		if (!cart.getMember().getProviderId().equals(providerId)) {
 			throw new BusinessException(CartError.UNAUTHORIZED_CART_ACCESS);
+		}
+	}
+
+	private void validateCart(Long memberId, Long productId, Color color) {
+		List<Cart> memberCarts = cartRepository.findAllByMemberId(memberId);
+
+		if (memberCarts.size() >= 3) {
+			throw new BusinessException(CartError.CART_LIMIT_EXCEEDED);
+		}
+
+		boolean isDuplicate = memberCarts.stream()
+			.anyMatch(cart -> cart.getProduct().getId().equals(productId) && cart.getColor().equals(color));
+		if (isDuplicate) {
+			throw new BusinessException(CartError.DUPLICATE_CART);
 		}
 	}
 }

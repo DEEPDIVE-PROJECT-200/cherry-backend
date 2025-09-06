@@ -109,6 +109,72 @@ class CartServiceTest {
 	}
 
 	@Test
+	@DisplayName("장바구니에 상품을 3개를 초과하여 담으려고 하면 예외가 발생한다")
+	void createCart_fail_cart_limit_exceeded() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(
+			ProductBuilder.builder()
+			.withColors(List.of(Color.BLACK, Color.MIDNIGHT_BLUE, Color.WHITE, Color.BLUE))
+			.build()
+		);
+
+		Cart cart1 = CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.withColor(Color.BLACK)
+			.build();
+
+		Cart cart2 = CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.withColor(Color.MIDNIGHT_BLUE)
+			.build();
+
+		Cart cart3 = CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.withColor(Color.WHITE)
+			.build();
+
+		cartRepository.saveAll(List.of(cart1, cart2, cart3));
+
+		CartCreateRequest request = new CartCreateRequest(
+			savedProduct.getId(),
+			Color.BLUE
+		);
+
+		// when & then
+		assertThatThrownBy(() -> cartService.createCart(request, savedMember.getProviderId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(CartError.CART_LIMIT_EXCEEDED.getMessage());
+	}
+
+	@Test
+	@DisplayName("장바구니에 같은 상품의 같은 색상을 담으려고 하면 예외가 발생한다")
+	void createCart_fail_cart_duplicate() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+		Cart savedCart = cartRepository.save(
+			CartBuilder.builder()
+				.withMember(savedMember)
+				.withProduct(savedProduct)
+				.build()
+		);
+
+		CartCreateRequest request = new CartCreateRequest(
+			savedProduct.getId(),
+			savedCart.getColor()
+		);
+
+		// when & then
+		assertThatThrownBy(() -> cartService.createCart(request, savedMember.getProviderId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(CartError.DUPLICATE_CART.getMessage());
+	}
+
+	@Test
 	@DisplayName("장바구니 상품 삭제에 성공한다")
 	void deleteCart_success() {
 		// given
