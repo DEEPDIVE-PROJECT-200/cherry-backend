@@ -57,6 +57,7 @@ class ProductCreateServiceTest {
 
 		assertThat(savedProduct.getName()).isEqualTo("WH-1000XM5");
 		assertThat(savedProduct.getBrand()).isEqualTo(Brand.SONY);
+		assertThat(savedProduct.getThumbnailUrl()).isEqualTo("thumbnail1.jpg");
 		assertThat(savedProduct.getColors()).hasSize(2)
 			.containsExactly(Color.BLACK, Color.MIDNIGHT_BLUE);
 		assertThat(savedProduct.getDailyRentalPrice()).isEqualTo(BigDecimal.valueOf(5000L));

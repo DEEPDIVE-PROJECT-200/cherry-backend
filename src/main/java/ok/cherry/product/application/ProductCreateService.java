@@ -43,6 +43,7 @@ public class ProductCreateService {
 		Product product = Product.create(
 			request.name(),
 			request.brand(),
+			thumbnailDetails.getFirst().getImageUrl(),
 			request.colors(),
 			dailyRentalPrice,
 			launchedAt,
