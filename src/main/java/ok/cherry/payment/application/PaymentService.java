@@ -82,9 +82,9 @@ public class PaymentService {
 	 * @param payment
 	 */
 	private void callExternalPaymentGateway(Payment payment) {
-		log.info("외부 PG사 결제 처리 완료 - 결제 수단: {}, 금액: {}",
+		log.info("외부 PG사 결제 처리 완료 - 결제 수단: {}, 결제 금액: {}",
 			payment.getPaymentInfo().getPaymentMethod(),
-			payment.getRental().getTotalPrice());
+			payment.getPaymentAmount().getTotalAmount());
 
 		payment.complete();
 	}
