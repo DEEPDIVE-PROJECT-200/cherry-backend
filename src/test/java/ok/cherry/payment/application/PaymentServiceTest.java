@@ -248,8 +248,7 @@ class PaymentServiceTest {
 			assertThat(responseItem.productName()).isEqualTo(paymentItem.getProductName());
 			assertThat(responseItem.brand()).isEqualTo(paymentItem.getBrand());
 			assertThat(responseItem.color()).isEqualTo(paymentItem.getColor());
-			assertThat(responseItem.quantity()).isEqualTo(paymentItem.getQuantity());
-			assertThat(responseItem.price()).isEqualTo(paymentItem.getTotalPrice());
+			assertThat(responseItem.price()).isEqualTo(paymentItem.getPrice());
 		}
 
 		// 특정 상품들이 포함되었는지 검증

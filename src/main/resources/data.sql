@@ -75,23 +75,23 @@ VALUES (1, 1, 1,
         '2025-01-15 11:00:00', NULL);
 
 -- PaymentItem 데이터 (payment_items 테이블)
-INSERT INTO payment_items (payment_id, payment_item_idx, product_name, brand, color, quantity, unit_price, total_price)
+INSERT INTO payment_items (payment_id, payment_item_idx, product_name, brand, color, price)
 VALUES
 -- Payment 1의 아이템들
-(1, 0, 'SONY WH-1000XM6', 'SONY', 'BLACK', 1, 10000.00, 10000.00),
-(1, 1, 'BOSE QuietComfort Ultra', 'BOSE', 'BLACK', 1, 12000.00, 12000.00),
-(1, 2, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 15000.00, 15000.00),
+(1, 0, 'SONY WH-1000XM6', 'SONY', 'BLACK', 10000.00),
+(1, 1, 'BOSE QuietComfort Ultra', 'BOSE', 'BLACK', 12000.00),
+(1, 2, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 15000.00),
 
 -- Payment 2의 아이템들
-(2, 0, 'BOSE QuietComfort Ultra', 'BOSE', 'WHITE_SMOKE', 1, 12000.00, 12000.00),
-(2, 1, 'SONY WH-1000XM6', 'SONY', 'WHITE', 1, 10000.00, 10000.00),
-(2, 2, 'Apple AirPods Max', 'APPLE', 'MIDNIGHT', 1, 15000.00, 15000.00),
+(2, 0, 'BOSE QuietComfort Ultra', 'BOSE', 'WHITE_SMOKE', 12000.00),
+(2, 1, 'SONY WH-1000XM6', 'SONY', 'WHITE', 10000.00),
+(2, 2, 'Apple AirPods Max', 'APPLE', 'MIDNIGHT', 15000.00),
 
 -- Payment 3의 아이템들
-(3, 0, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 15000.00, 15000.00),
-(3, 1, 'SONY WH-1000XM6', 'SONY', 'BLACK', 1, 10000.00, 10000.00),
-(3, 2, 'BOSE QuietComfort Ultra', 'BOSE', 'BLACK', 1, 12000.00, 12000.00),
+(3, 0, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 15000.00),
+(3, 1, 'SONY WH-1000XM6', 'SONY', 'BLACK', 10000.00),
+(3, 2, 'BOSE QuietComfort Ultra', 'BOSE', 'BLACK', 12000.00),
 
 -- Payment 4의 아이템들 (미결제)
-(4, 0, 'SONY WH-1000XM6', 'SONY', 'BLACK', 2, 10000.00, 20000.00),
-(4, 1, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 5000.00, 5000.00);
+(4, 0, 'SONY WH-1000XM6', 'SONY', 'BLACK', 20000.00),
+(4, 1, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 5000.00);

@@ -40,8 +40,7 @@ public class PaymentService {
 				item.getProductName(),
 				item.getBrand(),
 				item.getColor(),
-				item.getQuantity(),
-				item.getTotalPrice()
+				item.getPrice()
 			))
 			.toList();
 

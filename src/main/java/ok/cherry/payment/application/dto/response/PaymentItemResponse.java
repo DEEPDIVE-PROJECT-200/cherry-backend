@@ -18,10 +18,7 @@ public record PaymentItemResponse(
 	@Schema(description = "색상", example = "BLACK", requiredMode = Schema.RequiredMode.REQUIRED)
 	Color color,
 
-	@Schema(description = "수량", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-	Integer quantity,
-
-	@Schema(description = "총 가격", example = "15000", requiredMode = Schema.RequiredMode.REQUIRED)
+	@Schema(description = "가격", example = "15000", requiredMode = Schema.RequiredMode.REQUIRED)
 	BigDecimal price
 ) {
 }

@@ -142,10 +142,7 @@ class PaymentTest {
 		assertThat(firstPaymentItem.getProductName()).isEqualTo(firstRentalItem.getProduct().getName());
 		assertThat(firstPaymentItem.getBrand()).isEqualTo(firstRentalItem.getProduct().getBrand());
 		assertThat(firstPaymentItem.getColor()).isEqualTo(firstRentalItem.getColor());
-		assertThat(firstPaymentItem.getQuantity()).isEqualTo(1);
-		assertThat(firstPaymentItem.getTotalPrice()).isEqualTo(firstRentalItem.getPrice().multiply(
-			BigDecimal.valueOf(firstPaymentItem.getQuantity()))
-		);
+		assertThat(firstPaymentItem.getPrice()).isEqualTo(firstRentalItem.getPrice());
 	}
 
 	@Test

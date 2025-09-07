@@ -29,28 +29,19 @@ public class PaymentItem {
 	private Color color;
 
 	@Column(nullable = false)
-	private Integer quantity;
-
-	@Column(nullable = false)
-	private BigDecimal unitPrice;
-
-	@Column(nullable = false)
-	private BigDecimal totalPrice;
+	private BigDecimal price;
 
 	public static PaymentItem create(
 		String productName,
 		Brand brand,
 		Color color,
-		Integer quantity,
-		BigDecimal unitPrice
+		BigDecimal price
 	) {
 		PaymentItem item = new PaymentItem();
 		item.productName = productName;
 		item.brand = brand;
 		item.color = color;
-		item.quantity = quantity;
-		item.unitPrice = unitPrice;
-		item.totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
+		item.price = price;
 		return item;
 	}
 }

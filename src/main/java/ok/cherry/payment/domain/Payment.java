@@ -87,7 +87,6 @@ public class Payment {
 				rentalItem.getProduct().getName(),
 				rentalItem.getProduct().getBrand(),
 				rentalItem.getColor(),
-				1,
 				rentalItem.getPrice()
 			))
 			.toList();
