@@ -14,9 +14,8 @@ import ok.cherry.payment.domain.Payment;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-	boolean existsByRentalId(Long rentalId);
-
-	List<Payment> findByMemberProviderIdOrderByDetailCreatedAtDesc(String providerId);
+	@Query("SELECT p FROM Payment p LEFT JOIN FETCH p.paymentItems WHERE p.id = :paymentId")
+	Optional<Payment> findByIdWithItems(@Param("paymentId") Long paymentId);
 
 	Optional<Payment> findByRentalId(Long rentalId);
 
