@@ -27,9 +27,13 @@ public class PaymentService {
 
 	private final PaymentRepository paymentRepository;
 
-	public PaymentResponse getPayment(Long paymentId) {
+	public PaymentResponse getPayment(Long paymentId, String providerId) {
 		Payment payment = paymentRepository.findById(paymentId)
 			.orElseThrow(() -> new BusinessException(PaymentError.PAYMENT_NOT_FOUND));
+
+		if (!payment.getMember().getProviderId().equals(providerId)) {
+			throw new BusinessException(PaymentError.PAYMENT_ACCESS_DENIED);
+		}
 
 		List<PaymentItemResponse> itemResponses = payment.getPaymentItems().stream()
 			.map(item -> new PaymentItemResponse(
