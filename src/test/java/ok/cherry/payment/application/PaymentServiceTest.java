@@ -82,6 +82,8 @@ class PaymentServiceTest {
 			.withRental(savedRental)
 			.build());
 
+		flushAndClear();
+
 		// when
 		PaymentResponse response = paymentService.getPayment(savedPayment.getId(), providerId);
 
@@ -90,7 +92,7 @@ class PaymentServiceTest {
 		assertThat(response.paymentId()).isEqualTo(savedPayment.getId());
 		assertThat(response.memberId()).isEqualTo(savedMember.getId());
 		assertThat(response.rentalId()).isEqualTo(savedRental.getId());
-		assertThat(response.totalAmount()).isEqualTo(savedPayment.getPaymentAmount().getTotalAmount());
+		assertThat(response.totalAmount()).isEqualByComparingTo(savedPayment.getPaymentAmount().getTotalAmount());
 		assertThat(response.paymentMethod()).isEqualTo(savedPayment.getPaymentInfo().getPaymentMethod());
 		assertThat(response.paymentStatus()).isEqualTo(savedPayment.getPaymentInfo().getStatus());
 		assertThat(response.items()).hasSize(savedPayment.getPaymentItems().size());
@@ -134,6 +136,8 @@ class PaymentServiceTest {
 			.withMember(paymentOwner)
 			.withRental(savedRental)
 			.build());
+
+		flushAndClear();
 
 		// when & then
 		assertThatThrownBy(() -> paymentService.getPayment(savedPayment.getId(), requestProviderId))
@@ -231,6 +235,8 @@ class PaymentServiceTest {
 			.withRental(savedRental)
 			.build());
 
+		flushAndClear();
+
 		// when
 		PaymentResponse response = paymentService.getPayment(savedPayment.getId(), providerId);
 
@@ -248,7 +254,7 @@ class PaymentServiceTest {
 			assertThat(responseItem.productName()).isEqualTo(paymentItem.getProductName());
 			assertThat(responseItem.brand()).isEqualTo(paymentItem.getBrand());
 			assertThat(responseItem.color()).isEqualTo(paymentItem.getColor());
-			assertThat(responseItem.price()).isEqualTo(paymentItem.getPrice());
+			assertThat(responseItem.price()).isEqualByComparingTo(paymentItem.getPrice());
 		}
 
 		// 특정 상품들이 포함되었는지 검증
@@ -266,6 +272,7 @@ class PaymentServiceTest {
 
 		assertThat(responseItems)
 			.extracting(PaymentItemResponse::price)
+			.usingComparatorForType(BigDecimal::compareTo, BigDecimal.class)
 			.containsExactly(
 				BigDecimal.valueOf(15000),
 				BigDecimal.valueOf(12000),
@@ -300,13 +307,15 @@ class PaymentServiceTest {
 			.withAdditionalFee(shippingFee, cleaningFee)
 			.build());
 
+		flushAndClear();
+
 		// when
 		PaymentResponse response = paymentService.getPayment(savedPayment.getId(), providerId);
 
 		// then
 		assertThat(response.additionalFee()).isNotNull();
-		assertThat(response.additionalFee().shippingFee()).isEqualTo(shippingFee);
-		assertThat(response.additionalFee().cleaningFee()).isEqualTo(cleaningFee);
+		assertThat(response.additionalFee().shippingFee()).isEqualByComparingTo(shippingFee);
+		assertThat(response.additionalFee().cleaningFee()).isEqualByComparingTo(cleaningFee);
 	}
 
 	private void flushAndClear() {
