@@ -1,7 +1,7 @@
 package ok.cherry.payment.application.dto.response;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import ok.cherry.payment.domain.status.PaymentStatus;
@@ -14,8 +14,8 @@ public record PaymentResponse(
 	BigDecimal totalAmount,
 	PaymentMethod paymentMethod,
 	PaymentStatus paymentStatus,
-	LocalDateTime rentalStartAt,
-	LocalDateTime rentalEndAt,
+	LocalDate rentalStartedAt,
+	LocalDate rentalEndedAt,
 	List<PaymentItemResponse> items,
 	AdditionalFeeResponse additionalFee
 ) {

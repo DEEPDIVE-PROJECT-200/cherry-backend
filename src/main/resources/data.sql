@@ -41,18 +41,40 @@ VALUES (1, 1, 1, 10000.00, 'BLACK', 'PENDING'),
        (9, 2, 3, 12000.00, 'BLACK', 'COMPLETED');
 
 -- Payment 메인 데이터
-INSERT INTO payment (id, member_id, rental_id, status, payment_method, rental_amount, total_amount,
-                     rental_start_at, rental_end_at, shipping_fee, cleaning_fee, created_at)
-VALUES (1, 1, 1, 'COMPLETED', 'KAKAO_PAY', 37000.00, 42000.00,
-        '2025-01-15 10:00:00', '2025-01-22 10:00:00', 3000.00, 2000.00, '2025-01-10 10:30:00'),
-       (2, 2, 2, 'COMPLETED', 'CREDIT_CARD', 36000.00, 40000.00,
-        '2025-01-16 10:00:00', '2025-01-19 10:00:00', 2500.00, 1500.00, '2025-01-11 14:15:00'),
-       (3, 3, 3, 'COMPLETED', 'TOSS_PAY', 37000.00, 41000.00,
-        '2025-01-08 10:00:00', '2025-01-11 10:00:00', 2000.00, 2000.00, '2025-01-05 09:20:00'),
-       (4, 1, 1, 'PENDING', 'NAVER_PAY', 25000.00, 28000.00,
-        '2025-01-20 10:00:00', '2025-01-25 10:00:00', 2000.00, 1000.00, '2025-01-15 11:00:00');
+INSERT INTO payment (id, member_id, rental_id,
+    -- PaymentInfo 필드들
+                     status, payment_method,
+    -- PaymentAmount 필드들
+                     rental_amount, total_amount, shipping_fee, cleaning_fee,
+    -- RentalPeriod 필드들
+                     rental_started_at, rental_ended_at,
+    -- PaymentDetail 필드들
+                     created_at, completed_at)
+VALUES (1, 1, 1,
+        'COMPLETED', 'KAKAO_PAY',
+        37000.00, 42000.00, 3000.00, 2000.00,
+        '2025-01-15', '2025-01-22',
+        '2025-01-10 10:30:00', '2025-01-10 11:00:00'),
 
--- PaymentItem 데이터 (payment_items 테이블) - unitPrice와 totalPrice 컬럼 추가
+       (2, 2, 2,
+        'COMPLETED', 'CREDIT_CARD',
+        37000.00, 41500.00, 2500.00, 2000.00,
+        '2025-01-16', '2025-01-19',
+        '2025-01-11 14:15:00', '2025-01-11 15:00:00'),
+
+       (3, 3, 3,
+        'COMPLETED', 'TOSS_PAY',
+        37000.00, 41000.00, 2000.00, 2000.00,
+        '2025-01-08', '2025-01-11',
+        '2025-01-05 09:20:00', '2025-01-05 10:00:00'),
+
+       (4, 1, 1,
+        'PENDING', 'NAVER_PAY',
+        25000.00, 28000.00, 2000.00, 1000.00,
+        '2025-01-20', '2025-01-25',
+        '2025-01-15 11:00:00', NULL);
+
+-- PaymentItem 데이터 (payment_items 테이블)
 INSERT INTO payment_items (payment_id, payment_item_idx, product_name, brand, color, quantity, unit_price, total_price)
 VALUES
 -- Payment 1의 아이템들
@@ -70,6 +92,6 @@ VALUES
 (3, 1, 'SONY WH-1000XM6', 'SONY', 'BLACK', 1, 10000.00, 10000.00),
 (3, 2, 'BOSE QuietComfort Ultra', 'BOSE', 'BLACK', 1, 12000.00, 12000.00),
 
--- Payment 4의 아이템들 (미결제) - 수량 2개인 케이스 추가
+-- Payment 4의 아이템들 (미결제)
 (4, 0, 'SONY WH-1000XM6', 'SONY', 'BLACK', 2, 10000.00, 20000.00),
-(4, 1, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 15000.00, 15000.00);
+(4, 1, 'Apple AirPods Max', 'APPLE', 'STARLIGHT', 1, 5000.00, 5000.00);

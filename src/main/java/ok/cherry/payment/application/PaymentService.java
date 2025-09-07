@@ -42,19 +42,19 @@ public class PaymentService {
 			.toList();
 
 		AdditionalFeeResponse additionalFeeResponse = new AdditionalFeeResponse(
-			payment.getAdditionalFee().getShippingFee(),
-			payment.getAdditionalFee().getCleaningFee()
+			payment.getPaymentAmount().getAdditionalFee().getShippingFee(),
+			payment.getPaymentAmount().getAdditionalFee().getCleaningFee()
 		);
 
 		return new PaymentResponse(
 			payment.getId(),
 			payment.getMember().getId(),
 			payment.getRental().getId(),
-			payment.getTotalAmount(),
-			payment.getPaymentMethod(),
-			payment.getStatus(),
-			payment.getRentalStartAt(),
-			payment.getRentalEndAt(),
+			payment.getPaymentAmount().getTotalAmount(),
+			payment.getPaymentInfo().getPaymentMethod(),
+			payment.getPaymentInfo().getStatus(),
+			payment.getRentalPeriod().getStartedAt(),
+			payment.getRentalPeriod().getEndedAt(),
 			itemResponses,
 			additionalFeeResponse
 		);
@@ -80,7 +80,7 @@ public class PaymentService {
 	 */
 	private void callExternalPaymentGateway(Payment payment) {
 		log.info("외부 PG사 결제 처리 완료 - 결제 수단: {}, 금액: {}",
-			payment.getPaymentMethod(),
+			payment.getPaymentInfo().getPaymentMethod(),
 			payment.getRental().getTotalPrice());
 
 		payment.complete();

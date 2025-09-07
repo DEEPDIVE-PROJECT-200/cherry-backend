@@ -1,17 +1,13 @@
 package ok.cherry.payment.domain;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,7 +19,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ok.cherry.member.domain.Member;
-import ok.cherry.payment.domain.status.PaymentStatus;
 import ok.cherry.payment.domain.type.PaymentMethod;
 import ok.cherry.rental.domain.Rental;
 
@@ -44,25 +39,14 @@ public class Payment {
 	@JoinColumn(name = "rental_id", nullable = false)
 	private Rental rental;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private PaymentStatus status;
+	@Embedded
+	private PaymentInfo paymentInfo;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private PaymentMethod paymentMethod;
+	@Embedded
+	private PaymentAmount paymentAmount;
 
-	@Column(nullable = false)
-	private BigDecimal rentalAmount;
-
-	@Column(nullable = false)
-	private BigDecimal totalAmount;
-
-	@Column(nullable = false)
-	private LocalDateTime rentalStartAt;
-
-	@Column(nullable = false)
-	private LocalDateTime rentalEndAt;
+	@Embedded
+	private RentalPeriod rentalPeriod;
 
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(
@@ -71,9 +55,6 @@ public class Payment {
 	)
 	@OrderColumn(name = "payment_item_idx")
 	private List<PaymentItem> paymentItems = new ArrayList<>();
-
-	@Embedded
-	private AdditionalFee additionalFee;
 
 	@Embedded
 	private PaymentDetail detail;
@@ -89,16 +70,13 @@ public class Payment {
 		Payment payment = new Payment();
 		payment.member = member;
 		payment.rental = rental;
-		payment.paymentMethod = paymentMethod;
-		payment.status = PaymentStatus.PENDING;
-		payment.rentalStartAt = rental.getDetail().getStartAt();
-		payment.rentalEndAt = rental.getDetail().getEndAt();
-
-		payment.rentalAmount = rental.getTotalPrice();
-		payment.additionalFee = AdditionalFee.create(shippingFee, cleaningFee);
-		payment.totalAmount = payment.rentalAmount.add(payment.additionalFee.getTotal());
+		payment.paymentInfo = PaymentInfo.create(paymentMethod);
+		payment.paymentAmount = PaymentAmount.create(rental.getTotalPrice(), shippingFee, cleaningFee);
+		payment.rentalPeriod = RentalPeriod.create(
+			rental.getDetail().getStartAt(),
+			rental.getDetail().getEndAt()
+		);
 		payment.createPaymentItemsFromRental(rental);
-
 		payment.detail = PaymentDetail.create();
 		return payment;
 	}
@@ -118,6 +96,11 @@ public class Payment {
 	}
 
 	public void complete() {
-		this.status = PaymentStatus.COMPLETED;
+		paymentInfo.complete();
+		detail.markCompleted();
+	}
+
+	public boolean isCompleted() {
+		return paymentInfo.isCompleted();
 	}
 }
