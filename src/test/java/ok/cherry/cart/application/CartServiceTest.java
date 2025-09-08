@@ -306,7 +306,6 @@ class CartServiceTest {
 	void getCarts_fail_member_not_found() {
 		// given
 		String nonExistProviderId = "12345";
-		CartGetResponse response = cartService.getCarts(nonExistProviderId);
 
 		// when & then
 		assertThatThrownBy(() -> cartService.getCarts(nonExistProviderId))
