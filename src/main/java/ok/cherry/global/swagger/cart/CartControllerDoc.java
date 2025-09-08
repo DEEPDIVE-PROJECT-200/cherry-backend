@@ -2,6 +2,7 @@ package ok.cherry.global.swagger.cart;
 
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
 import ok.cherry.cart.application.dto.response.CartCreateResponse;
+import ok.cherry.cart.application.dto.response.CartGetResponse;
 
 @Tag(name = "Carts", description = "🛒 장바구니 API - 장바구니 조회, 관리 API")
 public interface CartControllerDoc {
@@ -40,4 +42,16 @@ public interface CartControllerDoc {
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
 	})
 	ResponseEntity<Void> deleteCart(CartDeleteRequest request, String providerId);
+
+	@Operation(method = "GET", summary = "장바구니 상품 조회", description = "장바구니에 담긴 상품을 조회합니다")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200",
+			description = "장바구니 상품 조회 성공: "
+				+ "\n- 장바구니에 담긴 상품이 존재할 경우 -> 장바구니 상품 정보 리스트 반환"
+				+ "\n- 장바구니에 담긴 상품이 존재하지 않을 경우 -> 빈 리스트 반환",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartGetResponse.class))),
+		@ApiResponse(responseCode = "404", description = "장바구니 상품 조회 실패 - 사용자 정보를 찾을 수 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
+	})
+	ResponseEntity<CartGetResponse> getCarts(@AuthenticationPrincipal String providerId);
 }
