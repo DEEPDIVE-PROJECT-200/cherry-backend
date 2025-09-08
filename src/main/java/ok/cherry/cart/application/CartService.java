@@ -1,6 +1,7 @@
 package ok.cherry.cart.application;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -71,19 +72,19 @@ public class CartService {
 
 		List<Cart> carts = cartRepository.findAllByMemberIdWithProduct(member.getId());
 
-		List<CartInfoResponse> cartInfoResponses = carts.stream()
-			.map(cart -> new CartInfoResponse(
+		List<CartInfoResponse> cartInfoResponses = new ArrayList<>();
+		BigDecimal totalPrice = BigDecimal.ZERO;
+
+		for (Cart cart : carts) {
+			cartInfoResponses.add(new CartInfoResponse(
 				cart.getId(),
 				cart.getProduct().getName(),
 				cart.getProduct().getThumbnailUrl(),
 				cart.getColor(),
 				cart.getPrice()
-			))
-			.toList();
-
-		BigDecimal totalPrice = carts.stream()
-			.map(Cart::getPrice)
-			.reduce(BigDecimal.ZERO, BigDecimal::add);
+			));
+			totalPrice = totalPrice.add(cart.getPrice());
+		}
 
 		return new CartGetResponse(cartInfoResponses, totalPrice);
 	}
