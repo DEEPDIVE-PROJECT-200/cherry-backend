@@ -28,4 +28,15 @@ public class RentalController implements RentalControllerDoc {
 		RentalGetResponse response = rentalService.getRentals(lastRentalId, limit, providerId);
 		return ResponseEntity.ok(response);
 	}
+
+    @PostMapping
+	public ResponseEntity<PlaceRentalOrderResponse> placeRentalOrder(@RequestBody PlaceRentalOrderRequest request,
+		@AuthenticationPrincipal String providerId) {
+
+		log.info("=== RentalController 디버깅 ===");
+		log.info("받은 providerId: {}", providerId);
+		log.info("Authentication 정보: {}", SecurityContextHolder.getContext().getAuthentication());
+		PlaceRentalOrderResponse response = rentalApplicationService.placeRentalOrder(providerId, request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
 }
