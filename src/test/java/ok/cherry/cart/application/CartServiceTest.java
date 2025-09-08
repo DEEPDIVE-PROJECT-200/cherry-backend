@@ -2,6 +2,7 @@ package ok.cherry.cart.application;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,7 @@ import ok.cherry.cart.CartBuilder;
 import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
 import ok.cherry.cart.application.dto.response.CartCreateResponse;
+import ok.cherry.cart.application.dto.response.CartGetResponse;
 import ok.cherry.cart.domain.Cart;
 import ok.cherry.cart.exception.CartError;
 import ok.cherry.cart.infrastructure.CartRepository;
@@ -238,6 +240,78 @@ class CartServiceTest {
 		assertThatThrownBy(() -> cartService.deleteCart(request, secondMember.getProviderId()))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(CartError.UNAUTHORIZED_CART_ACCESS.getMessage());
+	}
+
+	@Test
+	@DisplayName("장바구니에 담긴 상품이 존재할 경우 담긴 상품 정보를 반환하며 조회에 성공한다")
+	void getCarts_success_cart_exist() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(
+			ProductBuilder.builder()
+				.withColors(List.of(Color.BLACK, Color.MIDNIGHT_BLUE, Color.WHITE, Color.BLUE))
+				.build()
+		);
+
+		Cart cart1 = CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.withColor(Color.BLACK)
+			.build();
+
+		Cart cart2 = CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.withColor(Color.MIDNIGHT_BLUE)
+			.build();
+
+		Cart cart3 = CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.withColor(Color.WHITE)
+			.build();
+
+		cartRepository.saveAll(List.of(cart1, cart2, cart3));
+
+		// when
+		CartGetResponse response = cartService.getCarts(savedMember.getProviderId());
+
+		// then
+		assertThat(response.carts()).hasSize(3);
+		assertThat(response.carts()).extracting("color")
+			.containsExactly(Color.BLACK, Color.MIDNIGHT_BLUE, Color.WHITE);
+
+		BigDecimal expectedTotalPrice = cart1.getPrice()
+			.add(cart2.getPrice())
+			.add(cart3.getPrice());
+		assertThat(response.totalPrice()).isEqualTo(expectedTotalPrice);
+	}
+
+	@Test
+	@DisplayName("장바구니에 담긴 상품이 존재하지 않을 경우 빈 리스트를 반환하며 조회에 성공한다")
+	void getCarts_success_cart_nonExist() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+
+		// when
+		CartGetResponse response = cartService.getCarts(savedMember.getProviderId());
+
+		// then
+		assertThat(response.carts()).isEmpty();
+		assertThat(response.totalPrice()).isEqualByComparingTo(BigDecimal.ZERO);
+	}
+
+	@Test
+	@DisplayName("장바구니를 조회하려는 사용자를 찾을 수 없어 예외가 발생한다")
+	void getCarts_fail_member_not_found() {
+		// given
+		String nonExistProviderId = "12345";
+		CartGetResponse response = cartService.getCarts(nonExistProviderId);
+
+		// when & then
+		assertThatThrownBy(() -> cartService.getCarts(nonExistProviderId))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(MemberError.USER_NOT_FOUND.getMessage());
 	}
 
 	private void flushAndClear() {
