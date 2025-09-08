@@ -20,4 +20,3 @@ Content-Type: application/json
 ### 장바구니 조회
 GET http://localhost:8080/api/v1/cart
 Authorization: Bearer {{accessToken}}
-Content-Type: application/json
