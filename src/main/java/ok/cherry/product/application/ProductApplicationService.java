@@ -1,7 +1,7 @@
 package ok.cherry.product.application;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.s3.S3Service;
 import ok.cherry.product.domain.Product;
+import ok.cherry.product.domain.ProductImageDetail;
+import ok.cherry.product.domain.ProductThumbnailDetail;
 import ok.cherry.product.exception.ProductError;
 import ok.cherry.product.infrastructure.ProductRepository;
 
@@ -25,12 +27,12 @@ public class ProductApplicationService {
 		Product product = productRepository.findByIdWithDetails(productId)
 			.orElseThrow(() -> new BusinessException(ProductError.PRODUCT_NOT_FOUND));
 
-		List<String> imagePrefix = new ArrayList<>();
-		product.getDetail().getProductThumbnailDetails()
-			.forEach(detail -> imagePrefix.add(detail.getImageUrl()));
-
-		product.getDetail().getProductImageDetails()
-			.forEach(detail -> imagePrefix.add(detail.getImageUrl()));
+		List<String> imagePrefix = Stream.concat(
+			product.getDetail().getProductThumbnailDetails().stream()
+				.map(ProductThumbnailDetail::getImageUrl),
+			product.getDetail().getProductImageDetails().stream()
+				.map(ProductImageDetail::getImageUrl)
+		).toList();
 
 		productRepository.delete(product);
 
