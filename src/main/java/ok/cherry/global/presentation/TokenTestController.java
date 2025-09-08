@@ -1,4 +1,4 @@
-package ok.cherry.auth.presentation;
+package ok.cherry.global.presentation;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;

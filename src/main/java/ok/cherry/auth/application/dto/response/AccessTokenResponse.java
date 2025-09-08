@@ -14,6 +14,7 @@ public record AccessTokenResponse(
 	@Schema(description = "Access Token 만료 시간 (초 단위)", example = "3600")
 	Long accessTokenExpiresInSeconds
 ) {
+
 	public static AccessTokenResponse of(TokenResponse tokenResponse) {
 		return new AccessTokenResponse(
 			tokenResponse.tokenType(),
