@@ -63,7 +63,7 @@ public class CartService {
 		if (carts.size() != request.cartIds().size()) {
 			throw new BusinessException(CartError.CART_NOT_FOUND);
 		}
-		carts.forEach(cart -> validateCartsOwnership(List.of(cart), providerId));
+		validateCartsOwnership(carts, providerId);
 
 		cartRepository.deleteAllInBatch(carts);
 	}
