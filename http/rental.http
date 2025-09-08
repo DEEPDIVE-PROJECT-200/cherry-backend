@@ -1,0 +1,122 @@
+### 테스트용 AccessToken (개발환경)
+# kakao_12345 사용자 토큰 (장바구니 1,2,3 소유)
+@accessToken_12345 = ey--
+
+# kakao_67890 사용자 토큰 (장바구니 4,5 소유)
+@accessToken_67890 = ey--
+
+# kakao_11111 사용자 토큰 (장바구니 6 소유)
+@accessToken_11111 = ey--
+
+
+### 대여 주문 생성 - 직접 결제 (productId, color)
+# POST /api/v1/rentals
+# Authorization 헤더에 Access Token을 담아 요청해야 합니다.
+# productId와 color로 바로 대여 결제 및 주문을 생성합니다.
+POST http://localhost:8080/api/v1/rentals
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "color": "BLACK",
+  "rentStartAt": "2025-09-15",
+  "rentEndAt": "2025-09-20",
+  "shippingInfo": {
+    "receiver": "홍길동",
+    "phoneNumber": "010-1234-5678",
+    "address": {
+      "postcode": "12345",
+      "postAddress": "서울시 강남구 테헤란로 123",
+      "detailAddress": "456호"
+    }
+  },
+  "paymentMethod": "KAKAO_PAY"
+}
+
+###
+
+### 대여 주문 생성 - 장바구니 결제 (cartIds)
+# POST /api/v1/rentals
+# Authorization 헤더에 Access Token을 담아 요청해야 합니다.
+# cartIds 목록으로 장바구니에서 대여 주문을 생성합니다.
+POST http://localhost:8080/api/v1/rentals
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "cartIds": [
+    1,
+    2
+  ],
+  "rentStartAt": "2025-09-15",
+  "rentEndAt": "2025-09-22",
+  "shippingInfo": {
+    "receiver": "김철수",
+    "phoneNumber": "010-9876-5432",
+    "address": {
+      "postcode": "54321",
+      "postAddress": "부산시 해운대구 해운대로 456",
+      "detailAddress": "789호"
+    }
+  },
+  "paymentMethod": "CREDIT_CARD"
+}
+
+###
+
+### 대여 주문 생성 - 여러 장바구니 아이템
+# POST /api/v1/rentals
+# 장바구니에 여러 상품이 담겨 있을 때 한 번에 대여 주문
+POST http://localhost:8080/api/v1/rentals
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "cartIds": [
+    1,
+    2,
+    3
+  ],
+  "rentStartAt": "2025-09-16",
+  "rentEndAt": "2025-09-25",
+  "shippingInfo": {
+    "receiver": "이영희",
+    "phoneNumber": "010-5555-6666",
+    "address": {
+      "postcode": "67890",
+      "postAddress": "대구시 중구 동성로 789",
+      "detailAddress": "101동 202호"
+    }
+  },
+  "paymentMethod": "TOSS_PAY"
+}
+
+###
+### 대여 주문 생성 - 실패 케이스 (둘 다 있음)
+# POST /api/v1/rentals
+# productId와 cartIds가 모두 있는 애매한 요청
+POST http://localhost:8080/api/v1/rentals
+Authorization: Bearer {{accessToken_12345}}
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "color": "BLACK",
+  "cartIds": [
+    1,
+    2
+  ],
+  "rentStartAt": "2025-09-15",
+  "rentEndAt": "2025-09-20",
+  "shippingInfo": {
+    "receiver": "홍길동",
+    "phoneNumber": "010-1234-5678",
+    "address": {
+      "postcode": "12345",
+      "postAddress": "서울시 강남구 테헤란로 123",
+      "detailAddress": "456호"
+    }
+  },
+  "paymentMethod": "KAKAO_PAY"
+}
