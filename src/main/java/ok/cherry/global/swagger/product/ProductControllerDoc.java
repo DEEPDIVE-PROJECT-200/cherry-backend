@@ -49,4 +49,19 @@ public interface ProductControllerDoc {
 		@Parameter(description = "페이지네이션 커서. 이전 응답의 `lastProductId` 값을 전달하면 다음 페이지를 조회합니다.") Long lastProductId,
 		@Parameter(description = "한 페이지에 보여줄 상품 개수", schema = @Schema(type = "integer", defaultValue = "6")) int limit
 	);
+
+	@Operation(method = "DELETE", summary = "상품 삭제", description = "등록된 상품과 s3에 등록된 이미지를 모두 삭제합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "204", description = "상품 삭제 성공"),
+		@ApiResponse(responseCode = "404",
+			description = "상품 삭제 실패:\n "
+				+ "- 상품을 찾을 수 없음\n "
+				+ "- 삭제하려는 이미지 파일을 찾을 수 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+		@ApiResponse(responseCode = "500", description = "상품 삭제 실패 - 서버측 오류로 인한 실패",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
+	})
+	ResponseEntity<Void> deleteProduct(
+		@Parameter(description = "삭제할 상품 Id", example = "1", required = true) Long productId
+	);
 }
