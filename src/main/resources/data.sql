@@ -2,16 +2,16 @@
 
 -- Member 데이터 (기존 데이터가 없다면)
 -- Member 데이터 (Email 임베디드 타입 고려)
-INSERT INTO member (id, provider, provider_id, address, nickname, member_status, registered_at, deactivated_at)
+INSERT INTO member (id, provider, provider_id, email, nickname, member_status, registered_at, deactivated_at)
 VALUES (1, 'KAKAO', 'kakao_12345', 'test1@test.com', 'tester1', 'ACTIVE', NOW(), NULL),
        (2, 'KAKAO', 'kakao_67890', 'test2@test.com', 'tester2', 'ACTIVE', NOW(), NULL),
        (3, 'KAKAO', 'kakao_11111', 'test3@test.com', 'tester3', 'ACTIVE', NOW(), NULL);
 
 -- Product 데이터 (기존 데이터가 없다면)
-INSERT INTO product (id, name, brand, daily_rental_price, launched_at, registered_at)
-VALUES (1, 'SONY WH-1000XM6', 'SONY', 10000.00, '2025-01-01 00:00:00', NOW()),
-       (2, 'BOSE QuietComfort Ultra', 'BOSE', 12000.00, '2025-01-01 00:00:00', NOW()),
-       (3, 'Apple AirPods Max', 'APPLE', 15000.00, '2025-01-01 00:00:00', NOW());
+INSERT INTO product (id, name, brand, daily_rental_price, launched_at, registered_at, thumbnail_url)
+VALUES (1, 'SONY WH-1000XM6', 'SONY', 10000.00, '2025-01-01 00:00:00', NOW(), 'thumbnail_url'),
+       (2, 'BOSE QuietComfort Ultra', 'BOSE', 12000.00, '2025-01-01 00:00:00', NOW(), 'thumbnail_url'),
+       (3, 'Apple AirPods Max', 'APPLE', 15000.00, '2025-01-01 00:00:00', NOW(), 'thumbnail_url');
 
 -- Product 색상 데이터
 INSERT INTO product_colors (product_id, colors)
