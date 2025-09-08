@@ -1,7 +1,6 @@
 package ok.cherry.payment.application;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.domain.Member;
-import ok.cherry.payment.application.dto.response.AdditionalFeeResponse;
-import ok.cherry.payment.application.dto.response.PaymentItemResponse;
 import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.payment.domain.Payment;
 import ok.cherry.payment.domain.type.PaymentMethod;
@@ -28,39 +25,15 @@ public class PaymentService {
 	private final PaymentRepository paymentRepository;
 
 	public PaymentResponse getPayment(Long paymentId, String providerId) {
-		Payment payment = paymentRepository.findByIdWithItems(paymentId)
-			.orElseThrow(() -> new BusinessException(PaymentError.PAYMENT_NOT_FOUND));
-
-		if (!payment.getMember().getProviderId().equals(providerId)) {
-			throw new BusinessException(PaymentError.PAYMENT_ACCESS_DENIED);
-		}
-
-		List<PaymentItemResponse> itemResponses = payment.getPaymentItems().stream()
-			.map(item -> new PaymentItemResponse(
-				item.getProductName(),
-				item.getBrand(),
-				item.getColor(),
-				item.getPrice()
-			))
-			.toList();
-
-		AdditionalFeeResponse additionalFeeResponse = new AdditionalFeeResponse(
-			payment.getPaymentAmount().getAdditionalFee().getShippingFee(),
-			payment.getPaymentAmount().getAdditionalFee().getCleaningFee()
-		);
-
-		return new PaymentResponse(
-			payment.getId(),
-			payment.getMember().getId(),
-			payment.getRental().getId(),
-			payment.getPaymentAmount().getTotalAmount(),
-			payment.getPaymentInfo().getPaymentMethod(),
-			payment.getPaymentInfo().getStatus(),
-			payment.getRentalPeriod().getStartedAt(),
-			payment.getRentalPeriod().getEndedAt(),
-			itemResponses,
-			additionalFeeResponse
-		);
+		return paymentRepository.findByIdWithItems(paymentId)
+			.filter(payment -> payment.getMember().getProviderId().equals(providerId))
+			.map(PaymentResponse::of)
+			.orElseThrow(() -> {
+				if (paymentRepository.existsById(paymentId)) {
+					return new BusinessException(PaymentError.PAYMENT_ACCESS_DENIED);
+				}
+				return new BusinessException(PaymentError.PAYMENT_NOT_FOUND);
+			});
 	}
 
 	@Transactional

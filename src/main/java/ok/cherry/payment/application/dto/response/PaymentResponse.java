@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import ok.cherry.payment.domain.Payment;
 import ok.cherry.payment.domain.status.PaymentStatus;
 import ok.cherry.payment.domain.type.PaymentMethod;
 
@@ -41,4 +42,27 @@ public record PaymentResponse(
 	@Schema(description = "추가 요금 정보", requiredMode = Schema.RequiredMode.REQUIRED)
 	AdditionalFeeResponse additionalFee
 ) {
+
+	public static PaymentResponse of(Payment payment) {
+		List<PaymentItemResponse> itemResponses = payment.getPaymentItems().stream()
+			.map(PaymentItemResponse::of)
+			.toList();
+
+		AdditionalFeeResponse additionalFeeResponse = AdditionalFeeResponse.of(
+			payment.getPaymentAmount().getAdditionalFee()
+		);
+
+		return new PaymentResponse(
+			payment.getId(),
+			payment.getMember().getId(),
+			payment.getRental().getId(),
+			payment.getPaymentAmount().getTotalAmount(),
+			payment.getPaymentInfo().getPaymentMethod(),
+			payment.getPaymentInfo().getStatus(),
+			payment.getRentalPeriod().getStartedAt(),
+			payment.getRentalPeriod().getEndedAt(),
+			itemResponses,
+			additionalFeeResponse
+		);
+	}
 }

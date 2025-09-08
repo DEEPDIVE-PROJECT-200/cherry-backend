@@ -3,6 +3,7 @@ package ok.cherry.payment.application.dto.response;
 import java.math.BigDecimal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import ok.cherry.payment.domain.PaymentItem;
 import ok.cherry.product.domain.type.Brand;
 import ok.cherry.product.domain.type.Color;
 
@@ -21,4 +22,13 @@ public record PaymentItemResponse(
 	@Schema(description = "가격", example = "15000", requiredMode = Schema.RequiredMode.REQUIRED)
 	BigDecimal price
 ) {
+
+	public static PaymentItemResponse of(PaymentItem item) {
+		return new PaymentItemResponse(
+			item.getProductName(),
+			item.getBrand(),
+			item.getColor(),
+			item.getPrice()
+		);
+	}
 }
