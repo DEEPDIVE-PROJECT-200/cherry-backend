@@ -1,4 +1,4 @@
-package ok.cherry.global.swagger.Member;
+package ok.cherry.global.swagger.member;
 
 import org.springframework.http.ResponseEntity;
 

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import ok.cherry.global.swagger.Member.MemberControllerDoc;
+import ok.cherry.global.swagger.member.MemberControllerDoc;
 import ok.cherry.member.application.MemberService;
 import ok.cherry.member.application.dto.request.EmailDuplicationRequest;
 import ok.cherry.member.application.dto.request.NicknameDuplicationRequest;
