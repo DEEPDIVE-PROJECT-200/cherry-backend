@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import ok.cherry.global.exception.error.BusinessException;
@@ -13,6 +14,7 @@ import ok.cherry.product.exception.ProductError;
 import ok.cherry.product.infrastructure.ProductRepository;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ProductApplicationService {
 
