@@ -38,7 +38,7 @@ public class CartService {
 		Member member = memberRepository.findByProviderId(providerId)
 			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
 
-		Product product = productRepository.findByIdWithDetails(request.productId())
+		Product product = productRepository.findById(request.productId())
 			.orElseThrow(() -> new BusinessException(ProductError.PRODUCT_NOT_FOUND));
 
 		validateCart(member.getId(), product.getId(), request.color());
