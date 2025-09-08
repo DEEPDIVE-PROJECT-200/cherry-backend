@@ -13,7 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
+import ok.cherry.auth.application.dto.response.AccessTokenResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
 import ok.cherry.auth.exception.TokenError;
 import ok.cherry.global.exception.error.BusinessException;
@@ -69,7 +69,7 @@ public class TokenGenerator {
 	/**
 	 * AccessToken 재발급
 	 * */
-	public ReissueTokenResponse reissueAccessToken(String refreshToken, Member member) {
+	public AccessTokenResponse reissueAccessToken(String refreshToken, Member member) {
 		// 리프레시 토큰에서 사용자 정보 추출 -> 클레임 확인
 		Claims claims = tokenExtractor.parseClaims(refreshToken);
 
@@ -83,7 +83,7 @@ public class TokenGenerator {
 		long now = System.currentTimeMillis();
 		Date accessTokenExpiresIn = new Date(now + accessTokenExpiration.toMillis());
 
-		return new ReissueTokenResponse(
+		return new AccessTokenResponse(
 			BEARER_TYPE,
 			newAccessToken,
 			accessTokenExpiresIn.getTime()

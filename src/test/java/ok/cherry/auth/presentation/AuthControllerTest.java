@@ -20,8 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.Cookie;
 import ok.cherry.auth.application.dto.request.SignUpRequest;
-import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
-import ok.cherry.auth.application.dto.response.TokenResponse;
+import ok.cherry.auth.application.dto.response.AccessTokenResponse;
 import ok.cherry.auth.jwt.TokenGenerator;
 import ok.cherry.config.EmbeddedRedisTestConfiguration;
 import ok.cherry.global.redis.AuthRedisRepository;
@@ -37,10 +36,10 @@ class AuthControllerTest {
 
 	@Autowired
 	MockMvcTester mvcTester;
-	
+
 	@Autowired
 	ObjectMapper objectMapper;
-	
+
 	@Autowired
 	MemberRepository memberRepository;
 
@@ -56,7 +55,7 @@ class AuthControllerTest {
 		// given
 		String providerId = "12345";
 		String tempToken = tokenGenerator.generateTempToken(providerId);
-		
+
 		SignUpRequest request = new SignUpRequest(tempToken, "test@example.com", "tester");
 		String requestJson = objectMapper.writeValueAsString(request);
 
@@ -71,18 +70,15 @@ class AuthControllerTest {
 		assertThat(result).hasStatusOk()
 			.bodyJson()
 			.hasPathSatisfying("$.tokenType", value -> assertThat(value).isEqualTo("Bearer"))
-			.hasPathSatisfying("$.accessToken", value -> assertThat(value).isNotNull())
-			.hasPathSatisfying("$.refreshToken", value -> assertThat(value).isNotNull());
+			.hasPathSatisfying("$.accessToken", value -> assertThat(value).isNotNull());
 
-		TokenResponse response = objectMapper.readValue(result.getResponse().getContentAsString(), TokenResponse.class);
-		
 		Member member = memberRepository.findByProviderId(providerId).orElseThrow();
 		assertThat(member.getEmail().address()).isEqualTo("test@example.com");
 		assertThat(member.getNickname()).isEqualTo("tester");
 		assertThat(member.getProvider()).isEqualTo(Provider.KAKAO);
-		
+
 		String storedRefreshToken = authRedisRepository.getRefreshToken(providerId);
-		assertThat(storedRefreshToken).isEqualTo(response.refreshToken());
+		assertThat(storedRefreshToken).isNotNull();
 	}
 
 	@Test
@@ -109,7 +105,7 @@ class AuthControllerTest {
 	void signUpWithInvalidEmail() throws JsonProcessingException {
 		String providerId = "12345";
 		String tempToken = tokenGenerator.generateTempToken(providerId);
-		
+
 		SignUpRequest request = new SignUpRequest(tempToken, "invalid-email", "tester");
 		String requestJson = objectMapper.writeValueAsString(request);
 
@@ -132,10 +128,10 @@ class AuthControllerTest {
 		String existingProviderId = "existing_kakao_123";
 		Member existingMember = Member.register(existingProviderId, Provider.KAKAO, "test@example.com", "old");
 		memberRepository.save(existingMember);
-		
+
 		String newProviderId = "new_kakao_456";
 		String tempToken = tokenGenerator.generateTempToken(newProviderId);
-		
+
 		SignUpRequest request = new SignUpRequest(tempToken, "test@example.com", "new");
 		String requestJson = objectMapper.writeValueAsString(request);
 
@@ -159,7 +155,7 @@ class AuthControllerTest {
 		// given
 		String providerId = "12345";
 		String tempToken = tokenGenerator.generateTempToken(providerId);
-		
+
 		SignUpRequest signUpRequest = new SignUpRequest(tempToken, "test@example.com", "tester");
 		String signUpJson = objectMapper.writeValueAsString(signUpRequest);
 
@@ -169,13 +165,15 @@ class AuthControllerTest {
 			.content(signUpJson)
 			.exchange();
 
-		TokenResponse originalTokenResponse = objectMapper.readValue(
-			signUpResult.getResponse().getContentAsString(), TokenResponse.class);
+		AccessTokenResponse originalTokenResponse = objectMapper.readValue(
+			signUpResult.getResponse().getContentAsString(), AccessTokenResponse.class);
+
+		String refreshToken = authRedisRepository.getRefreshToken(providerId);
 
 		// when
 		MvcTestResult reissueResult = mvcTester.post()
 			.uri("/api/v1/auth/reissue")
-			.cookie(new Cookie("refreshToken", originalTokenResponse.refreshToken()))
+			.cookie(new Cookie("refreshToken", refreshToken))
 			.exchange();
 
 		// then
@@ -185,8 +183,8 @@ class AuthControllerTest {
 			.hasPathSatisfying("$.accessToken", value -> assertThat(value).isNotNull())
 			.hasPathSatisfying("$.accessTokenExpiresInSeconds", value -> assertThat(value).isNotNull());
 
-		ReissueTokenResponse reissueResponse = objectMapper.readValue(
-			reissueResult.getResponse().getContentAsString(), ReissueTokenResponse.class);
+		AccessTokenResponse reissueResponse = objectMapper.readValue(
+			reissueResult.getResponse().getContentAsString(), AccessTokenResponse.class);
 
 		assertThat(reissueResponse.accessToken()).isNotNull();
 		assertThat(reissueResponse.tokenType()).isEqualTo("Bearer");
