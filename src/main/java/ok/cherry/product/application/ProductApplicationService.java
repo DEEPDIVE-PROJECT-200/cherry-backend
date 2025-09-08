@@ -32,10 +32,10 @@ public class ProductApplicationService {
 		product.getDetail().getProductImageDetails()
 			.forEach(detail -> imagePrefix.add(detail.getImageUrl()));
 
+		productRepository.delete(product);
+
 		if (!imagePrefix.isEmpty()) {
 			s3Service.deleteFiles(imagePrefix);
 		}
-
-		productRepository.delete(product);
 	}
 }
