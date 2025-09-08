@@ -133,13 +133,7 @@ public class RentalApplicationService {
 			DEFAULT_SHIPPING_FEE,
 			DEFAULT_CLEANING_FEE
 		);
-		Payment payment = paymentService.createPayment(
-			member,
-			rental,
-			createPaymentCommand.paymentMethod(),
-			createPaymentCommand.shippingFee(),
-			createPaymentCommand.cleaningFee()
-		);
+		Payment payment = paymentService.createPayment(member, rental, createPaymentCommand);
 		return payment;
 	}
 

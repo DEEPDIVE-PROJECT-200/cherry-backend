@@ -1,7 +1,5 @@
 package ok.cherry.payment.application;
 
-import java.math.BigDecimal;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.domain.Member;
+import ok.cherry.payment.application.dto.command.CreatePaymentCommand;
 import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.payment.domain.Payment;
-import ok.cherry.payment.domain.type.PaymentMethod;
 import ok.cherry.payment.exception.PaymentError;
 import ok.cherry.payment.infrastructure.PaymentRepository;
 import ok.cherry.rental.domain.Rental;
@@ -37,11 +35,15 @@ public class PaymentService {
 	public Payment createPayment(
 		Member member,
 		Rental rental,
-		PaymentMethod paymentMethod,
-		BigDecimal shippingFee,
-		BigDecimal cleaningFee
+		CreatePaymentCommand command
 	) {
-		Payment payment = Payment.create(member, rental, paymentMethod, shippingFee, cleaningFee);
+		Payment payment = Payment.create(
+			member,
+			rental,
+			command.paymentMethod(),
+			command.shippingFee(),
+			command.cleaningFee()
+		);
 		callExternalPaymentGateway(payment);
 		return paymentRepository.save(payment);
 	}
