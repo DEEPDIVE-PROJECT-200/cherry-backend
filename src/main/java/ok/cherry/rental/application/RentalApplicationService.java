@@ -146,9 +146,9 @@ public class RentalApplicationService {
 	private Shipping createShipping(PlaceRentalOrderRequest request, Member member, Rental rental) {
 		CreateShippingCommand createShippingCommand = CreateShippingCommand.of(
 			Direction.OUTBOUND,
-			request.shippingInfo().getReceiver(),
-			request.shippingInfo().getPhoneNumber(),
-			request.shippingInfo().getAddress()
+			request.shippingInfo().receiver(),
+			request.shippingInfo().phoneNumber(),
+			request.shippingInfo().address().toDomain()
 		);
 		Shipping shipping = shippingService.createShipping(member, rental, createShippingCommand);
 		return shipping;
