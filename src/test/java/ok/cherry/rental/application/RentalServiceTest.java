@@ -181,7 +181,7 @@ class RentalServiceTest {
 
 	@Test
 	@DisplayName("마지막 페이지에서는 hasNext가 false이다")
-	void getRentals_lastPage_hasNextIsFalse() {
+	void getRentals_success_lastPage_hasNextIsFalse() {
 		// given
 		Member savedMember = memberRepository.save(MemberBuilder.create());
 		Product product = productRepository.save(ProductBuilder.create());
