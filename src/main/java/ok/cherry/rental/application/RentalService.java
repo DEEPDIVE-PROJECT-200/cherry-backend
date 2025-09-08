@@ -3,6 +3,8 @@ package ok.cherry.rental.application;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.application.command.CreateRentalCommand;
+import ok.cherry.rental.application.response.RentalGetResponse;
+import ok.cherry.rental.application.response.RentalInfoResponse;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.rental.domain.RentalItem;
 import ok.cherry.rental.exception.RentalError;
@@ -38,6 +42,31 @@ public class RentalService {
 		);
 
 		return rentalRepository.save(rental);
+	}
+
+	@Transactional(readOnly = true)
+	public RentalGetResponse getRentals(Long lastRentalId, int limit, String providerId) {
+		Pageable pageable = PageRequest.of(0, limit + 1);
+		
+		List<Rental> rentals = rentalRepository.findRentalsWithCursorPagination(
+			providerId, lastRentalId, pageable
+		);
+
+		boolean hasNext = rentals.size() > limit;
+		if (hasNext) {
+			rentals.remove(limit);
+		}
+
+		List<RentalInfoResponse> rentalInfoResponses = rentals.stream()
+			.map(RentalInfoResponse::from)
+			.toList();
+
+		Long lastId = null;
+		if (!rentals.isEmpty()) {
+			lastId = rentals.getLast().getId();
+		}
+
+		return new RentalGetResponse(rentalInfoResponses, hasNext, lastId);
 	}
 
 	private static void validateRentalItems(List<RentalItem> items) {
