@@ -20,7 +20,7 @@ public interface RentalControllerDoc {
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = RentalGetResponse.class)))
 	})
 	ResponseEntity<RentalGetResponse> getRentals(
-		@Parameter(description = "페이지네이션 커서. 이전 응답의 `lastRentalId` 값을 전달하면 다음 페이지를 조회합니다") Long lastProductId,
+		@Parameter(description = "페이지네이션 커서. 이전 응답의 `lastRentalId` 값을 전달하면 다음 페이지를 조회합니다") Long lastRentalId,
 		@Parameter(description = "한 페이지에 보여줄 상품 개수", schema = @Schema(type = "integer", defaultValue = "2")) int limit,
 		@Parameter(hidden = true) String providerId
 	);
