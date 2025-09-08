@@ -1,0 +1,9 @@
+### 결제 내역 단건 조회
+# GET /api/v1/payments/{paymentId}
+# Authorization 헤더에 Access Token을 담아 요청해야 합니다.
+# paymentId의 member와 accessToken의 member가 일치해야 합니다.
+GET http://localhost:8080/api/v1/payments/{paymentId}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+###
