@@ -59,7 +59,6 @@ public class Payment {
 	@Embedded
 	private PaymentDetail detail;
 
-	@SuppressWarnings("checkstyle:RegexpSingleline")
 	public static Payment create(
 		Member member,
 		Rental rental,
