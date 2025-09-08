@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Cherry 관리자페이지 - 제품 등록</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!-- CSRF (있으면 렌더) -->
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        :root {
+            --header-h: 56px;
+            --g300: #dcdcdc;
+            --g600: #6b6b6b;
+            --txt: #222;
+            --pill: #e9ecef;
+        }
+
+        body {
+            background: #f2f2f2;
+            color: var(--txt);
+        }
+
+        .actionbar {
+            height: var(--header-h);
+            background: var(--g600);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+        }
+
+        .actionbar h5 {
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .btn-cancel {
+            background: #8a8a8a;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-save {
+            background: #2f2f2f;
+            color: #fff;
+            border: none;
+        }
+
+        .container-wrap {
+            padding: 16px;
+        }
+
+        .card-pane {
+            background: #fff;
+            border: 1px solid var(--g300);
+            border-radius: 12px;
+        }
+
+        .card-pane .card-body {
+            padding: 16px;
+        }
+
+        /* 업로드 리스트 전용 UI */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .counter {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .thumb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+            gap: 10px;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .help {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* 오른쪽 폼 */
+        .form-block {
+            border: 1px solid var(--g300);
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--pill);
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            user-select: none;
+        }
+
+        .pill input {
+            display: none;
+        }
+
+        .pill.active {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
+        .pill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 상단 액션바 -->
+<div class="actionbar">
+    <h5 class="me-auto">제품등록</h5>
+    <div class="d-flex gap-2">
+        <a th:href="@{/admin}" class="btn btn-cancel">취소</a>
+        <button type="submit" form="productForm" class="btn btn-save">저장하기</button>
+    </div>
+</div>
+
+<div class="container-wrap">
+    <form id="productForm" th:action="@{/admin}" th:object="${productCreateRequest}" method="post">
+        <div class="row g-3">
+            <!-- 좌측: 이미지 두 섹션 -->
+            <div class="col-lg-7">
+                <!-- 제품 이미지(썸네일) -->
+                <div class="card-pane mb-3">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-2">제품 이미지 (썸네일)</h6>
+
+                        <div class="toolbar">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="clearThumb">모두 비우기
+                                </button>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="counter" id="countThumb">0 / 20</span>
+                                <input id="fileThumb" type="file" accept="image/*" class="d-none" multiple>
+                                <button type="button" class="btn btn-dark btn-sm" id="uploadThumb">이미지 업로드</button>
+                            </div>
+                        </div>
+
+                        <div class="thumb-grid" id="gridThumb"></div>
+                        <div id="hiddenThumb"></div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="help">· 첫 번째 이미지가 대표 썸네일입니다. (최대 20개)</div>
+                            <div class="help">카드를 드래그하여 순서를 변경할 수 있어요.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상세 이미지 -->
+                <div class="card-pane">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-2">상세 이미지</h6>
+
+                        <div class="toolbar">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="clearDetail">모두 비우기
+                                </button>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="counter" id="countDetail">0 / 20</span>
+                                <input id="fileDetail" type="file" accept="image/*" class="d-none" multiple>
+                                <button type="button" class="btn btn-dark btn-sm" id="uploadDetail">이미지 업로드</button>
+                            </div>
+                        </div>
+
+                        <div class="thumb-grid" id="gridDetail"></div>
+                        <div id="hiddenDetail"></div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="help">· 상세 이미지는 최대 20개까지 업로드 가능합니다.</div>
+                            <div class="help">카드를 드래그하여 순서를 변경할 수 있어요.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 우측: 제품 정보 -->
+            <div class="col-lg-5">
+                <div class="card-pane">
+                    <div class="card-body form-block">
+                        <div class="mb-3">
+                            <label for="name" class="form-label fw-bold">제품명</label>
+                            <input type="text" id="name" th:field="*{name}" class="form-control"
+                                   placeholder="예) WH-1000XM5">
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-md-7">
+                                <label for="brand" class="form-label fw-bold">브랜드</label>
+                                <select id="brand" th:field="*{brand}" class="form-select">
+                                    <option value="" disabled selected hidden>브랜드를 선택하세요</option>
+                                    <option th:each="b : ${T(ok.cherry.product.domain.type.Brand).values()}"
+                                            th:value="${b}" th:text="${b.name}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="dailyRentalPrice" class="form-label fw-bold">하루체험금액</label>
+                                <div class="input-group">
+                                    <input type="number" id="dailyRentalPrice" th:field="*{dailyRentalPrice}"
+                                           class="form-control" placeholder="0" min="1" step="1">
+                                    <span class="input-group-text">원</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label for="launchedAt" class="form-label fw-bold">제품출시일</label>
+                            <!-- YYYY-MM-DD 전용 -->
+                            <input type="date" id="launchedAt" th:field="*{launchedAt}" class="form-control">
+                            <div class="help mt-1">반드시 <strong>YYYY-MM-DD</strong> 형식이어야 합니다.</div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label fw-bold">색상 옵션</label>
+                            <div class="pill-grid" id="colorPills"
+                                 th:with="colors=${T(ok.cherry.product.domain.type.Color).values()}">
+                                <label class="pill" th:each="c : ${colors}">
+                                    <input type="checkbox" th:field="*{colors}" th:value="${c}">
+                                    <span th:text="${c.name}">BLACK</span>
+                                </label>
+                            </div>
+                            <div class="help mt-1">칩을 클릭하면 선택/해제가 되고, 선택 상태는 검정색으로 표시됩니다.</div>
+                        </div>
+
+                        <div class="alert alert-secondary mt-3 mb-0 small" role="alert">
+                            저장 시 우측 상단 “저장하기” 버튼을 눌러주세요. 서버 검증(Bean Validation)도 함께 수행됩니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Scripts -->
+<script>
+    (function () {
+        const MAX_CNT = 20;
+        const uploadEndpoint = '/api/v1/files';
+        const productEndpoint = '/api/v1/product';
+        const redirectAfterSave = '/admin';
+
+        // CSRF
+        const CSRF_TOKEN = document.querySelector('meta[name="_csrf"]')?.content;
+        const CSRF_HEADER = document.querySelector('meta[name="_csrf_header"]')?.content;
+        const withCsrf = (headers = {}) => {
+            if (CSRF_TOKEN && CSRF_HEADER) headers[CSRF_HEADER] = CSRF_TOKEN;
+            return headers;
+        };
+
+        // 상태(분리)
+        const state = {thumbs: [], details: []};
+
+        // 절대 URL 보정
+        function toAbsoluteUrl(s) {
+            if (!s) return s;
+            if (/^https?:\/\//i.test(s)) return s;
+            if (s.startsWith('/')) return s;
+            const PUBLIC_BASE = 'https://cherry-dev-assets.s3.ap-northeast-2.amazonaws.com/';
+            return PUBLIC_BASE + s.split('/').map(encodeURIComponent).join('/');
+        }
+
+        // 업로드
+        async function uploadImage(file) {
+            const fd = new FormData();
+            fd.append('image', file);
+            const res = await fetch(uploadEndpoint, {method: 'POST', headers: withCsrf(), body: fd});
+            if (!res.ok) throw new Error('업로드 실패');
+            const j = await res.json();
+            if (!j.fileName) throw new Error('응답에 fileName 없음');
+            return toAbsoluteUrl(j.fileName);
+        }
+
+        // 공용: 개수/버튼 상태
+        function updateCountAndButton(items, countEl, uploadBtn) {
+            countEl.textContent = `${items.length} / ${MAX_CNT}`;
+            if (items.length >= MAX_CNT) {
+                uploadBtn.classList.add('btn-upload-disabled');
+                uploadBtn.setAttribute('aria-disabled', 'true');
+            } else {
+                uploadBtn.classList.remove('btn-upload-disabled');
+                uploadBtn.removeAttribute('aria-disabled');
+            }
+        }
+
+        // 렌더(리스트 + hidden + DnD + 삭제)
+        function renderGrid({items, gridEl, hiddenEl, countEl, uploadBtn, showFirstBadge}) {
+            gridEl.innerHTML = '';
+            items.forEach((url, idx) => {
+                const card = document.createElement('div');
+                card.className = 'thumb';
+                card.draggable = true;
+                card.dataset.index = String(idx);
+                card.innerHTML = `
+        ${showFirstBadge && idx === 0 ? '<span class="badge-first">썸네일</span>' : ''}
+        <img src="${url}" alt="">
+        <button type="button" class="btn btn-sm btn-del">×</button>
+      `;
+
+                // 삭제
+                card.querySelector('.btn-del').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    items.splice(idx, 1);
+                    renderGrid({items, gridEl, hiddenEl, countEl, uploadBtn, showFirstBadge});
+                });
+
+                // DnD
+                card.addEventListener('dragstart', (e) => {
+                    card.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', String(idx));
+                });
+                card.addEventListener('dragend', () => card.classList.remove('dragging'));
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    card.classList.add('drag-over');
+                });
+                card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    card.classList.remove('drag-over');
+                    const from = Number(e.dataTransfer.getData('text/plain'));
+                    const to = Number(card.dataset.index);
+                    if (Number.isNaN(from) || Number.isNaN(to) || from === to) return;
+                    const [moved] = items.splice(from, 1);
+                    items.splice(to, 0, moved);
+                    renderGrid({items, gridEl, hiddenEl, countEl, uploadBtn, showFirstBadge});
+                });
+
+                gridEl.appendChild(card);
+            });
+
+            // hidden inputs (서버 폴백)
+            hiddenEl.innerHTML = '';
+            items.forEach(url => {
+                const i = document.createElement('input');
+                i.type = 'hidden';
+                i.name = showFirstBadge ? 'thumbnailImages' : 'detailImages';
+                i.value = url;
+                hiddenEl.appendChild(i);
+            });
+
+            updateCountAndButton(items, countEl, uploadBtn);
+        }
+
+        // 파일 처리
+        async function handleFiles(files, items, render) {
+            const room = MAX_CNT - items.length;
+            const list = Array.from(files).slice(0, Math.max(0, room));
+            if (list.length === 0) {
+                alert(`최대 ${MAX_CNT}개까지 업로드 가능합니다.`);
+                return;
+            }
+            try {
+                for (const f of list) {
+                    const url = await uploadImage(f);
+                    items.push(url);
+                }
+                render();
+            } catch (e) {
+                alert(e.message || '업로드 실패');
+            }
+        }
+
+        // ====== 썸네일 세션 ======
+        const gridThumb = document.getElementById('gridThumb');
+        const hiddenThumb = document.getElementById('hiddenThumb');
+        const countThumb = document.getElementById('countThumb');
+        const fileThumb = document.getElementById('fileThumb');
+        const uploadThumb = document.getElementById('uploadThumb');
+        const clearThumb = document.getElementById('clearThumb');
+
+        function rerenderThumb() {
+            renderGrid({
+                items: state.thumbs,
+                gridEl: gridThumb,
+                hiddenEl: hiddenThumb,
+                countEl: countThumb,
+                uploadBtn: uploadThumb,
+                showFirstBadge: true
+            });
+        }
+
+        uploadThumb.addEventListener('click', () => {
+            if (state.thumbs.length >= MAX_CNT) return;
+            fileThumb.click();
+        });
+        fileThumb.addEventListener('change', async (e) => {
+            if (e.target.files?.length) await handleFiles(e.target.files, state.thumbs, rerenderThumb);
+            fileThumb.value = '';
+        });
+        clearThumb.addEventListener('click', () => {
+            if (!state.thumbs.length) return;
+            if (!confirm('제품 이미지를 모두 비울까요?')) return;
+            state.thumbs = [];
+            rerenderThumb();
+        });
+
+        // ====== 상세 세션 ======
+        const gridDetail = document.getElementById('gridDetail');
+        const hiddenDetail = document.getElementById('hiddenDetail');
+        const countDetail = document.getElementById('countDetail');
+        const fileDetail = document.getElementById('fileDetail');
+        const uploadDetail = document.getElementById('uploadDetail');
+        const clearDetail = document.getElementById('clearDetail');
+
+        function rerenderDetail() {
+            renderGrid({
+                items: state.details,
+                gridEl: gridDetail,
+                hiddenEl: hiddenDetail,
+                countEl: countDetail,
+                uploadBtn: uploadDetail,
+                showFirstBadge: false
+            });
+        }
+
+        uploadDetail.addEventListener('click', () => {
+            if (state.details.length >= MAX_CNT) return;
+            fileDetail.click();
+        });
+        fileDetail.addEventListener('change', async (e) => {
+            if (e.target.files?.length) await handleFiles(e.target.files, state.details, rerenderDetail);
+            fileDetail.value = '';
+        });
+        clearDetail.addEventListener('click', () => {
+            if (!state.details.length) return;
+            if (!confirm('상세 이미지를 모두 비울까요?')) return;
+            state.details = [];
+            rerenderDetail();
+        });
+
+        // ====== 색상 칩 (이벤트 위임) ======
+        const colorPills = document.getElementById('colorPills');
+        colorPills.addEventListener('click', (e) => {
+            const pill = e.target.closest('.pill');
+            if (!pill) return;
+            const input = pill.querySelector('input[type="checkbox"]');
+            input.checked = !input.checked;
+            pill.classList.toggle('active', input.checked);
+        });
+        // 초기 동기화
+        colorPills.querySelectorAll('.pill').forEach(p => {
+            const input = p.querySelector('input[type="checkbox"]');
+            p.classList.toggle('active', input.checked);
+        });
+
+        // ====== 저장(JSON) ======
+        const form = document.getElementById('productForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = form.querySelector('#name')?.value?.trim();
+            const brand = form.querySelector('#brand')?.value;
+            const price = Number(form.querySelector('#dailyRentalPrice')?.value);
+            const launchedAt = form.querySelector('#launchedAt')?.value?.trim(); // type=date → YYYY-MM-DD
+            const colors = Array.from(form.querySelectorAll('input[name="colors"]:checked')).map(el => el.value);
+
+            if (!name) return alert('상품명은 필수입니다.');
+            if (!brand) return alert('브랜드를 선택해 주세요.');
+            if (!colors.length) return alert('색상을 선택해 주세요.');
+            if (!price || price <= 0) return alert('일일 대여 가격을 양수로 입력해 주세요.');
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(launchedAt)) return alert('출시일은 YYYY-MM-DD 형식만 허용됩니다.');
+            if (!state.thumbs.length) return alert('제품 이미지를 최소 1개 업로드해 주세요.');
+            if (!state.details.length) return alert('상세 이미지를 최소 1개 업로드해 주세요.');
+
+            const payload = {
+                name,
+                brand,
+                colors,
+                dailyRentalPrice: price,
+                launchedAt,
+                thumbnailImages: state.thumbs.slice(),
+                detailImages: state.details.slice()
+            };
+
+            try {
+                const res = await fetch(productEndpoint, {
+                    method: 'POST',
+                    headers: withCsrf({'Content-Type': 'application/json'}),
+                    body: JSON.stringify(payload)
+                });
+                if (res.status === 201) {
+                    window.location.assign(redirectAfterSave);
+                } else {
+                    const text = await res.text().catch(() => '');
+                    alert('등록 실패\n' + (text || `HTTP ${res.status}`));
+                }
+            } catch (err) {
+                alert('등록 중 오류: ' + err.message);
+            }
+        });
+
+        // 초기 렌더
+        rerenderThumb();
+        rerenderDetail();
+    })();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>
