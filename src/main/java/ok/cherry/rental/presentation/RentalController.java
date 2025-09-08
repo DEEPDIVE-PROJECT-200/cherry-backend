@@ -8,13 +8,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ok.cherry.global.swagger.rental.RentalControllerDoc;
 import ok.cherry.rental.application.RentalService;
 import ok.cherry.rental.application.response.RentalGetResponse;
 
 @RestController
 @RequestMapping("/api/v1/rentals")
 @RequiredArgsConstructor
-public class RentalController {
+public class RentalController implements RentalControllerDoc {
 
 	private final RentalService rentalService;
 
