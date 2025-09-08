@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
 import ok.cherry.cart.application.dto.response.CartCreateResponse;
@@ -26,6 +27,7 @@ import ok.cherry.product.exception.ProductError;
 import ok.cherry.product.infrastructure.ProductRepository;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class CartService {
@@ -57,15 +59,16 @@ public class CartService {
 
 	public void deleteCart(CartDeleteRequest request, String providerId) {
 		List<Cart> carts = cartRepository.findAllById(request.cartIds());
-		
+
 		if (carts.size() != request.cartIds().size()) {
 			throw new BusinessException(CartError.CART_NOT_FOUND);
 		}
-		carts.forEach(cart -> validateCartOwner(cart, providerId));
-		
+		carts.forEach(cart -> validateCartsOwnership(List.of(cart), providerId));
+
 		cartRepository.deleteAllInBatch(carts);
 	}
 
+	@Transactional(readOnly = true)
 	public CartGetResponse getCarts(String providerId) {
 		Member member = memberRepository.findByProviderId(providerId)
 			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
@@ -78,6 +81,7 @@ public class CartService {
 		for (Cart cart : carts) {
 			cartInfoResponses.add(new CartInfoResponse(
 				cart.getId(),
+				cart.getProduct().getId(),
 				cart.getProduct().getName(),
 				cart.getProduct().getThumbnailUrl(),
 				cart.getColor(),
@@ -89,8 +93,35 @@ public class CartService {
 		return new CartGetResponse(cartInfoResponses, totalPrice);
 	}
 
-	private static void validateCartOwner(Cart cart, String providerId) {
-		if (!cart.getMember().getProviderId().equals(providerId)) {
+	@Transactional(readOnly = true)
+	public List<CartInfoResponse> getCartsByIds(List<Long> cartIds, String providerId) {
+		List<Cart> carts = cartRepository.findAllById(cartIds);
+
+		if (carts.size() != cartIds.size()) {
+			log.info("요청한 cartIds 개수: {}, 조회된 cart 개수: {}", cartIds.size(), carts.size());
+			throw new BusinessException(CartError.CART_NOT_FOUND);
+		}
+
+		validateCartsOwnership(carts, providerId);
+
+		return carts.stream()
+			.map(cart -> new CartInfoResponse(
+				cart.getId(),
+				cart.getProduct().getId(),
+				cart.getProduct().getName(),
+				cart.getProduct().getThumbnailUrl(),
+				cart.getColor(),
+				cart.getPrice()
+			))
+			.toList();
+	}
+
+	private static void validateCartsOwnership(List<Cart> carts, String providerId) {
+		boolean hasUnauthorizedCart = carts.stream()
+			.anyMatch(cart -> !cart.getMember().getProviderId().equals(providerId));
+
+		if (hasUnauthorizedCart) {
+			log.info("권한 없는 장바구니 접근 시도 - providerId: {}", providerId);
 			throw new BusinessException(CartError.UNAUTHORIZED_CART_ACCESS);
 		}
 	}
