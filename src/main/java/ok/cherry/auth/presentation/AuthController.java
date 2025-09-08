@@ -21,11 +21,12 @@ import ok.cherry.auth.exception.TokenError;
 import ok.cherry.auth.jwt.TokenExtractor;
 import ok.cherry.auth.util.CookieManager;
 import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.global.swagger.auth.AuthControllerDoc;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthControllerDoc {
 
 	private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
