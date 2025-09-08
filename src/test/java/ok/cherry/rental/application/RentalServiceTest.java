@@ -19,8 +19,11 @@ import ok.cherry.member.infrastructure.MemberRepository;
 import ok.cherry.product.ProductBuilder;
 import ok.cherry.product.domain.Product;
 import ok.cherry.product.infrastructure.ProductRepository;
+import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.RentalItemBuilder;
 import ok.cherry.rental.application.command.CreateRentalCommand;
+import ok.cherry.rental.application.response.RentalGetResponse;
+import ok.cherry.rental.application.response.RentalInfoResponse;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.rental.domain.RentalItem;
 import ok.cherry.rental.domain.status.RentalStatus;
@@ -144,6 +147,89 @@ class RentalServiceTest {
 		// then
 		Rental savedRental = rentalRepository.findById(rental.getId()).orElseThrow();
 		assertThat(savedRental.getRentalNumber()).matches("^CH-\\d{20}$");
+	}
+
+	@Test
+	@DisplayName("요청을 보낸 사용자의 대여 목록이 커서 기반 페이지네이션으로 정상 동작한다")
+	void getRentals_success_withCursorPagination() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+		saveRentals(savedMember, savedProduct);
+
+		// when
+		RentalGetResponse firstPage = rentalService.getRentals(null, 2, savedMember.getProviderId());
+		RentalGetResponse secondPage = rentalService.getRentals(firstPage.lastRentalId(), 2, savedMember.getProviderId());
+
+		// then
+		assertThat(firstPage.rentals()).hasSize(2);
+		assertThat(firstPage.hasNext()).isTrue();
+		assertThat(firstPage.lastRentalId()).isNotNull();
+
+		assertThat(secondPage.rentals()).hasSize(2);
+		assertThat(secondPage.hasNext()).isTrue();
+
+		// 첫 번째와 두 번째 페이지의 데이터가 중복되지 않는지 확인
+		List<Long> firstPageIds = firstPage.rentals().stream()
+			.map(RentalInfoResponse::rentalId)
+			.toList();
+		List<Long> secondPageIds = secondPage.rentals().stream()
+			.map(RentalInfoResponse::rentalId)
+			.toList();
+		assertThat(firstPageIds).doesNotContainAnyElementsOf(secondPageIds);
+	}
+
+	@Test
+	@DisplayName("마지막 페이지에서는 hasNext가 false이다")
+	void getRentals_lastPage_hasNextIsFalse() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+
+		Rental rental = RentalBuilder.builder()
+			.withMember(savedMember)
+			.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+			.withRentalNumber("CH-25090213363012500001")
+			.build();
+		rentalRepository.save(rental);
+
+		// when
+		RentalGetResponse response = rentalService.getRentals(null, 2, savedMember.getProviderId());
+
+		// then
+		assertThat(response.rentals()).hasSize(1);
+		assertThat(response.hasNext()).isFalse();
+		assertThat(response.lastRentalId()).isEqualTo(rental.getId());
+	}
+
+	private void saveRentals(Member savedMember, Product product) {
+		rentalRepository.saveAll(List.of(
+			RentalBuilder.builder()
+				.withMember(savedMember)
+				.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+				.withRentalNumber("CH-25090213363012300001")
+				.build(),
+			RentalBuilder.builder()
+				.withMember(savedMember)
+				.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+				.withRentalNumber("CH-25090213363012300002")
+				.build(),
+			RentalBuilder.builder()
+				.withMember(savedMember)
+				.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+				.withRentalNumber("CH-25090213363012300003")
+				.build(),
+			RentalBuilder.builder()
+				.withMember(savedMember)
+				.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+				.withRentalNumber("CH-25090213363012300004")
+				.build(),
+			RentalBuilder.builder()
+				.withMember(savedMember)
+				.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+				.withRentalNumber("CH-25090213363012300005")
+				.build()
+		));
 	}
 
 	private void flushAndClear() {
