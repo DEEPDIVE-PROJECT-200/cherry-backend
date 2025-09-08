@@ -18,6 +18,7 @@ import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
 import ok.cherry.cart.application.dto.response.CartCreateResponse;
 import ok.cherry.cart.application.dto.response.CartGetResponse;
+import ok.cherry.cart.application.dto.response.CartInfoResponse;
 import ok.cherry.cart.domain.Cart;
 import ok.cherry.cart.exception.CartError;
 import ok.cherry.cart.infrastructure.CartRepository;
@@ -118,8 +119,8 @@ class CartServiceTest {
 		Member savedMember = memberRepository.save(MemberBuilder.create());
 		Product savedProduct = productRepository.save(
 			ProductBuilder.builder()
-			.withColors(List.of(Color.BLACK, Color.MIDNIGHT_BLUE, Color.WHITE, Color.BLUE))
-			.build()
+				.withColors(List.of(Color.BLACK, Color.MIDNIGHT_BLUE, Color.WHITE, Color.BLUE))
+				.build()
 		);
 
 		Cart cart1 = CartBuilder.builder()
@@ -312,6 +313,180 @@ class CartServiceTest {
 		assertThatThrownBy(() -> cartService.getCarts(nonExistProviderId))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(MemberError.USER_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	@DisplayName("cartIds로 장바구니 조회에 성공한다")
+	void getCartsByIds_success() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product product1 = productRepository.save(ProductBuilder.create());
+		Product product2 = productRepository.save(ProductBuilder.builder().withName("Product2").build());
+
+		Cart cart1 = cartRepository.save(CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(product1)
+			.withColor(Color.BLACK)
+			.build());
+
+		Cart cart2 = cartRepository.save(CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(product2)
+			.withColor(Color.WHITE)
+			.build());
+
+		List<Long> cartIds = List.of(cart1.getId(), cart2.getId());
+		flushAndClear();
+
+		// when
+		List<CartInfoResponse> responses = cartService.getCartsByIds(cartIds, savedMember.getProviderId());
+
+		// then
+		assertThat(responses).hasSize(2);
+
+		CartInfoResponse response1 = responses.stream()
+			.filter(r -> r.cartId().equals(cart1.getId()))
+			.findFirst()
+			.orElseThrow();
+
+		CartInfoResponse response2 = responses.stream()
+			.filter(r -> r.cartId().equals(cart2.getId()))
+			.findFirst()
+			.orElseThrow();
+
+		assertThat(response1.productId()).isEqualTo(product1.getId());
+		assertThat(response1.productName()).isEqualTo(product1.getName());
+		assertThat(response1.color()).isEqualTo(Color.BLACK);
+		assertThat(response1.dailyRentalPrice()).isEqualByComparingTo(cart1.getPrice());
+
+		assertThat(response2.productId()).isEqualTo(product2.getId());
+		assertThat(response2.productName()).isEqualTo(product2.getName());
+		assertThat(response2.color()).isEqualTo(Color.WHITE);
+		assertThat(response2.dailyRentalPrice()).isEqualByComparingTo(cart2.getPrice());
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 cartId가 포함된 경우 예외가 발생한다")
+	void getCartsByIds_fail_cartNotFound() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+
+		Cart savedCart = cartRepository.save(CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.build());
+
+		Long nonExistentCartId = 999L;
+		List<Long> cartIds = List.of(savedCart.getId(), nonExistentCartId);
+
+		// when & then
+		assertThatThrownBy(() -> cartService.getCartsByIds(cartIds, savedMember.getProviderId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(CartError.CART_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	@DisplayName("다른 사용자의 장바구니 조회 시 권한 없음 예외가 발생한다")
+	void getCartsByIds_fail_unauthorizedAccess() {
+		// given
+		Member cartOwner = memberRepository.save(MemberBuilder.create());
+		Member anotherMember = memberRepository.save(
+			MemberBuilder.builder()
+				.withProviderId("another_provider_id")
+				.withEmail("another@test.com")
+				.withNickname("another")
+				.build()
+		);
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+
+		Cart cart = cartRepository.save(CartBuilder.builder()
+			.withMember(cartOwner)
+			.withProduct(savedProduct)
+			.build());
+
+		List<Long> cartIds = List.of(cart.getId());
+
+		// when & then
+		assertThatThrownBy(() -> cartService.getCartsByIds(cartIds, anotherMember.getProviderId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(CartError.UNAUTHORIZED_CART_ACCESS.getMessage());
+	}
+
+	@Test
+	@DisplayName("여러 사용자의 장바구니가 섞인 경우 권한 없음 예외가 발생한다")
+	void getCartsByIds_fail_mixedOwnership() {
+		// given
+		Member member1 = memberRepository.save(MemberBuilder.create());
+		Member member2 = memberRepository.save(
+			MemberBuilder.builder()
+				.withProviderId("member2_provider_id")
+				.withEmail("member2@test.com")
+				.withNickname("member2")
+				.build()
+		);
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+
+		Cart cart1 = cartRepository.save(CartBuilder.builder()
+			.withMember(member1)
+			.withProduct(savedProduct)
+			.build());
+
+		Cart cart2 = cartRepository.save(CartBuilder.builder()
+			.withMember(member2)
+			.withProduct(savedProduct)
+			.build());
+
+		List<Long> cartIds = List.of(cart1.getId(), cart2.getId());
+
+		// when & then
+		assertThatThrownBy(() -> cartService.getCartsByIds(cartIds, member1.getProviderId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(CartError.UNAUTHORIZED_CART_ACCESS.getMessage());
+	}
+
+	@Test
+	@DisplayName("빈 cartIds 리스트로 조회 시 빈 리스트가 반환된다")
+	void getCartsByIds_withEmptyList_returnsEmptyList() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		List<Long> emptyCartIds = List.of();
+
+		// when
+		List<CartInfoResponse> responses = cartService.getCartsByIds(emptyCartIds, savedMember.getProviderId());
+
+		// then
+		assertThat(responses).isEmpty();
+	}
+
+	@Test
+	@DisplayName("단일 cartId로 장바구니 조회에 성공한다")
+	void getCartsByIds_singleCart_success() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+
+		Cart savedCart = cartRepository.save(CartBuilder.builder()
+			.withMember(savedMember)
+			.withProduct(savedProduct)
+			.withColor(Color.MIDNIGHT_BLUE)
+			.build());
+
+		List<Long> cartIds = List.of(savedCart.getId());
+
+		// when
+		List<CartInfoResponse> responses = cartService.getCartsByIds(cartIds, savedMember.getProviderId());
+
+		// then
+		assertThat(responses).hasSize(1);
+
+		CartInfoResponse response = responses.getFirst();
+		assertThat(response.cartId()).isEqualTo(savedCart.getId());
+		assertThat(response.productId()).isEqualTo(savedProduct.getId());
+		assertThat(response.productName()).isEqualTo(savedProduct.getName());
+		assertThat(response.productThumbnailUrl()).isEqualTo(savedProduct.getThumbnailUrl());
+		assertThat(response.color()).isEqualTo(Color.MIDNIGHT_BLUE);
+		assertThat(response.dailyRentalPrice()).isEqualByComparingTo(savedCart.getPrice());
 	}
 
 	private void flushAndClear() {

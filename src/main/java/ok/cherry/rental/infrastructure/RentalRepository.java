@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import ok.cherry.rental.domain.Rental;
 
+@Repository
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 
 	@Query("SELECT r FROM Rental r " +
