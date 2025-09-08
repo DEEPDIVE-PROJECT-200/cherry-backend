@@ -26,5 +26,6 @@ public enum Color {
 	COPPER,
 	BLACK_NICKEL,
 	CERAMIC_CINNABAR,
-	TAN
+	TAN,
+	ALUMINUM
 }
