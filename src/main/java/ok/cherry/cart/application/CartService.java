@@ -52,16 +52,14 @@ public class CartService {
 	}
 
 	public void deleteCart(CartDeleteRequest request, String providerId) {
-		List<Cart> cartsToDelete = request.cartIds().stream()
-			.map(cartId -> {
-				Cart cart = cartRepository.findById(cartId)
-					.orElseThrow(() -> new BusinessException(CartError.CART_NOT_FOUND));
-				validateCartOwner(cart, providerId);
-				return cart;
-			})
-			.toList();
-
-		cartRepository.deleteAllInBatch(cartsToDelete);
+		List<Cart> carts = cartRepository.findAllById(request.cartIds());
+		
+		if (carts.size() != request.cartIds().size()) {
+			throw new BusinessException(CartError.CART_NOT_FOUND);
+		}
+		carts.forEach(cart -> validateCartOwner(cart, providerId));
+		
+		cartRepository.deleteAllInBatch(carts);
 	}
 
 	private static void validateCartOwner(Cart cart, String providerId) {
