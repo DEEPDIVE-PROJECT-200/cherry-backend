@@ -19,6 +19,8 @@ import ok.cherry.product.infrastructure.ProductRepository;
 @Profile("dev")
 public class ProductDataInitializer implements CommandLineRunner {
 
+	public static final long DAILY_RENTAL_PRICE = 500L;
+
 	private final ProductRepository productRepository;
 	private final ProductCreateService productCreateService;
 
@@ -28,7 +30,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"WH-1000XM6",
 			Brand.SONY,
 			List.of(Color.PLATINUM_SILVER, Color.BLACK, Color.MIDNIGHT_BLUE),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2025-06-18",
 			List.of(
 				"8d1146b1-9285-4d02-8712-3b3595273baa_01.jpg",
@@ -60,7 +62,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"AirPods Max",
 			Brand.APPLE,
 			List.of(Color.MIDNIGHT, Color.STARLIGHT, Color.BLUE, Color.PURPLE, Color.ORANGE),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2020-12-15",
 			List.of(
 				"2c3da6f1-4acf-46c2-a07c-5c2b7ccb179e_01.jpg",
@@ -83,9 +85,9 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"QuietComfort Ultra Headphones",
 			Brand.BOSE,
 			List.of(Color.BLACK, Color.WHITE_SMOKE, Color.LUNA_BLUE, Color.DEEP_PLUM, Color.SANDSTONE),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2023-10-16",
-			(List.of(
+			List.of(
 				"c318e0ea-acc5-4c7f-9f05-736a2cf61408_01.jpg",
 				"b87bb35f-2137-49e6-b11d-f133476ffa92_02.jpg",
 				"53a0ab75-e7e4-4f58-8537-96c1b2e37701_03.jpg",
@@ -93,7 +95,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 				"a5aa6778-09d8-4c46-9ce7-f13cb737f1e9_05.jpg",
 				"e721216b-10b9-45b4-981a-76c9e01523cf_06.jpg",
 				"df0fe5cd-703c-4b56-b515-35ea1ab05ec3_07.jpg"
-			)),
+			),
 			List.of(
 				"c46abc6f-cd96-4113-9be6-df268a5b2a0d_01.jpg",
 				"f0ea7a40-3774-4375-92b0-12102e4a9962_02.jpg",
@@ -107,7 +109,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"MOMENTUM 4 Wireless",
 			Brand.SENNHEISER,
 			List.of(Color.BLACK, Color.WHITE, Color.GRAPHITE),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2022-08-23",
 			List.of(
 				"3fd393c8-59a8-4e63-83bb-aa8d3525376b_01.jpg",
@@ -130,7 +132,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"Beoplay HX",
 			Brand.BANG_OLUFSEN,
 			List.of(Color.BLACK, Color.GOLD, Color.TIMBER),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2021-04-06",
 			List.of(
 				"a6398f37-bd66-4685-b554-d7c2d2e36e62_01.jpg",
@@ -159,7 +161,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"Px8",
 			Brand.BOWERS_WILKINS,
 			List.of(Color.BLACK, Color.TAN, Color.ROYAL_BURGUNDY, Color.DARK_FOREST),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2022-10-11",
 			List.of(
 				"35ca4633-428e-4b70-a0a6-1d78c0958e39_01.jpg",
@@ -185,7 +187,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"MONITOR III A.N.C.",
 			Brand.MARSHALL,
 			List.of(Color.BLACK),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2024-11-14",
 			List.of(
 				"d3bd1665-c514-475e-8010-e3fce010ed64_01.jpg",
@@ -220,7 +222,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"Dyson Ontrac",
 			Brand.DYSON,
 			List.of(Color.BLACK_NICKEL, Color.CERAMIC_CINNABAR, Color.COPPER, Color.ALUMINUM),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2024-09-03",
 			List.of(
 				"429e4828-abd9-4143-b559-f8021c87de0a_01.jpg",
@@ -251,7 +253,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"JBL TOUR ONE M2",
 			Brand.JBL,
 			List.of(Color.BLACK, Color.CHAMPAGNE),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2023-06-29",
 			List.of(
 				"359fad3a-f593-4c43-9413-9e487e8a6674_01.jpg",
@@ -280,7 +282,7 @@ public class ProductDataInitializer implements CommandLineRunner {
 			"Nothing headphone (1)",
 			Brand.NOTHING,
 			List.of(Color.BLACK, Color.WHITE),
-			500L,
+			DAILY_RENTAL_PRICE,
 			"2025-07-15",
 			List.of(
 				"a13f828b-bfbe-4d5b-8b02-210a5a7aa69e_01.jpg",
