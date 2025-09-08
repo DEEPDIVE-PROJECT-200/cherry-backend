@@ -25,15 +25,12 @@ public class PaymentService {
 	private final PaymentRepository paymentRepository;
 
 	public PaymentResponse getPayment(Long paymentId, String providerId) {
-		return paymentRepository.findByIdWithItems(paymentId)
-			.filter(payment -> payment.getMember().getProviderId().equals(providerId))
-			.map(PaymentResponse::of)
-			.orElseThrow(() -> {
-				if (paymentRepository.existsById(paymentId)) {
-					return new BusinessException(PaymentError.PAYMENT_ACCESS_DENIED);
-				}
-				return new BusinessException(PaymentError.PAYMENT_NOT_FOUND);
-			});
+		Payment payment = paymentRepository.findByIdWithItems(paymentId)
+			.orElseThrow(() -> new BusinessException(PaymentError.PAYMENT_NOT_FOUND));
+
+		validatePaymentOwnership(providerId, payment);
+
+		return PaymentResponse.of(payment);
 	}
 
 	@Transactional
@@ -60,5 +57,16 @@ public class PaymentService {
 			payment.getPaymentAmount().getTotalAmount());
 
 		payment.complete();
+	}
+
+	/**
+	 * 결제 정보 조회 권한이 있는지 확인
+	 * @param providerId
+	 * @param payment
+	 */
+	private static void validatePaymentOwnership(String providerId, Payment payment) {
+		if (!payment.getMember().getProviderId().equals(providerId)) {
+			throw new BusinessException(PaymentError.PAYMENT_ACCESS_DENIED);
+		}
 	}
 }
