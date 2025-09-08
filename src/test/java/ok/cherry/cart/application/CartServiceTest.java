@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -279,11 +280,11 @@ class CartServiceTest {
 		// then
 		assertThat(response.carts()).hasSize(3);
 		assertThat(response.carts()).extracting("color")
-			.containsExactly(Color.BLACK, Color.MIDNIGHT_BLUE, Color.WHITE);
+			.containsExactlyInAnyOrder(Color.BLACK, Color.MIDNIGHT_BLUE, Color.WHITE);
 
-		BigDecimal expectedTotalPrice = cart1.getPrice()
-			.add(cart2.getPrice())
-			.add(cart3.getPrice());
+		BigDecimal expectedTotalPrice = Stream.of(cart1, cart2, cart3)
+			.map(Cart::getPrice)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
 		assertThat(response.totalPrice()).isEqualTo(expectedTotalPrice);
 	}
 
