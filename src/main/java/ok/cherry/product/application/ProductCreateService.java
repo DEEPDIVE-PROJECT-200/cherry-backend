@@ -23,11 +23,11 @@ import ok.cherry.product.infrastructure.ProductRepository;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+@Transactional
+public class ProductCreateService {
 
 	private final ProductRepository productRepository;
 
-	@Transactional
 	public ProductCreateResponse createProduct(ProductCreateRequest request) {
 		BigDecimal dailyRentalPrice = BigDecimal.valueOf(request.dailyRentalPrice());
 		LocalDate launchedAt = LocalDate.parse(request.launchedAt());
@@ -43,6 +43,7 @@ public class ProductService {
 		Product product = Product.create(
 			request.name(),
 			request.brand(),
+			thumbnailDetails.getFirst().getImageUrl(),
 			request.colors(),
 			dailyRentalPrice,
 			launchedAt,
