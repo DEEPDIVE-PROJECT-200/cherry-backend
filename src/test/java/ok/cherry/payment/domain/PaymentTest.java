@@ -136,8 +136,8 @@ class PaymentTest {
 		assertThat(payment.getPaymentItems()).hasSize(rental.getRentalItems().size());
 
 		// 첫 번째 아이템 검증
-		var firstRentalItem = rental.getRentalItems().get(0);
-		var firstPaymentItem = payment.getPaymentItems().get(0);
+		var firstRentalItem = rental.getRentalItems().getFirst();
+		var firstPaymentItem = payment.getPaymentItems().getFirst();
 
 		assertThat(firstPaymentItem.getProductName()).isEqualTo(firstRentalItem.getProduct().getName());
 		assertThat(firstPaymentItem.getBrand()).isEqualTo(firstRentalItem.getProduct().getBrand());
