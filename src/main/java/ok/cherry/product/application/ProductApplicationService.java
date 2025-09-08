@@ -20,7 +20,7 @@ public class ProductApplicationService {
 	private final S3Service s3Service;
 
 	public void deleteProduct(Long productId) {
-		Product product = productRepository.findById(productId)
+		Product product = productRepository.findByIdWithDetails(productId)
 			.orElseThrow(() -> new BusinessException(ProductError.PRODUCT_NOT_FOUND));
 
 		List<String> imagePrefix = new ArrayList<>();
