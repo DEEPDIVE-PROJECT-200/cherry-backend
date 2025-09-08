@@ -1,5 +1,6 @@
 package ok.cherry.cart.application;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
 import ok.cherry.cart.application.dto.response.CartCreateResponse;
+import ok.cherry.cart.application.dto.response.CartGetResponse;
+import ok.cherry.cart.application.dto.response.CartInfoResponse;
 import ok.cherry.cart.domain.Cart;
 import ok.cherry.cart.exception.CartError;
 import ok.cherry.cart.infrastructure.CartRepository;
@@ -60,6 +63,29 @@ public class CartService {
 		carts.forEach(cart -> validateCartOwner(cart, providerId));
 		
 		cartRepository.deleteAllInBatch(carts);
+	}
+
+	public CartGetResponse getCarts(String providerId) {
+		Member member = memberRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
+
+		List<Cart> carts = cartRepository.findAllByMemberIdWithProduct(member.getId());
+
+		List<CartInfoResponse> cartInfoResponses = carts.stream()
+			.map(cart -> new CartInfoResponse(
+				cart.getId(),
+				cart.getProduct().getName(),
+				cart.getProduct().getThumbnailUrl(),
+				cart.getColor(),
+				cart.getPrice()
+			))
+			.toList();
+
+		BigDecimal totalPrice = carts.stream()
+			.map(Cart::getPrice)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		return new CartGetResponse(cartInfoResponses, totalPrice);
 	}
 
 	private static void validateCartOwner(Cart cart, String providerId) {

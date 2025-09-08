@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import ok.cherry.cart.application.CartService;
 import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
 import ok.cherry.cart.application.dto.response.CartCreateResponse;
+import ok.cherry.cart.application.dto.response.CartGetResponse;
 import ok.cherry.global.swagger.cart.CartControllerDoc;
 
 @RestController
@@ -35,6 +37,12 @@ public class CartController implements CartControllerDoc {
 		@AuthenticationPrincipal String providerId) {
 		cartService.deleteCart(request, providerId);
 		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping
+	public ResponseEntity<CartGetResponse> getCarts(@AuthenticationPrincipal String providerId) {
+		CartGetResponse response = cartService.getCarts(providerId);
+		return ResponseEntity.ok(response);
 	}
 
 }
