@@ -77,9 +77,35 @@ public class Shipping {
 		return shipping;
 	}
 
+	public void startShipping() {
+		validateIsPending();
+
+		this.detail.markStarted();
+		this.status = ShippingStatus.IN_DELIVERY;
+	}
+
+	public void completeShipping() {
+		validateIsInDelivery();
+
+		this.detail.markEnded();
+		this.status = ShippingStatus.DELIVERED;
+	}
+
 	private static void validateTrackingNumber(String trackingNumber) {
 		if (trackingNumber == null || !trackingNumber.matches("^\\d{20}$")) {
 			throw new DomainException(ShippingError.INVALID_TRACKING_NUMBER);
+		}
+	}
+
+	private void validateIsPending() {
+		if (this.status != ShippingStatus.PENDING) {
+			throw new DomainException(ShippingError.NOT_PENDING);
+		}
+	}
+
+	private void validateIsInDelivery() {
+		if (this.status != ShippingStatus.IN_DELIVERY) {
+			throw new DomainException(ShippingError.NOT_IN_DELIVERY);
 		}
 	}
 }

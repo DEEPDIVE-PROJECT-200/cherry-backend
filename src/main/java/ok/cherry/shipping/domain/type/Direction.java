@@ -2,6 +2,6 @@ package ok.cherry.shipping.domain.type;
 
 public enum Direction {
 
-	INBOUND,
-	OUTBOUND
+	OUTBOUND, // 배송
+	INBOUND // 반납
 }

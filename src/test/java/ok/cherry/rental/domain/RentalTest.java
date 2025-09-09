@@ -1,6 +1,7 @@
 package ok.cherry.rental.domain;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.RentalItemBuilder;
+import ok.cherry.rental.domain.status.RentalStatus;
 import ok.cherry.rental.exception.RentalError;
 
 class RentalTest {
@@ -79,5 +81,31 @@ class RentalTest {
 		assertThatThrownBy(() -> RentalBuilder.builder().withRentalNumber(wrongRentalNumber).build())
 			.isInstanceOf(DomainException.class)
 			.hasMessage(RentalError.INVALID_RENTAL_NUMBER.getMessage());
+	}
+
+	@Test
+	@DisplayName("대여 활성화 시 대여 상태가 ACTIVE로 변경된다")
+	void active_success() {
+		// given
+		Rental rental = RentalBuilder.create();
+
+		// when
+		rental.active();
+
+		// then
+		assertThat(rental.getRentalStatus()).isEqualTo(RentalStatus.ACTIVE);
+	}
+
+	@Test
+	@DisplayName("대여 활성화 시 대여 상태가 PENDING이 아니면 예외가 발생한다")
+	void active_notPending() {
+		// given
+		Rental rental = RentalBuilder.create();
+		rental.active();
+
+		// when & then
+		assertThatThrownBy(() -> rental.active())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(RentalError.NOT_PENDING.getMessage());
 	}
 }

@@ -85,6 +85,11 @@ public class Rental {
 		return rental;
 	}
 
+	public void active() {
+		validateIsPending();
+		this.rentalStatus = RentalStatus.ACTIVE;
+	}
+
 	private static BigDecimal calculateTotalPrice(List<RentalItem> items) {
 		return items.stream()
 			.map(RentalItem::getPrice)
@@ -94,6 +99,12 @@ public class Rental {
 	private static void validateRentalNumber(String rentalNumber) {
 		if (rentalNumber == null || !rentalNumber.matches("^CH-\\d{20}$")) {
 			throw new DomainException(RentalError.INVALID_RENTAL_NUMBER);
+		}
+	}
+
+	private void validateIsPending() {
+		if (this.rentalStatus != RentalStatus.PENDING) {
+			throw new DomainException(RentalError.NOT_PENDING);
 		}
 	}
 }
