@@ -1,0 +1,15 @@
+### 테스트용 토큰 발급 (로컬에서만 가능)
+# data.sql의 1번 멤버 (providerId: kakao_12345)
+POST http://localhost:8080/test/token/kakao_12345
+Content-Type: application/json
+
+> {%
+    client.global.set("accessToken", response.body.accessToken);
+%}
+
+### 로그아웃
+POST http://localhost:8080/api/v1/auth/logout
+Authorization: Bearer {{accessToken}}
+
+### 토큰 재발급
+POST http://localhost:8080/api/v1/auth/reissue
