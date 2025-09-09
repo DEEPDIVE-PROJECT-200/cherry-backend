@@ -1,14 +1,3 @@
-### 테스트용 AccessToken (개발환경)
-# kakao_12345 사용자 토큰 (장바구니 1,2,3 소유)
-@accessToken_12345 = ey--
-
-# kakao_67890 사용자 토큰 (장바구니 4,5 소유)
-@accessToken_67890 = ey--
-
-# kakao_11111 사용자 토큰 (장바구니 6 소유)
-@accessToken_11111 = ey--
-
-
 ### 대여 주문 생성 - 직접 결제 (productId, color)
 # POST /api/v1/rentals
 # Authorization 헤더에 Access Token을 담아 요청해야 합니다.
@@ -33,8 +22,6 @@ Content-Type: application/json
   },
   "paymentMethod": "KAKAO_PAY"
 }
-
-###
 
 ### 대여 주문 생성 - 장바구니 결제 (cartIds)
 # POST /api/v1/rentals
@@ -63,8 +50,6 @@ Content-Type: application/json
   "paymentMethod": "CREDIT_CARD"
 }
 
-###
-
 ### 대여 주문 생성 - 여러 장바구니 아이템
 # POST /api/v1/rentals
 # 장바구니에 여러 상품이 담겨 있을 때 한 번에 대여 주문
@@ -92,7 +77,6 @@ Content-Type: application/json
   "paymentMethod": "TOSS_PAY"
 }
 
-###
 ### 대여 주문 생성 - 실패 케이스 (둘 다 있음)
 # POST /api/v1/rentals
 # productId와 cartIds가 모두 있는 애매한 요청
