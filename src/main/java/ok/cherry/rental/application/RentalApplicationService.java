@@ -123,8 +123,7 @@ public class RentalApplicationService {
 			request.rentStartAt(),
 			request.rentEndAt()
 		);
-		Rental rental = rentalService.createRental(member, createRentalCommand);
-		return rental;
+		return rentalService.createRental(member, createRentalCommand);
 	}
 
 	private Payment processPayment(PlaceRentalOrderRequest request, Member member, Rental rental) {
@@ -133,8 +132,7 @@ public class RentalApplicationService {
 			DEFAULT_SHIPPING_FEE,
 			DEFAULT_CLEANING_FEE
 		);
-		Payment payment = paymentService.createPayment(member, rental, createPaymentCommand);
-		return payment;
+		return paymentService.createPayment(member, rental, createPaymentCommand);
 	}
 
 	private Shipping createShipping(PlaceRentalOrderRequest request, Member member, Rental rental) {
@@ -144,8 +142,7 @@ public class RentalApplicationService {
 			request.shippingInfo().phoneNumber(),
 			request.shippingInfo().address().toDomain()
 		);
-		Shipping shipping = shippingService.createShipping(member, rental, createShippingCommand);
-		return shipping;
+		return shippingService.createShipping(member, rental, createShippingCommand);
 	}
 
 	private void cleanupCartIfNeeded(String providerId, PlaceRentalOrderRequest request) {

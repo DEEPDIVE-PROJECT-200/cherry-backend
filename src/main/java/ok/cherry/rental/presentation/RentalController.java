@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ok.cherry.global.swagger.rental.RentalControllerDoc;
 import ok.cherry.rental.application.RentalApplicationService;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
