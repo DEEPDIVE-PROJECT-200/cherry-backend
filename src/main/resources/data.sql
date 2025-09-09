@@ -32,22 +32,22 @@ VALUES (1, 1, 1, 10000.00, 'BLACK'),       -- kakao_12345 사용자의 SONY 헤�
 -- kakao_11111 사용자의 Apple 헤드폰 MIDNIGHT
 
 -- Rental 데이터
-INSERT INTO rental (id, member_id, rental_number, total_price, rental_status, created_at, start_at, end_at)
-VALUES (1, 1, 'CH-25090213363012345678', 37000.00, 'ACTIVE', '2025-01-10 10:00:00', '2025-01-15', '2025-01-22'),
-       (2, 2, 'CH-25091113363012345679', 37000.00, 'ACTIVE', '2025-01-11 14:00:00', '2025-01-16', '2025-01-19'),
-       (3, 3, 'CH-25090513363012345680', 37000.00, 'COMPLETED', '2025-01-05 09:00:00', '2025-01-08', '2025-01-11');
+INSERT INTO rental (id, member_id, rental_number, total_price, rental_status, created_at, start_at, end_at, review_status)
+VALUES (1, 1, 'CH-25090213363012345678', 37000.00, 'ACTIVE', '2025-01-10 10:00:00', '2025-01-15', '2025-01-22', 'AVAILABLE'),
+       (2, 2, 'CH-25091113363012345679', 37000.00, 'ACTIVE', '2025-01-11 14:00:00', '2025-01-16', '2025-01-19', 'AVAILABLE'),
+       (3, 3, 'CH-25090513363012345680', 37000.00, 'COMPLETED', '2025-01-05 09:00:00', '2025-01-08', '2025-01-11', 'AVAILABLE');
 
 -- RentalItem 데이터
-INSERT INTO rental_item (id, product_id, rental_id, price, color, review_status)
-VALUES (1, 1, 1, 10000.00, 'BLACK', 'PENDING'),
-       (2, 2, 1, 12000.00, 'BLACK', 'PENDING'),
-       (3, 3, 1, 15000.00, 'STARLIGHT', 'PENDING'),
-       (4, 2, 2, 12000.00, 'WHITE_SMOKE', 'AVAILABLE'),
-       (5, 1, 2, 10000.00, 'WHITE', 'AVAILABLE'),
-       (6, 3, 2, 15000.00, 'MIDNIGHT', 'AVAILABLE'),
-       (7, 3, 3, 15000.00, 'STARLIGHT', 'COMPLETED'),
-       (8, 1, 3, 10000.00, 'BLACK', 'COMPLETED'),
-       (9, 2, 3, 12000.00, 'BLACK', 'COMPLETED');
+INSERT INTO rental_item (id, product_id, rental_id, price, color)
+VALUES (1, 1, 1, 10000.00, 'BLACK'),
+       (2, 2, 1, 12000.00, 'BLACK'),
+       (3, 3, 1, 15000.00, 'STARLIGHT'),
+       (4, 2, 2, 12000.00, 'WHITE_SMOKE'),
+       (5, 1, 2, 10000.00, 'WHITE'),
+       (6, 3, 2, 15000.00, 'MIDNIGHT'),
+       (7, 3, 3, 15000.00, 'STARLIGHT'),
+       (8, 1, 3, 10000.00, 'BLACK'),
+       (9, 2, 3, 12000.00, 'BLACK');
 
 -- Payment 메인 데이터
 INSERT INTO payment (id, member_id, rental_id,
