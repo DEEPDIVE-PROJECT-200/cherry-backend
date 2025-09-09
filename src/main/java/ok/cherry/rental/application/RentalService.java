@@ -69,6 +69,13 @@ public class RentalService {
 		return new RentalGetResponse(rentalInfoResponses, hasNext, lastId);
 	}
 
+	public void completeReview(Long rentalId) {
+		Rental rental = rentalRepository.findById(rentalId)
+			.orElseThrow(() -> new BusinessException(RentalError.RENTAL_NOT_FOUND));
+
+		rental.completeReview();
+	}
+
 	private static void validateRentalItems(List<RentalItem> items) {
 		if (items.isEmpty()) {
 			throw new BusinessException(RentalError.RENTAL_ITEMS_NOT_EMPTY);

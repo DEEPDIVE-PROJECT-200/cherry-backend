@@ -85,9 +85,33 @@ public class Rental {
 		return rental;
 	}
 
+	/**
+	 * 생성: rentalStatus:PENDING, reviewStatus:PENDING
+	 * 배송 완료: rentalStatus:ACTIVE
+	 * 체험 종료(반납 신청): rentalStatus:IN_RETURN
+	 * 반납 완료: rentalStatus:COMPLETED, reviewStatus:AVAILABLE
+	 * 리뷰 작성: reviewStatus:COMPLETED
+	 */
 	public void active() {
 		validateIsPending();
 		this.rentalStatus = RentalStatus.ACTIVE;
+	}
+
+	public void inReturn() {
+		validateIsActive();
+		this.rentalStatus = RentalStatus.IN_RETURN;
+	}
+
+	public void complete() {
+		validateIsInReturn();
+		this.reviewStatus = ReviewStatus.AVAILABLE;
+		this.rentalStatus = RentalStatus.COMPLETED;
+	}
+
+	public void completeReview() {
+		validateIsCompleted();
+		validateReviewStatusIsAvailable();
+		this.reviewStatus = ReviewStatus.COMPLETED;
 	}
 
 	private static BigDecimal calculateTotalPrice(List<RentalItem> items) {
@@ -105,6 +129,30 @@ public class Rental {
 	private void validateIsPending() {
 		if (this.rentalStatus != RentalStatus.PENDING) {
 			throw new DomainException(RentalError.NOT_PENDING);
+		}
+	}
+
+	private void validateIsActive() {
+		if (this.rentalStatus != RentalStatus.ACTIVE) {
+			throw new DomainException(RentalError.NOT_ACTIVE);
+		}
+	}
+
+	private void validateIsInReturn() {
+		if (this.rentalStatus != RentalStatus.IN_RETURN) {
+			throw new DomainException(RentalError.NOT_IN_RETURN);
+		}
+	}
+
+	private void validateIsCompleted() {
+		if (this.rentalStatus != RentalStatus.COMPLETED) {
+			throw new DomainException(RentalError.NOT_COMPLETED);
+		}
+	}
+
+	private void validateReviewStatusIsAvailable() {
+		if (this.reviewStatus != ReviewStatus.AVAILABLE) {
+			throw new DomainException(RentalError.NOT_REVIEW_STATUS_AVAILABLE);
 		}
 	}
 }
