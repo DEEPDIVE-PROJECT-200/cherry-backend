@@ -10,6 +10,7 @@ import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.shipping.application.command.CreateShippingCommand;
 import ok.cherry.shipping.domain.Shipping;
+import ok.cherry.shipping.domain.status.ShippingStatus;
 import ok.cherry.shipping.domain.type.Direction;
 import ok.cherry.shipping.exception.ShippingError;
 import ok.cherry.shipping.infrastructure.ShippingRepository;
@@ -61,6 +62,15 @@ public class ShippingService {
 		}
 		shipping.completeShipping();
 		log.info("배송 완료 - 운송장 번호:{}, 배송 완료 시간: {}", shipping.getTrackingNumber(), shipping.getDetail().getEndAt());
+	}
+
+	public void validateReturnShippingCompleted(Long rentalId) {
+		Shipping shipping = shippingRepository.findByRentalIdAndDirection(rentalId, Direction.INBOUND)
+			.orElseThrow(() -> new BusinessException(ShippingError.RETURN_SHIPPING_NOT_FOUND));
+
+		if (shipping.getStatus() != ShippingStatus.DELIVERED) {
+			throw new BusinessException(ShippingError.RETURN_SHIPPING_NOT_COMPLETED);
+		}
 	}
 
 	/**
