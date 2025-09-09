@@ -4,6 +4,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.member.domain.Member;
+import ok.cherry.member.exception.MemberError;
 import ok.cherry.member.infrastructure.MemberRepository;
 
 @Service
@@ -19,5 +22,10 @@ public class MemberService {
 
 	public boolean verifyNicknameDuplication(String nickname) {
 		return memberRepository.existsByNickname(nickname);
+	}
+
+	public Member findMemberByProviderId(String providerId) {
+		return memberRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
 	}
 }

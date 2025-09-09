@@ -7,8 +7,12 @@ import ok.cherry.rental.domain.RentalItem;
 
 public record CreateRentalCommand(
 
-	List<RentalItem> items,
-	LocalDate rentStartAt,
-	LocalDate rentEndAt
-) {
+	List<RentalItem> items, LocalDate rentStartAt, LocalDate rentEndAt) {
+	public static CreateRentalCommand of(
+		List<RentalItem> items,
+		LocalDate rentStartAt,
+		LocalDate rentEndAt
+	) {
+		return new CreateRentalCommand(items, rentStartAt, rentEndAt);
+	}
 }

@@ -17,6 +17,7 @@ import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.infrastructure.MemberRepository;
 import ok.cherry.payment.PaymentBuilder;
+import ok.cherry.payment.application.dto.command.CreatePaymentCommand;
 import ok.cherry.payment.application.dto.response.PaymentItemResponse;
 import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.payment.domain.Payment;
@@ -165,7 +166,7 @@ class PaymentServiceTest {
 
 		// when
 		Payment result = paymentService.createPayment(
-			savedMember, savedRental, paymentMethod, shippingFee, cleaningFee);
+			savedMember, savedRental, new CreatePaymentCommand(paymentMethod, shippingFee, cleaningFee));
 		flushAndClear();
 
 		// then

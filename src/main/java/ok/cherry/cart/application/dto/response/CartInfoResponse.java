@@ -11,6 +11,9 @@ public record CartInfoResponse(
 	@Schema(description = "장바구니 Id", example = "1")
 	Long cartId,
 
+	@Schema(description = "상품 Id", example = "1")
+	Long productId,
+
 	@Schema(description = "상품명", example = "WH-1000XM5")
 	String productName,
 

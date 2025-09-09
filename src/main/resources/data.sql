@@ -22,6 +22,15 @@ VALUES (1, 'BLACK'),
        (3, 'STARLIGHT'),
        (3, 'MIDNIGHT');
 
+INSERT INTO cart (id, member_id, product_id, price, color)
+VALUES (1, 1, 1, 10000.00, 'BLACK'),       -- kakao_12345 사용자의 SONY 헤드폰 BLACK
+       (2, 1, 2, 12000.00, 'WHITE_SMOKE'), -- kakao_12345 사용자의 BOSE 헤드폰 WHITE_SMOKE
+       (3, 1, 3, 15000.00, 'STARLIGHT'),   -- kakao_12345 사용자의 Apple 헤드폰 STARLIGHT
+       (4, 2, 1, 10000.00, 'WHITE'),       -- kakao_67890 사용자의 SONY 헤드폰 WHITE
+       (5, 2, 2, 12000.00, 'BLACK'),       -- kakao_67890 사용자의 BOSE 헤드폰 BLACK
+       (6, 3, 3, 15000.00, 'MIDNIGHT');
+-- kakao_11111 사용자의 Apple 헤드폰 MIDNIGHT
+
 -- Rental 데이터
 INSERT INTO rental (id, member_id, rental_number, total_price, rental_status, created_at, start_at, end_at)
 VALUES (1, 1, 'CH-25090213363012345678', 37000.00, 'ACTIVE', '2025-01-10 10:00:00', '2025-01-15', '2025-01-22'),
