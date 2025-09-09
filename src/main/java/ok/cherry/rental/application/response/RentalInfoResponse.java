@@ -6,6 +6,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.domain.status.ReviewStatus;
 
 @Schema(description = "대여 정보 조회 DTO")
 public record RentalInfoResponse(
@@ -17,13 +18,16 @@ public record RentalInfoResponse(
 	String rentalNumber,
 
 	@Schema(description = "대여 상태", example = "ACTIVE")
-	RentalStatus status,
+	RentalStatus rentalStatus,
 
 	@Schema(description = "대여 시작일", example = "2025-09-02")
 	LocalDate startAt,
 
 	@Schema(description = "대여 종료일", example = "2025-09-09")
 	LocalDate endAt,
+
+	@Schema(description = "리뷰 상태", example = "AVAILABLE")
+	ReviewStatus reviewStatus,
 
 	@Schema(description = "대여 상품 목록")
 	List<RentalItemInfoResponse> items
@@ -39,6 +43,7 @@ public record RentalInfoResponse(
 			rental.getRentalStatus(),
 			rental.getDetail().getStartAt(),
 			rental.getDetail().getEndAt(),
+			rental.getReviewStatus(),
 			items
 		);
 	}
