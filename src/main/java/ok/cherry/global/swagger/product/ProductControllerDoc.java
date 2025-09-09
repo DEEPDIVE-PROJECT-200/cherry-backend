@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ok.cherry.product.application.dto.request.ProductCreateRequest;
 import ok.cherry.product.application.dto.request.ProductSortType;
 import ok.cherry.product.application.dto.response.ProductCreateResponse;
+import ok.cherry.product.application.dto.response.ProductInfoResponse;
 import ok.cherry.product.application.dto.response.ProductSearchResponse;
 import ok.cherry.product.domain.type.Brand;
 
@@ -48,6 +49,17 @@ public interface ProductControllerDoc {
 		@Parameter(description = "정렬 기준", required = true) ProductSortType sortType,
 		@Parameter(description = "페이지네이션 커서. 이전 응답의 `lastProductId` 값을 전달하면 다음 페이지를 조회합니다.") Long lastProductId,
 		@Parameter(description = "한 페이지에 보여줄 상품 개수", schema = @Schema(type = "integer", defaultValue = "6")) int limit
+	);
+
+	@Operation(method = "GET", summary = "상품 단건 조회", description = "상품의 상세 정보를 조회합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "상품 단건 조회 성공",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductInfoResponse.class))),
+		@ApiResponse(responseCode = "404", description = "상품 단건 조회 실패 - 존재하지 않는 상품Id",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+	})
+	ResponseEntity<ProductInfoResponse> getProduct(
+		@Parameter(description = "조회할 상품 Id", example = "1", required = true) Long productId
 	);
 
 	@Operation(method = "DELETE", summary = "상품 삭제", description = "등록된 상품과 s3에 등록된 이미지를 모두 삭제합니다.")

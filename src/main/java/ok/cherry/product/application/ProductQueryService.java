@@ -46,6 +46,11 @@ public class ProductQueryService {
 		return ProductSearchResponse.of(products, hasNext, lastId);
 	}
 
+	public Product getProductDetailById(Long productId) {
+		return productRepository.findByIdWithDetails(productId)
+			.orElseThrow(() -> new BusinessException(ProductError.PRODUCT_NOT_FOUND));
+	}
+
 	public Product getProductById(Long productId) {
 		return productRepository.findById(productId)
 			.orElseThrow(() -> new BusinessException(ProductError.PRODUCT_NOT_FOUND));
