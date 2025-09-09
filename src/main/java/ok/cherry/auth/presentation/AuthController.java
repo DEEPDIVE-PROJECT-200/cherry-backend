@@ -14,18 +14,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ok.cherry.auth.application.AuthService;
 import ok.cherry.auth.application.dto.request.SignUpRequest;
-import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
+import ok.cherry.auth.application.dto.response.AccessTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
 import ok.cherry.auth.exception.TokenError;
 import ok.cherry.auth.jwt.TokenExtractor;
 import ok.cherry.auth.util.CookieManager;
 import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.global.swagger.auth.AuthControllerDoc;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthControllerDoc {
 
 	private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
@@ -34,14 +35,16 @@ public class AuthController {
 	private final CookieManager cookieManager;
 
 	@PostMapping("/signup")
-	public ResponseEntity<TokenResponse> signUp(
+	public ResponseEntity<AccessTokenResponse> signUp(
 		HttpServletResponse response,
 		@RequestBody @Valid SignUpRequest request
 	) {
-		SignUpResponse signUpResponse = authService.signUp(request.emailAddress(), request.nickname(), request.tempToken());
+		SignUpResponse signUpResponse = authService.signUp(request.emailAddress(), request.nickname(),
+			request.tempToken());
 		TokenResponse tokenResponse = authService.login(signUpResponse.providerId());
 		cookieManager.setCookie(response, REFRESH_TOKEN_COOKIE_NAME, tokenResponse.refreshToken());
-		return ResponseEntity.ok(tokenResponse);
+		AccessTokenResponse accessTokenResponse = AccessTokenResponse.of(tokenResponse);
+		return ResponseEntity.ok(accessTokenResponse);
 	}
 
 	@PostMapping("/logout")
@@ -57,14 +60,14 @@ public class AuthController {
 	}
 
 	@PostMapping("/reissue")
-	public ResponseEntity<ReissueTokenResponse> reissue(
+	public ResponseEntity<AccessTokenResponse> reissue(
 		@CookieValue(value = "refreshToken", required = false) String refreshToken
 	) {
 		if (refreshToken == null || refreshToken.isEmpty()) {
 			throw new BusinessException(TokenError.INVALID_REFRESH_TOKEN);
 		}
 
-		ReissueTokenResponse tokenResponse = authService.reissueAccessToken(refreshToken);
+		AccessTokenResponse tokenResponse = authService.reissueAccessToken(refreshToken);
 		return ResponseEntity.ok(tokenResponse);
 	}
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
+import ok.cherry.auth.application.dto.response.AccessTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
 import ok.cherry.auth.exception.AuthError;
@@ -67,7 +67,7 @@ public class AuthService {
 		authRedisRepository.saveLogoutToken(accessToken, logoutToken, expiration);
 	}
 
-	public ReissueTokenResponse reissueAccessToken(String refreshToken) {
+	public AccessTokenResponse reissueAccessToken(String refreshToken) {
 		String providerId = tokenExtractor.parseClaims(refreshToken).getSubject();
 		String restoredRefreshToken = authRedisRepository.getRefreshToken(providerId);
 

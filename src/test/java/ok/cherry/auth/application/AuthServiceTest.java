@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.jsonwebtoken.MalformedJwtException;
-import ok.cherry.auth.application.dto.response.ReissueTokenResponse;
+import ok.cherry.auth.application.dto.response.AccessTokenResponse;
 import ok.cherry.auth.application.dto.response.SignUpResponse;
 import ok.cherry.auth.application.dto.response.TokenResponse;
 import ok.cherry.auth.jwt.TokenGenerator;
@@ -168,7 +168,7 @@ class AuthServiceTest {
 		TokenResponse originalTokenResponse = authService.login(providerId);
 
 		// when
-		ReissueTokenResponse reissueResponse = authService.reissueAccessToken(originalTokenResponse.refreshToken());
+		AccessTokenResponse reissueResponse = authService.reissueAccessToken(originalTokenResponse.refreshToken());
 
 		// then
 		assertThat(reissueResponse.tokenType()).isEqualTo("Bearer");
