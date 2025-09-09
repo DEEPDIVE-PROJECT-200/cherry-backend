@@ -53,7 +53,7 @@ class ProductCreateServiceTest {
 		// then
 		assertThat(response).isNotNull();
 
-		Product savedProduct = productRepository.findById(response.productId()).orElseThrow();
+		Product savedProduct = productRepository.findByIdWithDetails(response.productId()).orElseThrow();
 
 		assertThat(savedProduct.getName()).isEqualTo("WH-1000XM5");
 		assertThat(savedProduct.getBrand()).isEqualTo(Brand.SONY);
