@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.infrastructure.MemberRepository;
@@ -17,12 +18,15 @@ import ok.cherry.product.domain.Product;
 import ok.cherry.product.infrastructure.ProductRepository;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.domain.Rental;
+import ok.cherry.rental.domain.status.RentalStatus;
 import ok.cherry.rental.infrastructure.RentalRepository;
+import ok.cherry.shipping.ShippingBuilder;
 import ok.cherry.shipping.application.command.CreateShippingCommand;
 import ok.cherry.shipping.domain.Address;
 import ok.cherry.shipping.domain.Shipping;
 import ok.cherry.shipping.domain.status.ShippingStatus;
 import ok.cherry.shipping.domain.type.Direction;
+import ok.cherry.shipping.exception.ShippingError;
 import ok.cherry.shipping.infrastructure.ShippingRepository;
 
 @SpringBootTest
@@ -204,6 +208,149 @@ class ShippingServiceTest {
 		assertThat(shipping1.getTrackingNumber()).isNotEqualTo(shipping2.getTrackingNumber());
 		assertThat(shipping1.getTrackingNumber()).matches("^\\d{20}$");
 		assertThat(shipping2.getTrackingNumber()).matches("^\\d{20}$");
+	}
+
+	@Test
+	@DisplayName("배송 시작 시 배송 상태가 변경되고 배송 시작 시간이 생성된다")
+	void startShipping_success() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withProduct(product)
+				.withMember(member)
+				.build()
+		);
+		Shipping shipping = shippingRepository.save(
+			ShippingBuilder.builder()
+				.withRental(rental)
+				.build()
+		);
+		flushAndClear();
+
+		// when
+		shippingService.startShipping(shipping.getId());
+
+		// then
+		Shipping savedShipping = shippingRepository.findById(shipping.getId()).orElseThrow();
+		assertThat(savedShipping.getStatus()).isEqualTo(ShippingStatus.IN_DELIVERY);
+		assertThat(savedShipping.getDetail().getStartAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("배송 대기 중 상태가 아닐 때 배송 시작을 하는 경우 예외가 발생한다")
+	void startShipping_notPending() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withProduct(product)
+				.withMember(member)
+				.build()
+		);
+		Shipping shipping = shippingRepository.save(
+			ShippingBuilder.builder()
+				.withRental(rental)
+				.build()
+		);
+		shipping.startShipping();
+		flushAndClear();
+
+		// when & then
+		Shipping savedShipping = shippingRepository.findById(shipping.getId()).orElseThrow();
+		assertThatThrownBy(() -> shippingService.startShipping(savedShipping.getId()))
+			.isInstanceOf(DomainException.class)
+			.hasMessage(ShippingError.NOT_PENDING.getMessage());
+	}
+
+	@Test
+	@DisplayName("배송 완료 시 배송 상태가 변경되고 배송 완료 시간이 생성된다")
+	void completeShipping_success() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withProduct(product)
+				.withMember(member)
+				.build()
+		);
+		Shipping shipping = shippingRepository.save(
+			ShippingBuilder.builder()
+				.withRental(rental)
+				.build()
+		);
+		shipping.startShipping();
+		flushAndClear();
+
+		// when
+		Shipping savedShipping = shippingRepository.findById(shipping.getId()).orElseThrow();
+		shippingService.completeShipping(savedShipping.getId());
+
+		// then
+		assertThat(savedShipping.getStatus()).isEqualTo(ShippingStatus.DELIVERED);
+		assertThat(savedShipping.getDetail().getEndAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("배송 완료 시 배송 방향이 Outbound인 경우 관련된 대여의 상태가 활성화 된다")
+	void completeShipping_rentalStatusActive() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withProduct(product)
+				.withMember(member)
+				.build()
+		);
+		Shipping shipping = shippingRepository.save(
+			ShippingBuilder.builder()
+				.withRental(rental)
+				.withDirection(Direction.OUTBOUND)
+				.build()
+		);
+		shipping.startShipping();
+		flushAndClear();
+
+		// when
+		shippingService.completeShipping(shipping.getId());
+
+		// then
+		Shipping savedShipping = shippingRepository.findById(shipping.getId()).orElseThrow();
+		assertThat(savedShipping.getStatus()).isEqualTo(ShippingStatus.DELIVERED);
+		assertThat(savedShipping.getDetail().getEndAt()).isNotNull();
+		assertThat(savedShipping.getRental().getRentalStatus()).isEqualTo(RentalStatus.ACTIVE);
+	}
+
+	@Test
+	@DisplayName("배송 중 상태가 아닐 때 배송 완료를 하는 경우 예외가 발생한다 ")
+	void completeShipping_notInDelivery() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withProduct(product)
+				.withMember(member)
+				.build()
+		);
+		Shipping shipping = shippingRepository.save(
+			ShippingBuilder.builder()
+				.withRental(rental)
+				.build()
+		);
+		shipping.startShipping();
+		shipping.completeShipping();
+		flushAndClear();
+
+		// when & then
+		Shipping savedShipping = shippingRepository.findById(shipping.getId()).orElseThrow();
+		assertThatThrownBy(() -> shippingService.completeShipping(savedShipping.getId()))
+			.isInstanceOf(DomainException.class)
+			.hasMessage(ShippingError.NOT_IN_DELIVERY.getMessage());
 	}
 
 	private void flushAndClear() {
