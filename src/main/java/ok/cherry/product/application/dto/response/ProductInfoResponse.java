@@ -6,6 +6,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ok.cherry.product.domain.Product;
 import ok.cherry.product.domain.ProductImageDetail;
+import ok.cherry.product.domain.ProductThumbnailDetail;
 import ok.cherry.product.domain.type.Brand;
 import ok.cherry.product.domain.type.Color;
 
@@ -37,8 +38,8 @@ public record ProductInfoResponse(
 ) {
 
 	public static ProductInfoResponse of(Product product) {
-		List<String> productThumbnailUrls = product.getDetail().getProductImageDetails().stream()
-			.map(ProductImageDetail::getImageUrl)
+		List<String> productThumbnailUrls = product.getDetail().getProductThumbnailDetails().stream()
+			.map(ProductThumbnailDetail::getImageUrl)
 			.toList();
 
 		List<String> productImageDetailUrls = product.getDetail().getProductImageDetails().stream()
