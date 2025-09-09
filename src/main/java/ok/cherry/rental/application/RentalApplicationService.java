@@ -75,15 +75,11 @@ public class RentalApplicationService {
 
 	public RentalCompleteResponse completeRental(Long rentalId) {
 		Rental rental = rentalService.findRentalById(rentalId);
-		validateReturnShippingCompleted(rentalId);
+		shippingService.validateReturnShippingCompleted(rentalId);
 		rental.complete();
 
 		log.info("검수 완료 처리 - 대여 ID: {}", rentalId);
 		return RentalCompleteResponse.of(rentalId, rental.getRentalStatus());
-	}
-
-	private void validateReturnShippingCompleted(Long rentalId) {
-		shippingService.validateReturnShippingCompleted(rentalId);
 	}
 
 	private static void validateRentalOrderRequest(PlaceRentalOrderRequest request) {
