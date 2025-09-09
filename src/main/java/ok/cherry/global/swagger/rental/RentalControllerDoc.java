@@ -16,7 +16,10 @@ public interface RentalControllerDoc {
 
 	@Operation(method = "GET", summary = "사용자 이용내역(대여) 목록 조회", description = "사용자의 이용내역 목록을 조회하며, 커서 기반 페이지네이션을 사용합니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "대여 목록 조회 성공",
+		@ApiResponse(responseCode = "200",
+			description = "대여 목록 조회 성공: "
+				+ "\n- 대여 목록이 존재할 경우 -> rentals 에 대여 목록 리스트 응답 "
+				+ "\n- 대여 목록이 존재하지 않을 경우 -> rentals 에 빈 리스트 응답",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = RentalGetResponse.class)))
 	})
 	ResponseEntity<RentalGetResponse> getRentals(
