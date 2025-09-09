@@ -1,9 +1,11 @@
 package ok.cherry.rental.presentation;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import ok.cherry.global.swagger.rental.RentalControllerDoc;
 import ok.cherry.rental.application.RentalApplicationService;
+import ok.cherry.rental.application.RentalService;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
+import ok.cherry.rental.application.response.RentalGetResponse;
 
 @RestController
 @RequestMapping("/api/v1/rentals")
@@ -20,6 +24,7 @@ import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
 public class RentalController implements RentalControllerDoc {
 
 	private final RentalService rentalService;
+	private final RentalApplicationService rentalApplicationService;
 
 	@GetMapping
 	public ResponseEntity<RentalGetResponse> getRentals(
@@ -31,7 +36,7 @@ public class RentalController implements RentalControllerDoc {
 		return ResponseEntity.ok(response);
 	}
 
-    @PostMapping
+	@PostMapping
 	public ResponseEntity<PlaceRentalOrderResponse> placeRentalOrder(@RequestBody PlaceRentalOrderRequest request,
 		@AuthenticationPrincipal String providerId) {
 
