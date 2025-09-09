@@ -58,10 +58,10 @@ public class Shipping {
 	public static Shipping create(
 		Member member,
 		Rental rental,
+		String trackingNumber,
 		Direction direction,
 		String receiver,
 		String phoneNumber,
-		String trackingNumber,
 		Address address
 	) {
 		validateTrackingNumber(trackingNumber);
@@ -69,9 +69,9 @@ public class Shipping {
 		Shipping shipping = new Shipping();
 		shipping.member = member;
 		shipping.rental = rental;
+		shipping.trackingNumber = trackingNumber;
 		shipping.direction = direction;
 		shipping.shippingInfo = ShippingInfo.create(receiver, phoneNumber, address);
-		shipping.trackingNumber = trackingNumber;
 		shipping.status = ShippingStatus.PENDING;
 		shipping.detail = ShippingDetail.create();
 		return shipping;

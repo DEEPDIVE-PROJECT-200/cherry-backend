@@ -30,10 +30,10 @@ class ShippingTest {
 		Shipping shipping = Shipping.create(
 			rental.getMember(),
 			rental,
+			trackingNumber,
 			direction,
 			receiver,
 			phoneNumber,
-			trackingNumber,
 			address
 		);
 
@@ -56,10 +56,10 @@ class ShippingTest {
 		Shipping shipping = Shipping.create(
 			rental.getMember(),
 			rental,
+			trackingNumber,
 			direction,
 			receiver,
 			phoneNumber,
-			trackingNumber,
 			address
 		);
 
@@ -82,10 +82,10 @@ class ShippingTest {
 		Shipping shipping = Shipping.create(
 			rental.getMember(),
 			rental,
+			trackingNumber,
 			direction,
 			receiver,
 			phoneNumber,
-			trackingNumber,
 			address
 		);
 

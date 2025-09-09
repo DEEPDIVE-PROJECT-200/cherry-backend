@@ -27,7 +27,7 @@ public class ShippingBuilder {
 	}
 
 	public Shipping build() {
-		return Shipping.create(rental.getMember(), rental, direction, receiver, phoneNumber, trackingNumber, address);
+		return Shipping.create(rental.getMember(), rental, trackingNumber, direction, receiver, phoneNumber, address);
 	}
 
 	public ShippingBuilder withRental(Rental rental) {
