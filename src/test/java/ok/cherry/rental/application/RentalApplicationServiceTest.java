@@ -27,14 +27,23 @@ import ok.cherry.product.ProductBuilder;
 import ok.cherry.product.domain.Product;
 import ok.cherry.product.domain.type.Color;
 import ok.cherry.product.infrastructure.ProductRepository;
+import ok.cherry.rental.RentalBuilder;
+import ok.cherry.rental.RentalItemBuilder;
 import ok.cherry.rental.application.request.AddressRequest;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.request.ShippingInfoRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
+import ok.cherry.rental.application.response.RentalCompleteResponse;
 import ok.cherry.rental.domain.Rental;
+import ok.cherry.rental.domain.RentalItem;
+import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.domain.status.ReviewStatus;
 import ok.cherry.rental.exception.RentalError;
 import ok.cherry.rental.infrastructure.RentalRepository;
+import ok.cherry.shipping.ShippingBuilder;
 import ok.cherry.shipping.domain.Shipping;
+import ok.cherry.shipping.domain.type.Direction;
+import ok.cherry.shipping.exception.ShippingError;
 import ok.cherry.shipping.infrastructure.ShippingRepository;
 
 @SpringBootTest
@@ -257,6 +266,102 @@ class RentalApplicationServiceTest {
 		Rental savedRental = rentalRepository.findById(response.rentalId()).orElseThrow();
 		BigDecimal expectedAmount = BigDecimal.valueOf(10000).multiply(BigDecimal.valueOf(7)); // 7일 * 10000원
 		assertThat(savedRental.getRentalItems().getFirst().getPrice()).isEqualByComparingTo(expectedAmount);
+	}
+
+	@Test
+	@DisplayName("반납 배송이 완료되면 대여상태와 리뷰상태가 각각 COMPLETED, AVAILABLE 로 변경된다")
+	void completeRental_success() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+		RentalItem rentalItem = RentalItemBuilder.builder().withProduct(savedProduct).build();
+		Rental rental = RentalBuilder.builder()
+			.withMember(savedMember)
+			.withRentalItems(List.of(rentalItem))
+			.build();
+		rental.active();
+		rental.inReturn();
+		rentalRepository.save(rental);
+
+		Shipping shipping = ShippingBuilder.builder()
+			.withRental(rental)
+			.withDirection(Direction.INBOUND)
+			.build();
+		shipping.startShipping();
+		shipping.completeShipping();
+		shippingRepository.save(shipping);
+		flushAndClear();
+
+		// when
+		RentalCompleteResponse response = rentalApplicationService.completeRental(rental.getId());
+
+		// then
+		Rental updatedRental = rentalRepository.findById(rental.getId()).orElseThrow();
+		assertThat(updatedRental.getRentalStatus()).isEqualTo(RentalStatus.COMPLETED);
+		assertThat(updatedRental.getReviewStatus()).isEqualTo(ReviewStatus.AVAILABLE);
+
+		assertThat(response.rentalId()).isEqualTo(updatedRental.getId());
+		assertThat(response.status()).isEqualTo(RentalStatus.COMPLETED);
+	}
+
+	@Test
+	@DisplayName("상태를 변경하려는 대여를 찾을 수 없어 예외가 발생한다")
+	void completeRental_fail_rental_not_found() {
+		// given
+		Long notExistRentalId = 999L;
+
+		// when & then
+		assertThatThrownBy(() -> rentalApplicationService.completeRental(notExistRentalId))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(RentalError.RENTAL_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	@DisplayName("반납 배송 정보를 찾을 수 없어 예외가 발생한다")
+	void completeRental_fail_return_shipping_not_found() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+		RentalItem rentalItem = RentalItemBuilder.builder().withProduct(savedProduct).build();
+		Rental savedRental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withMember(savedMember)
+				.withRentalItems(List.of(rentalItem))
+				.build()
+		);
+
+		// when & then
+		assertThatThrownBy(() -> rentalApplicationService.completeRental(savedRental.getId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(ShippingError.RETURN_SHIPPING_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	@DisplayName("반납 배송이 아직 완료되지 않은 상태면 예외가 발생한다")
+	void completeRental_fail_return_shipping_not_delivered() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+		RentalItem rentalItem = RentalItemBuilder.builder().withProduct(savedProduct).build();
+		Rental rental = RentalBuilder.builder()
+			.withMember(savedMember)
+			.withRentalItems(List.of(rentalItem))
+			.build();
+		rental.active();
+		rental.inReturn();
+		rentalRepository.save(rental);
+
+		Shipping shipping = ShippingBuilder.builder()
+			.withRental(rental)
+			.withDirection(Direction.INBOUND)
+			.build();
+		shipping.startShipping();
+		shippingRepository.save(shipping);
+
+		// when & then
+		assertThatThrownBy(() -> rentalApplicationService.completeRental(rental.getId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(ShippingError.RETURN_SHIPPING_NOT_COMPLETED.getMessage());
 	}
 
 	private PlaceRentalOrderRequest createDirectRentalRequest(
