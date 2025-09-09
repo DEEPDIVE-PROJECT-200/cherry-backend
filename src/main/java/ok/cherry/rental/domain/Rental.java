@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.domain.status.ReviewStatus;
 import ok.cherry.rental.exception.RentalError;
 
 @Entity
@@ -52,6 +53,10 @@ public class Rental {
 	@Column(nullable = false)
 	private RentalStatus rentalStatus;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ReviewStatus reviewStatus;
+
 	@Embedded
 	private RentalDetail detail;
 
@@ -70,6 +75,7 @@ public class Rental {
 		rental.detail = RentalDetail.create(startAt, endAt);
 		rental.rentalNumber = rentalNumber;
 		rental.rentalStatus = RentalStatus.PENDING;
+		rental.reviewStatus = ReviewStatus.PENDING;
 
 		items.forEach(item -> {
 			item.setRental(rental);
