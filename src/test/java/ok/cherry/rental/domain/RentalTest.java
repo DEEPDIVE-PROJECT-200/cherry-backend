@@ -16,6 +16,7 @@ import ok.cherry.member.domain.Member;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.RentalItemBuilder;
 import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.domain.status.ReviewStatus;
 import ok.cherry.rental.exception.RentalError;
 
 class RentalTest {
@@ -107,5 +108,34 @@ class RentalTest {
 		assertThatThrownBy(() -> rental.active())
 			.isInstanceOf(DomainException.class)
 			.hasMessage(RentalError.NOT_PENDING.getMessage());
+	}
+
+	@Test
+	@DisplayName("리뷰 작성 완료 시 리뷰 상태가 COMPLETED로 변경된다")
+	void completeReview_success() {
+		// given
+		Rental rental = RentalBuilder.create();
+		rental.active();
+		rental.inReturn();
+		rental.complete();
+
+		// when
+		rental.completeReview();
+
+		// then
+		assertThat(rental.getRentalStatus()).isEqualTo(RentalStatus.COMPLETED);
+		assertThat(rental.getReviewStatus()).isEqualTo(ReviewStatus.COMPLETED);
+	}
+
+	@Test
+	@DisplayName("리뷰 상태가 COMPLETE가 아니면 예외가 발생한다")
+	void completeReview_notCompleted() {
+		// given
+		Rental rental = RentalBuilder.create();
+
+		// when & then
+		assertThatThrownBy(() -> rental.completeReview())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(RentalError.NOT_COMPLETED.getMessage());
 	}
 }

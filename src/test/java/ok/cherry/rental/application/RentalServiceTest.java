@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import ok.cherry.global.exception.error.BusinessException;
+import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.infrastructure.MemberRepository;
@@ -27,6 +28,7 @@ import ok.cherry.rental.application.response.RentalInfoResponse;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.rental.domain.RentalItem;
 import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.domain.status.ReviewStatus;
 import ok.cherry.rental.exception.RentalError;
 import ok.cherry.rental.infrastructure.RentalRepository;
 
@@ -200,6 +202,50 @@ class RentalServiceTest {
 		assertThat(response.rentals()).hasSize(1);
 		assertThat(response.hasNext()).isFalse();
 		assertThat(response.lastRentalId()).isEqualTo(rental.getId());
+	}
+
+	@Test
+	@DisplayName("리뷰 작성 완료 시 리뷰 상태가 COMPLETED로 변경된다")
+	void completeReview_success() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+
+		Rental rental = RentalBuilder.builder()
+			.withMember(savedMember)
+			.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+			.build();
+		rentalRepository.save(rental);
+		rental.active();
+		rental.inReturn();
+		rental.complete();
+
+		// when
+		rentalService.completeReview(rental.getId());
+		flushAndClear();
+
+		// then
+		Rental savedReview = rentalRepository.findById(rental.getId()).orElseThrow();
+		assertThat(savedReview.getReviewStatus()).isEqualTo(ReviewStatus.COMPLETED);
+	}
+
+	@Test
+	@DisplayName("리뷰 상태가 COMPLETE가 아니면 예외가 발생한다")
+	void completeReview_notCompleted() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+
+		Rental rental = RentalBuilder.builder()
+			.withMember(savedMember)
+			.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+			.build();
+		rentalRepository.save(rental);
+
+		// when & then
+		assertThatThrownBy(() -> rentalService.completeReview(rental.getId()))
+			.isInstanceOf(DomainException.class)
+			.hasMessage(RentalError.NOT_COMPLETED.getMessage());
 	}
 
 	private void saveRentals(Member savedMember, Product product) {
