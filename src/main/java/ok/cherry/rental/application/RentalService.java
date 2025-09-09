@@ -69,8 +69,8 @@ public class RentalService {
 		return new RentalGetResponse(rentalInfoResponses, hasNext, lastId);
 	}
 
-	public void completeReview(Long RentalId) {
-		Rental rental = rentalRepository.findById(RentalId)
+	public void completeReview(Long rentalId) {
+		Rental rental = rentalRepository.findById(rentalId)
 			.orElseThrow(() -> new BusinessException(RentalError.RENTAL_NOT_FOUND));
 
 		rental.completeReview();

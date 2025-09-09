@@ -110,7 +110,7 @@ public class Rental {
 
 	public void completeReview() {
 		validateIsCompleted();
-		validateReviewStatusIsActive();
+		validateReviewStatusIsAvailable();
 		this.reviewStatus = ReviewStatus.COMPLETED;
 	}
 
@@ -150,7 +150,7 @@ public class Rental {
 		}
 	}
 
-	private void validateReviewStatusIsActive() {
+	private void validateReviewStatusIsAvailable() {
 		if (this.reviewStatus != ReviewStatus.AVAILABLE) {
 			throw new DomainException(RentalError.NOT_REVIEW_STATUS_AVAILABLE);
 		}
