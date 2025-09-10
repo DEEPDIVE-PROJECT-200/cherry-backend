@@ -90,6 +90,7 @@ public class RentalService {
 		return rental;
 	}
 
+	@Transactional(readOnly = true)
 	public RentalCountResponse getCountRentals(String providerId) {
 		Member member = memberRepository.findByProviderId(providerId)
 			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
