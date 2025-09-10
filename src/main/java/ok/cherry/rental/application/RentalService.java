@@ -76,6 +76,12 @@ public class RentalService {
 		rental.completeReview();
 	}
 
+	@Transactional(readOnly = true)
+	public Rental findRentalById(Long rentalId) {
+		return rentalRepository.findById(rentalId)
+			.orElseThrow(() -> new BusinessException(RentalError.RENTAL_NOT_FOUND));
+	}
+
 	private static void validateRentalItems(List<RentalItem> items) {
 		if (items.isEmpty()) {
 			throw new BusinessException(RentalError.RENTAL_ITEMS_NOT_EMPTY);

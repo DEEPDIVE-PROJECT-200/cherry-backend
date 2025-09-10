@@ -25,6 +25,7 @@ import ok.cherry.product.domain.Product;
 import ok.cherry.rental.application.command.CreateRentalCommand;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
+import ok.cherry.rental.application.response.RentalCompleteResponse;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.rental.domain.RentalItem;
 import ok.cherry.rental.exception.RentalError;
@@ -70,6 +71,15 @@ public class RentalApplicationService {
 			shipping.getId(),
 			payment.getPaymentAmount().getTotalAmount()
 		);
+	}
+
+	public RentalCompleteResponse completeRental(Long rentalId) {
+		Rental rental = rentalService.findRentalById(rentalId);
+		shippingService.validateReturnShippingCompleted(rentalId);
+		rental.complete();
+
+		log.info("검수 완료 처리 - 대여 ID: {}", rentalId);
+		return RentalCompleteResponse.of(rentalId, rental.getRentalStatus());
 	}
 
 	private static void validateRentalOrderRequest(PlaceRentalOrderRequest request) {
