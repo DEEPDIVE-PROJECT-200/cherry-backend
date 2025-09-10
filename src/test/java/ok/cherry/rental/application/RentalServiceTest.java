@@ -2,6 +2,7 @@ package ok.cherry.rental.application;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
+import ok.cherry.member.exception.MemberError;
 import ok.cherry.member.infrastructure.MemberRepository;
 import ok.cherry.product.ProductBuilder;
 import ok.cherry.product.domain.Product;
@@ -23,6 +25,7 @@ import ok.cherry.product.infrastructure.ProductRepository;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.RentalItemBuilder;
 import ok.cherry.rental.application.command.CreateRentalCommand;
+import ok.cherry.rental.application.response.RentalCountResponse;
 import ok.cherry.rental.application.response.RentalGetResponse;
 import ok.cherry.rental.application.response.RentalInfoResponse;
 import ok.cherry.rental.domain.Rental;
@@ -301,6 +304,42 @@ class RentalServiceTest {
 		assertThatThrownBy(() -> rentalService.getRental(notExistRentalId, member.getProviderId()))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(RentalError.RENTAL_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	@DisplayName("사용자의 총 대여 수와 총 환급 금액을 조회하는데 성공한다")
+	void getCountRentals_success() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		saveRentals(member, product);
+
+		// when
+		RentalCountResponse response = rentalService.getCountRentals(member.getProviderId());
+
+		// then
+		List<Rental> foundRentals = rentalRepository.findByMemberId(member.getId());
+		BigDecimal totalPrice = foundRentals.stream()
+			.map(Rental::getTotalPrice)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+		assertThat(response.count()).isEqualTo(foundRentals.size());
+		assertThat(response.totalRefundPrice()).isEqualTo(totalPrice);
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 사용자 Id로 조회하려고 하면 예외가 발생한다")
+	void getCountRentals_fail_user_not_found() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		saveRentals(member, product);
+
+		String notExistProviderId = "not-exist-user-id";
+
+		// when & then
+		assertThatThrownBy(() -> rentalService.getCountRentals(notExistProviderId))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(MemberError.USER_NOT_FOUND.getMessage());
 	}
 
 	private void saveRentals(Member savedMember, Product product) {
