@@ -73,6 +73,11 @@ public class ShippingService {
 		}
 	}
 
+	public Shipping getOutboundShippingByRental(Long rentalId) {
+		return shippingRepository.findByRentalIdAndDirection(rentalId, Direction.OUTBOUND)
+			.orElseThrow(() -> new BusinessException(ShippingError.SHIPPING_NOT_FOUND));
+	}
+
 	/**
 	 * 외부 배송사 API 호출 로직
 	 * 현재는 단순화하여 항상 성공으로 처리

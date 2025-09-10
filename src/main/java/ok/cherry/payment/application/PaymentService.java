@@ -56,6 +56,11 @@ public class PaymentService {
 		return paymentRepository.save(payment);
 	}
 
+	public Payment getPaymentByRentalId(Long rentalId) {
+		return paymentRepository.findByRentalId(rentalId)
+			.orElseThrow(() -> new BusinessException(PaymentError.PAYMENT_NOT_FOUND));
+	}
+
 	/**
 	 * 외부 결제 API 호출 로직
 	 * 현재는 단순화하여 항상 성공으로 처리
