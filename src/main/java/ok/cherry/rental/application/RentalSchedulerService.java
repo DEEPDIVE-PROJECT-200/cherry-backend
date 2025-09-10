@@ -41,7 +41,7 @@ public class RentalSchedulerService {
 		for (Rental rental : expiredRentals) {
 			rental.inReturn();
 
-			Shipping shipping = shippingRepository.findByRentalId(rental.getId())
+			Shipping shipping = shippingRepository.findByRentalIdAndDirection(rental.getId(), Direction.OUTBOUND)
 				.orElseThrow(() -> new BusinessException(ShippingError.SHIPPING_NOT_FOUND));
 
 			CreateShippingCommand createShippingCommand = CreateShippingCommand.of(

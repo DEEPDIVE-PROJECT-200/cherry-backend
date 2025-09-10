@@ -12,5 +12,4 @@ import ok.cherry.shipping.domain.type.Direction;
 public interface ShippingRepository extends JpaRepository<Shipping, Long> {
 
 	Optional<Shipping> findByRentalIdAndDirection(Long rentalId, Direction direction);
-	Optional<Shipping> findByRentalId(Long rentalId);
 }

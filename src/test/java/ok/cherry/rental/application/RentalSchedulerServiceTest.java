@@ -121,7 +121,7 @@ class RentalSchedulerServiceTest {
 		Rental foundRental = rentalRepository.findById(activeRental.getId()).orElseThrow();
 		assertThat(foundRental.getRentalStatus()).isEqualTo(RentalStatus.ACTIVE);
 
-		// 생성된 배송 객체가 없음을 검증
-		assertThat(shippingRepository.findByRentalId(activeRental.getId())).isEmpty();
+		// 생성된 반납 배송 객체가 없음을 검증
+		assertThat(shippingRepository.findByRentalIdAndDirection(activeRental.getId(), Direction.INBOUND)).isEmpty();
 	}
 }
