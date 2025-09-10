@@ -23,7 +23,9 @@ import ok.cherry.product.application.ProductQueryService;
 import ok.cherry.product.application.dto.request.ProductCreateRequest;
 import ok.cherry.product.application.dto.request.ProductSortType;
 import ok.cherry.product.application.dto.response.ProductCreateResponse;
+import ok.cherry.product.application.dto.response.ProductInfoResponse;
 import ok.cherry.product.application.dto.response.ProductSearchResponse;
+import ok.cherry.product.domain.Product;
 import ok.cherry.product.domain.type.Brand;
 
 @Slf4j
@@ -58,5 +60,12 @@ public class ProductController implements ProductControllerDoc {
 	public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
 		productApplicationService.deleteProduct(productId);
 		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping("/product/{productId}")
+	public ResponseEntity<ProductInfoResponse> getProduct(@PathVariable Long productId) {
+		Product product = productQueryService.getProductDetailById(productId);
+		ProductInfoResponse response = ProductInfoResponse.of(product);
+		return ResponseEntity.ok(response);
 	}
 }
