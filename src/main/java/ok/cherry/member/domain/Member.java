@@ -96,7 +96,12 @@ public class Member {
 
 	private void deactivateFormatter() {
 		String formattedTime = this.detail.getDeactivatedAt().format(DateTimeFormatter.ofPattern("_yyyyMMddHHmmss"));
-		this.email = new Email(this.email.address() + "_" + formattedTime);
-		this.nickname = this.nickname + "_" + formattedTime;
+
+		int atIndex = this.email.address().indexOf("@");
+		String localPart = this.email.address().substring(0, atIndex);
+		String domainPart = this.email.address().substring(atIndex);
+
+		this.email = new Email(localPart + formattedTime + domainPart);
+		this.nickname = this.nickname + formattedTime;
 	}
 }
