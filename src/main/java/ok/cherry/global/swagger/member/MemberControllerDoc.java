@@ -39,7 +39,7 @@ public interface MemberControllerDoc {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "204"),
+		@ApiResponse(responseCode = "204", description = "회원 탈퇴 성공"),
 		@ApiResponse(responseCode = "404", description = "회원 탈퇴 실패 - 사용자를 찾을 수 없음",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
 		@ApiResponse(responseCode = "409", description = "회원 탈퇴 실패 - 이미 탈퇴된 회원",
