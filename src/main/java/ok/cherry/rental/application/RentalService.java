@@ -1,5 +1,6 @@
 package ok.cherry.rental.application;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,7 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.domain.Member;
+import ok.cherry.member.exception.MemberError;
+import ok.cherry.member.infrastructure.MemberRepository;
 import ok.cherry.rental.application.command.CreateRentalCommand;
+import ok.cherry.rental.application.response.RentalCountResponse;
 import ok.cherry.rental.application.response.RentalGetResponse;
 import ok.cherry.rental.application.response.RentalInfoResponse;
 import ok.cherry.rental.domain.Rental;
@@ -28,6 +32,7 @@ import ok.cherry.rental.util.RentalNumberGenerator;
 public class RentalService {
 
 	private final RentalRepository rentalRepository;
+	private final MemberRepository memberRepository;
 
 	public Rental createRental(Member member, CreateRentalCommand command) {
 		validateRentalItems(command.items());
@@ -83,6 +88,20 @@ public class RentalService {
 
 		validateOwnership(providerId, rental);
 		return rental;
+	}
+
+	@Transactional(readOnly = true)
+	public RentalCountResponse getCountRentals(String providerId) {
+		Member member = memberRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
+
+		List<Rental> rentals = rentalRepository.findByMemberId(member.getId());
+		int rentalCount = rentals.size();
+		BigDecimal totalPrice = rentals.stream()
+			.map(Rental::getTotalPrice)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		return RentalCountResponse.of(rentalCount, totalPrice);
 	}
 
 	@Transactional(readOnly = true)
