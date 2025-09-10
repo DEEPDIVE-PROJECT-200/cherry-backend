@@ -20,7 +20,8 @@ public enum RentalError implements ErrorCode {
 	NOT_ACTIVE("대여 중 상태가 아닙니다", HttpStatus.BAD_REQUEST, "R_008"),
 	NOT_IN_RETURN("반납 중 상태가 아닙니다", HttpStatus.BAD_REQUEST, "R_009"),
 	NOT_COMPLETED("대여 완료 상태가 아닙니다", HttpStatus.BAD_REQUEST, "R_010"),
-	NOT_REVIEW_STATUS_AVAILABLE("리뷰를 작성할 수 없습니다", HttpStatus.BAD_REQUEST, "R_011");
+	NOT_REVIEW_STATUS_AVAILABLE("리뷰를 작성할 수 없습니다", HttpStatus.BAD_REQUEST, "R_011"),
+	FORBIDDEN_ACCESS("접근 권한이 없습니다", HttpStatus.FORBIDDEN, "R_012");
 
 	private final String message;
 	private final HttpStatus status;

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
 import ok.cherry.rental.application.response.RentalGetResponse;
+import ok.cherry.rental.application.response.RentalInfoResponse;
 
 @Tag(name = "Rentals")
 public interface RentalControllerDoc {
@@ -31,16 +32,36 @@ public interface RentalControllerDoc {
 		@Parameter(hidden = true) String providerId
 	);
 
+	@Operation(method = "GET", summary = "사용자 이용내역(대여) 상세 조회", description = "사용자의 이용내역을 상세 조회합니다")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200",
+			description = "대여 상세 조회 성공",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = RentalInfoResponse.class))),
+		@ApiResponse(responseCode = "401",
+			description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+		@ApiResponse(responseCode = "403",
+			description = "접근 권한이 없는 대여 정보",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+		@ApiResponse(responseCode = "404",
+			description = "존재하지 않는 대여 정보",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
+	})
+	ResponseEntity<RentalInfoResponse> getRental(
+		@Parameter(description = "조회할 대여 Id") Long rentalId,
+		@Parameter(hidden = true) String providerId
+	);
+
 	@Operation(
 		method = "POST",
 		summary = "대여 주문 생성",
 		description = """
 			새로운 대여 주문을 생성합니다.
-						
+					
 			**지원하는 결제 방식:**
 			- **직접 결제**: productId + color로 단일 상품 대여
 			- **장바구니 결제**: cartIds로 장바구니에 담긴 여러 상품 대여
-						
+					
 			**처리 플로우:**
 			1. 대여 생성 (RentalService)
 			2. 결제 처리 (PaymentService) 

@@ -47,7 +47,7 @@ public class RentalService {
 	@Transactional(readOnly = true)
 	public RentalGetResponse getRentals(Long lastRentalId, int limit, String providerId) {
 		Pageable pageable = PageRequest.of(0, limit + 1);
-		
+
 		List<Rental> rentals = rentalRepository.findRentalsWithCursorPagination(
 			providerId, lastRentalId, pageable
 		);
@@ -77,9 +77,24 @@ public class RentalService {
 	}
 
 	@Transactional(readOnly = true)
+	public Rental getRental(Long rentalId, String providerId) {
+		Rental rental = rentalRepository.findByIdWithDetails(rentalId)
+			.orElseThrow(() -> new BusinessException(RentalError.RENTAL_NOT_FOUND));
+
+		validateOwnership(providerId, rental);
+		return rental;
+	}
+
+	@Transactional(readOnly = true)
 	public Rental findRentalById(Long rentalId) {
 		return rentalRepository.findById(rentalId)
 			.orElseThrow(() -> new BusinessException(RentalError.RENTAL_NOT_FOUND));
+	}
+
+	private void validateOwnership(String providerId, Rental rental) {
+		if (!rental.getMember().getProviderId().equals(providerId)) {
+			throw new BusinessException(RentalError.FORBIDDEN_ACCESS);
+		}
 	}
 
 	private static void validateRentalItems(List<RentalItem> items) {
