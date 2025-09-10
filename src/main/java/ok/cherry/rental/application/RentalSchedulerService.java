@@ -20,7 +20,7 @@ import ok.cherry.shipping.exception.ShippingError;
 import ok.cherry.shipping.infrastructure.ShippingRepository;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class RentalSchedulerService {
 
