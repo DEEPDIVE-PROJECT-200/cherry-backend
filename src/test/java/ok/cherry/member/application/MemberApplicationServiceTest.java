@@ -33,13 +33,13 @@ class MemberApplicationServiceTest {
 	private MemberRepository memberRepository;
 
 	@Autowired
+	private AuthRedisRepository authRedisRepository;
+
+	@Autowired
 	private MemberApplicationService memberApplicationService;
 
 	@Autowired
 	private AuthService authService;
-
-	@Autowired
-	private AuthRedisRepository authRedisRepository;
 
 	@Test
 	@DisplayName("회원 삭제에 성공한다")
@@ -57,7 +57,8 @@ class MemberApplicationServiceTest {
 		memberApplicationService.deactivateMember(accessToken, savedMember.getProviderId());
 
 		// then
-		Member deactivatedMember = memberRepository.findByProviderIdWithDeactivateMember(savedMember.getProviderId()).orElseThrow();
+		Member deactivatedMember = memberRepository.findByProviderIdWithDeactivateMember(savedMember.getProviderId())
+			.orElseThrow();
 		assertThat(deactivatedMember.getMemberStatus()).isEqualTo(MemberStatus.DEACTIVATED);
 
 		// 이메일과 닉네임에 탈퇴일시가 포맷되어 저장되었는지 검증
@@ -69,7 +70,7 @@ class MemberApplicationServiceTest {
 		String domainPart = originalEmail.substring(atIndex);
 
 		assertThat(deactivatedMember.getEmail().address()).isEqualTo(localPart + formattedTime + domainPart);
-		assertThat(deactivatedMember.getNickname()).isEqualTo(originalNickname+formattedTime);
+		assertThat(deactivatedMember.getNickname()).isEqualTo(originalNickname + formattedTime);
 
 		// 로그아웃 되었는지 검증
 		assertThat(authRedisRepository.getRefreshToken(savedMember.getProviderId())).isNull();
