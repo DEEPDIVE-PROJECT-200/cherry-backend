@@ -81,7 +81,7 @@ Content-Type: application/json
 # POST /api/v1/rentals
 # productId와 cartIds가 모두 있는 애매한 요청
 POST http://localhost:8080/api/v1/rentals
-Authorization: Bearer {{accessToken_12345}}
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
@@ -104,3 +104,11 @@ Content-Type: application/json
   },
   "paymentMethod": "KAKAO_PAY"
 }
+
+### 상품 단건 조회
+GET http://localhost:8080/api/v1/rentals/1
+Authorization: Bearer {{accessToken}}
+
+### 상품 목록 조회
+GET http://localhost:8080/api/v1/rentals
+Authorization: Bearer {{accessToken}}

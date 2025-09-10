@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,8 @@ import ok.cherry.rental.application.RentalService;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
 import ok.cherry.rental.application.response.RentalGetResponse;
+import ok.cherry.rental.application.response.RentalInfoResponse;
+import ok.cherry.rental.domain.Rental;
 
 @RestController
 @RequestMapping("/api/v1/rentals")
@@ -25,6 +28,16 @@ public class RentalController implements RentalControllerDoc {
 
 	private final RentalService rentalService;
 	private final RentalApplicationService rentalApplicationService;
+
+	@GetMapping("{rentalId}")
+	public ResponseEntity<RentalInfoResponse> getRental(
+		@PathVariable Long rentalId,
+		@AuthenticationPrincipal String providerId
+	) {
+		Rental rental = rentalService.getRental(rentalId, providerId);
+		RentalInfoResponse response = RentalInfoResponse.from(rental);
+		return ResponseEntity.ok(response);
+	}
 
 	@GetMapping
 	public ResponseEntity<RentalGetResponse> getRentals(

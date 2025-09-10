@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ok.cherry.cart.application.dto.request.CartCreateRequest;
 import ok.cherry.cart.application.dto.request.CartDeleteRequest;
@@ -18,7 +19,9 @@ import ok.cherry.cart.application.dto.response.CartGetResponse;
 @Tag(name = "Carts", description = "🛒 장바구니 API - 장바구니 조회, 관리 API")
 public interface CartControllerDoc {
 
-	@Operation(method = "POST", summary = "장바구니 상품 추가", description = "장바구니에 상품을 추가합니다")
+	@Operation(method = "POST", summary = "장바구니 상품 추가", description = "장바구니에 상품을 추가합니다",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "201", description = "장바구니 상품 등록 성공",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = CartCreateResponse.class))),
@@ -31,7 +34,9 @@ public interface CartControllerDoc {
 	})
 	ResponseEntity<CartCreateResponse> createCart(CartCreateRequest request, String providerId);
 
-	@Operation(method = "DELETE", summary = "장바구니 상품 삭제", description = "장바구니에 담긴 상품을 삭제합니다")
+	@Operation(method = "DELETE", summary = "장바구니 상품 삭제", description = "장바구니에 담긴 상품을 삭제합니다",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "204", description = "장바구니 상품 삭제 성공"),
 		@ApiResponse(responseCode = "401", description = "장바구니 상품 삭제 실패 - 요청에 대한 장바구니 상품 소유자가 일치하지 않음",
@@ -43,7 +48,9 @@ public interface CartControllerDoc {
 	})
 	ResponseEntity<Void> deleteCart(CartDeleteRequest request, String providerId);
 
-	@Operation(method = "GET", summary = "장바구니 상품 조회", description = "장바구니에 담긴 상품을 조회합니다")
+	@Operation(method = "GET", summary = "장바구니 상품 조회", description = "장바구니에 담긴 상품을 조회합니다",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200",
 			description = "장바구니 상품 조회 성공: "

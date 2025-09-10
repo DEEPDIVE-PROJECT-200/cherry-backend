@@ -248,6 +248,61 @@ class RentalServiceTest {
 			.hasMessage(RentalError.NOT_COMPLETED.getMessage());
 	}
 
+	@Test
+	@DisplayName("자신의 대여 기록을 상세 조회하는데 성공한다")
+	void getRental_success() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(RentalBuilder.builder()
+			.withMember(member)
+			.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+			.build());
+
+		// when
+		Rental result = rentalService.getRental(rental.getId(), member.getProviderId());
+
+		// then
+		assertThat(result.getId()).isEqualTo(rental.getId());
+		assertThat(result.getMember().getId()).isEqualTo(member.getId());
+	}
+
+	@Test
+	@DisplayName("다른 사람의 대여 기록을 조회하면 예외가 발생한다")
+	void getRental_forbidden() {
+		// given
+		Member owner = memberRepository.save(MemberBuilder.create());
+		Member other = memberRepository.save(MemberBuilder.builder()
+			.withProviderId("other")
+			.withEmail("other@test.com")
+			.withNickname("other")
+			.build()
+		);
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(RentalBuilder.builder()
+			.withMember(owner)
+			.withRentalItems(List.of(RentalItemBuilder.builder().withProduct(product).build()))
+			.build());
+
+		// when & then
+		assertThatThrownBy(() -> rentalService.getRental(rental.getId(), other.getProviderId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(RentalError.FORBIDDEN_ACCESS.getMessage());
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 대여 기록을 조회하면 예외가 발생한다")
+	void getRental_notFound() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		long notExistRentalId = 999L;
+
+		// when & then
+		assertThatThrownBy(() -> rentalService.getRental(notExistRentalId, member.getProviderId()))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(RentalError.RENTAL_NOT_FOUND.getMessage());
+	}
+
 	private void saveRentals(Member savedMember, Product product) {
 		rentalRepository.saveAll(List.of(
 			RentalBuilder.builder()
