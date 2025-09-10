@@ -39,7 +39,9 @@ public interface AuthControllerDoc {
 	})
 	ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response, String providerId);
 
-	@Operation(method = "POST", summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token을 재발급합니다.")
+	@Operation(method = "POST", summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token을 재발급합니다.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Access Token 재발급 성공",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = AccessTokenResponse.class))),
