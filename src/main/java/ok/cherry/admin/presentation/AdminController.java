@@ -84,16 +84,18 @@ public class AdminController {
     public String rentals(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(required = false) String orderNumber,
+        @RequestParam(required = false) String providerId,
         @RequestParam(required = false) String startDate,
         @RequestParam(required = false) String endDate,
         Model model
     ) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "id"));
-        Page<Rental> result = rentalService.search(orderNumber, startDate, endDate, pageable);
+        Page<Rental> result = rentalService.search(orderNumber, providerId, startDate, endDate, pageable);
 
         model.addAttribute("rentals", result.getContent());
         model.addAttribute("page", result);
         model.addAttribute("orderNumber", orderNumber);
+        model.addAttribute("providerId", providerId);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 

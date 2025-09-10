@@ -46,13 +46,15 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	 * Admin에서 체험 목록 조회시 사용
 	 */
 	@Query(
-		"SELECT r FROM Rental r "
+		"SELECT r FROM Rental r JOIN r.member m "
 			+ "WHERE (:orderNumber IS NULL OR r.rentalNumber LIKE CONCAT('%', :orderNumber, '%')) "
+			+ "AND (:providerId IS NULL OR m.providerId LIKE CONCAT('%', :providerId, '%')) "
 			+ "AND (:startDate IS NULL OR r.detail.createdAt >= :startDate) "
 			+ "AND (:endDate IS NULL OR r.detail.createdAt < :endDate)"
 	)
 	Page<Rental> search(
 		@Param("orderNumber") String orderNumber,
+		@Param("providerId") String providerId,
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate,
 		Pageable pageable

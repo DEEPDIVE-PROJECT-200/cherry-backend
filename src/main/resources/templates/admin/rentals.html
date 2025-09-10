@@ -213,11 +213,17 @@
         </div>
         <form class="filter-bar mb-3" method="get" th:action="@{/admin/rentals}">
             <div class="row g-2 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="orderNumber" class="form-label">주문번호</label>
                     <input id="orderNumber" name="orderNumber" type="text" class="form-control"
                            placeholder="주문번호 검색"
                            th:value="${orderNumber}">
+                </div>
+                <div class="col-md-3">
+                    <label for="providerId" class="form-label">회원번호</label>
+                    <input id="providerId" name="providerId" type="text" class="form-control"
+                           placeholder="회원번호 검색"
+                           th:value="${providerId}">
                 </div>
                 <div class="col-md-4">
                     <label for="startDate" class="form-label">체험신청일시</label>
@@ -227,7 +233,7 @@
                         <input id="endDate" name="endDate" type="date" class="form-control" th:value="${endDate}">
                     </div>
                 </div>
-                <div class="col-md-4 text-end">
+                <div class="col-md-2 text-end">
                     <button type="submit" class="btn btn-dark btn-sm px-3">검색</button>
                 </div>
             </div>
@@ -238,6 +244,7 @@
                 <tr>
                     <th scope="col">순번</th>
                     <th scope="col">체험신청일시</th>
+                    <th scope="col">회원번호</th>
                     <th scope="col">주문번호</th>
                     <th scope="col">체험상태</th>
                     <th scope="col">리포트 작성상태</th>
@@ -247,6 +254,7 @@
                 <tr th:each="rental, stat : ${rentals}">
                     <td th:text="${#numbers.formatInteger(stat.count, 2)}">01</td>
                     <td th:text="${#temporals.format(rental.detail.createdAt, 'yyyy.MM.dd HH:mm:ss')}">2025.09.04 09:00:10</td>
+                    <td th:text="${rental.member.providerId}">-</td>
                     <td>
                         <a th:href="@{'/admin/rentals/' + ${rental.id}}" th:text="${rental.rentalNumber}">-</a>
                     </td>
@@ -267,14 +275,14 @@
                 <!-- 맨앞 -->
                 <li class="page-item" th:classappend="${page.first} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/admin/rentals(page=${0}, size=${page.size}, orderNumber=${orderNumber}, startDate=${startDate}, endDate=${endDate})}"
+                       th:href="@{/admin/rentals(page=${0}, size=${page.size}, orderNumber=${orderNumber}, providerId=${providerId}, startDate=${startDate}, endDate=${endDate})}"
                        aria-label="First">&laquo;</a>
                 </li>
 
                 <!-- 이전 -->
                 <li class="page-item" th:classappend="${!page.hasPrevious()} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/admin/rentals(page=${page.number - 1}, size=${page.size}, orderNumber=${orderNumber}, startDate=${startDate}, endDate=${endDate})}"
+                       th:href="@{/admin/rentals(page=${page.number - 1}, size=${page.size}, orderNumber=${orderNumber}, providerId=${providerId}, startDate=${startDate}, endDate=${endDate})}"
                        aria-label="Previous">&lsaquo;</a>
                 </li>
 
@@ -284,7 +292,7 @@
                     th:classappend="${p == page.number} ? 'active'">
                     <a class="page-link"
                        th:text="${p + 1}"
-                       th:href="@{/admin/rentals(page=${p}, size=${page.size}, orderNumber=${orderNumber}, startDate=${startDate}, endDate=${endDate})}">
+                       th:href="@{/admin/rentals(page=${p}, size=${page.size}, orderNumber=${orderNumber}, providerId=${providerId}, startDate=${startDate}, endDate=${endDate})}">
                         1
                     </a>
                 </li>
@@ -292,14 +300,14 @@
                 <!-- 다음 -->
                 <li class="page-item" th:classappend="${!page.hasNext()} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/admin/rentals(page=${page.number + 1}, size=${page.size}, orderNumber=${orderNumber}, startDate=${startDate}, endDate=${endDate})}"
+                       th:href="@{/admin/rentals(page=${page.number + 1}, size=${page.size}, orderNumber=${orderNumber}, providerId=${providerId}, startDate=${startDate}, endDate=${endDate})}"
                        aria-label="Next">&rsaquo;</a>
                 </li>
 
                 <!-- 맨뒤 -->
                 <li class="page-item" th:classappend="${page.last} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/admin/rentals(page=${page.totalPages - 1}, size=${page.size}, orderNumber=${orderNumber}, startDate=${startDate}, endDate=${endDate})}"
+                       th:href="@{/admin/rentals(page=${page.totalPages - 1}, size=${page.size}, orderNumber=${orderNumber}, providerId=${providerId}, startDate=${startDate}, endDate=${endDate})}"
                        aria-label="Last">&raquo;</a>
                 </li>
             </ul>

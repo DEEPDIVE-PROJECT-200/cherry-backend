@@ -134,8 +134,9 @@ public class RentalService {
 	 * Admin에서 체험 목록 조회시 사용
 	 */
 	@Transactional(readOnly = true)
-	public Page<Rental> search(String orderNumber, String startDate, String endDate, Pageable pageable) {
+	public Page<Rental> search(String orderNumber, String providerId, String startDate, String endDate, Pageable pageable) {
 		String orderNumberFilter = (orderNumber == null || orderNumber.isBlank()) ? null : orderNumber;
+		String providerIdFilter = (providerId == null || providerId.isBlank()) ? null : providerId;
 
 		LocalDateTime from = null;
 		LocalDateTime to = null;
@@ -146,6 +147,6 @@ public class RentalService {
 			to = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
 		}
 
-		return rentalRepository.search(orderNumberFilter, from, to, pageable);
+		return rentalRepository.search(orderNumberFilter, providerIdFilter, from, to, pageable);
 	}
 }
