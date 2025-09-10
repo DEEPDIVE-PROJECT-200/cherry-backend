@@ -1,5 +1,6 @@
 package ok.cherry.rental.infrastructure;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import ok.cherry.rental.domain.Rental;
+import ok.cherry.rental.domain.status.RentalStatus;
 
 @Repository
 public interface RentalRepository extends JpaRepository<Rental, Long> {
@@ -25,4 +27,6 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 		@Param("lastRentalId") Long lastRentalId,
 		Pageable pageable
 	);
+
+	List<Rental> findByRentalStatusAndDetail_EndAtBefore(RentalStatus rentalStatus, LocalDate today);
 }
