@@ -98,7 +98,7 @@
             <div class="row g-3 align-items-center">
                 <div class="col-lg-5">
                     <!-- 대표 썸네일: product.thumbnailUrl -->
-                    <img th:src="${product.thumbnailUrl}" alt="대표 썸네일" class="img-fluid product-main-image">
+                    <img th:src="|https://cherry-dev-assets.s3.ap-northeast-2.amazonaws.com/${product.thumbnailUrl}|" alt="대표 썸네일" class="img-fluid product-main-image">
                 </div>
                 <div class="col-lg-7">
                     <div class="kv">
@@ -142,7 +142,7 @@
             <div class="grid">
                 <div class="thumb"
                      th:each="detail, idxStat : ${product.detail.productThumbnailDetails}">
-                    <img th:src="${detail.imageUrl}" alt="상세">
+                    <img th:src="|https://cherry-dev-assets.s3.ap-northeast-2.amazonaws.com/${detail.imageUrl}|" alt="상세">
                     <div class="p-2 small text-muted">#<span th:text="${idxStat.index + 1}">1</span></div>
                 </div>
             </div>
@@ -160,7 +160,7 @@
                 <!-- 상세 이미지 반복 -->
                 <figure class="long-detail"
                         th:each="detail, iterStat : ${product.detail.productImageDetails}">
-                    <img th:src="${detail.imageUrl}"
+                    <img th:src="|https://cherry-dev-assets.s3.ap-northeast-2.amazonaws.com/${detail.imageUrl}|"
                          alt="상세 이미지"
                          loading="lazy"
                          decoding="async">
