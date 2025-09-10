@@ -3,6 +3,8 @@ package ok.cherry.member.infrastructure;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import ok.cherry.member.domain.Member;
@@ -17,4 +19,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	boolean existsByEmailAddress(String emailAddress);
 
 	boolean existsByNickname(String nickname);
+
+	@Query(value = "SELECT * FROM member m WHERE m.provider_id = :providerId", nativeQuery = true)
+	Optional<Member> findByProviderIdWithDeactivateMember(@Param("providerId") String providerId);
 }
