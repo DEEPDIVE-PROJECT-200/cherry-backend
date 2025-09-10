@@ -18,7 +18,7 @@ import ok.cherry.auth.util.CookieManager;
 @Slf4j
 @RequestMapping("/test")
 @RequiredArgsConstructor
-@Profile("local")
+@Profile({"local", "dev"})
 public class TokenTestController {
 
 	private final AuthService authService;

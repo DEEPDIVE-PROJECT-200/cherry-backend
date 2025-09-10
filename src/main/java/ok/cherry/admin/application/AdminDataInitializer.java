@@ -13,7 +13,7 @@ import ok.cherry.admin.infrastructure.AdminRepository;
 @Configuration
 @RequiredArgsConstructor
 @Transactional
-@Profile("local")
+@Profile({"local", "dev"})
 public class AdminDataInitializer implements CommandLineRunner {
 
 	private final AdminRepository adminRepository;
