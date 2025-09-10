@@ -18,6 +18,7 @@ import ok.cherry.rental.application.RentalApplicationService;
 import ok.cherry.rental.application.RentalService;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
+import ok.cherry.rental.application.response.RentalCountResponse;
 import ok.cherry.rental.application.response.RentalGetResponse;
 import ok.cherry.rental.application.response.RentalInfoResponse;
 import ok.cherry.rental.domain.Rental;
@@ -47,6 +48,12 @@ public class RentalController implements RentalControllerDoc {
 		@AuthenticationPrincipal String providerId
 	) {
 		RentalGetResponse response = rentalService.getRentals(lastRentalId, limit, providerId);
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/count")
+	public ResponseEntity<RentalCountResponse> getCountRentals(@AuthenticationPrincipal String providerId) {
+		RentalCountResponse response = rentalService.getCountRentals(providerId);
 		return ResponseEntity.ok(response);
 	}
 
