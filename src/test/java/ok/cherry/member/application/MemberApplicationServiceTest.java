@@ -29,6 +29,8 @@ import ok.cherry.member.infrastructure.MemberRepository;
 @Import(EmbeddedRedisTestConfiguration.class)
 class MemberApplicationServiceTest {
 
+	private static final DateTimeFormatter DEACTIVATION_DATE_FORMATTER = DateTimeFormatter.ofPattern("_yyyyMMddHHmmss");
+
 	@Autowired
 	private MemberRepository memberRepository;
 
@@ -63,7 +65,7 @@ class MemberApplicationServiceTest {
 
 		// 이메일과 닉네임에 탈퇴일시가 포맷되어 저장되었는지 검증
 		LocalDateTime deactivatedAt = deactivatedMember.getDetail().getDeactivatedAt();
-		String formattedTime = deactivatedAt.format(DateTimeFormatter.ofPattern("_yyyyMMddHHmmss"));
+		String formattedTime = deactivatedAt.format(DEACTIVATION_DATE_FORMATTER);
 
 		int atIndex = originalEmail.indexOf('@');
 		String localPart = originalEmail.substring(0, atIndex);
