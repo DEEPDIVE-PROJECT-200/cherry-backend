@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
+import ok.cherry.rental.application.response.RentalCountResponse;
 import ok.cherry.rental.application.response.RentalGetResponse;
 import ok.cherry.rental.application.response.RentalInfoResponse;
 
@@ -57,6 +58,19 @@ public interface RentalControllerDoc {
 		@Parameter(description = "조회할 대여 Id") Long rentalId,
 		@Parameter String providerId
 	);
+
+	@Operation(method = "GET", summary = "사용자 총 대여 수 및 총 환급 금액 조회", description = "사용자의 총 대여 수와 총 환급 금액을 조회합니다",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200",
+			description = "사용자의 총 대여 수 및 환급 금액 조회 성공",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = RentalCountResponse.class))),
+		@ApiResponse(responseCode = "404",
+			description = "사용자의 총 대여 수 및 환급 금액 조회 실패 - 존재하지 않는 사용자",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
+	})
+	ResponseEntity<RentalCountResponse> getCountRentals(String providerId);
 
 	@Operation(
 		method = "POST",
