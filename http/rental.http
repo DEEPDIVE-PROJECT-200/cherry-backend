@@ -113,6 +113,10 @@ Authorization: Bearer {{accessToken}}
 GET http://localhost:8080/api/v1/rentals
 Authorization: Bearer {{accessToken}}
 
+### 총 대여 수 및 총 환급 금액 조회
+GET http://localhost:8080/api/v1/rentals/count
+Authorization: Bearer {{accessToken}}
+
 ### 결제 정보 조회
 GET http://localhost:8080/api/v1/rentals/1/payment
 Authorization: Bearer {{accessToken}}
