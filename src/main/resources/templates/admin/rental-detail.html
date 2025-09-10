@@ -82,6 +82,17 @@
         </div>
     </div>
 
+    <!-- 조기 반납 액션: ACTIVE 상태에서만 표시, 반납 배송이 아직 없을 때 -->
+    <div class="alert alert-warning d-flex justify-content-between align-items-center" role="alert"
+         th:if="${rental.rentalStatus.name() == 'ACTIVE' and inboundShipping == null}">
+        <div>
+            체험이 진행 중입니다. 조기 반납을 진행하시겠습니까?
+        </div>
+        <form th:action="@{'/admin/rentals/' + ${rental.id} + '/return/initiate'}" method="post" class="m-0">
+            <button type="submit" class="btn btn-outline-danger btn-sm">조기 반납 생성</button>
+        </form>
+    </div>
+
     <!-- 체험 상품 정보 -->
     <div class="card mt-3">
         <div class="card-body">
@@ -131,7 +142,7 @@
     <!-- 배송 정보 -->
     <div class="card mt-3">
         <div class="card-body">
-            <h6 class="fw-bold mb-2">배송 정보</h6>
+            <h6 class="fw-bold mb-2">배송 정보 (출고)</h6>
             <div class="kv">
                 <div class="fw-bold">운송장 번호</div>
                 <div th:text="${outboundShipping.trackingNumber}">12345678901234567890</div>
@@ -157,6 +168,106 @@
                 <div class="muted"
                      th:text="${outboundShipping.detail.endAt != null ? #temporals.format(outboundShipping.detail.endAt, 'yyyy.MM.dd HH:mm') : '-'}">2025.09.10 10:33
                 </div>
+            </div>
+
+            <!-- 배송 액션 버튼 -->
+            <div class="mt-3 d-flex gap-2">
+                <form th:if="${outboundShipping.status.name() == 'PENDING'}"
+                      th:action="@{'/admin/rentals/' + ${rental.id} + '/shipping/start'}"
+                      method="post">
+                    <button type="submit" class="btn btn-primary btn-sm">배송 시작</button>
+                </form>
+
+                <form th:if="${outboundShipping.status.name() == 'IN_DELIVERY'}"
+                      th:action="@{'/admin/rentals/' + ${rental.id} + '/shipping/complete'}"
+                      method="post">
+                    <button type="submit" class="btn btn-success btn-sm">배송 완료</button>
+                </form>
+
+                <button th:if="${outboundShipping.status.name() == 'DELIVERED'}" type="button"
+                        class="btn btn-outline-secondary btn-sm" disabled>
+                    배송 완료됨
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 반납 배송 정보 (있을 경우 표시) -->
+    <div class="card mt-3" th:if="${inboundShipping != null}">
+        <div class="card-body">
+            <h6 class="fw-bold mb-2">반납 배송 정보 (입고)</h6>
+            <div class="kv">
+                <div class="fw-bold">운송장 번호</div>
+                <div th:text="${inboundShipping.trackingNumber}">12345678901234567890</div>
+
+                <div class="fw-bold">배송 상태</div>
+                <div th:text="${inboundShipping.status}">PENDING</div>
+
+                <div class="fw-bold">수령인</div>
+                <div th:text="${inboundShipping.shippingInfo.receiver}">김체리</div>
+
+                <div class="fw-bold">연락처</div>
+                <div th:text="${inboundShipping.shippingInfo.phoneNumber}">010-1234-5678</div>
+
+                <div class="fw-bold">주소</div>
+                <div th:text="${inboundShipping.shippingInfo.address.postAddress + inboundShipping.shippingInfo.address.detailAddress}">서울시 강남구 테헤란로 123</div>
+
+                <div class="fw-bold">배송 시작일시</div>
+                <div class="muted"
+                     th:text="${inboundShipping.detail.startAt != null ? #temporals.format(inboundShipping.detail.startAt, 'yyyy.MM.dd HH:mm') : '-'}">2025.09.10 10:33
+                </div>
+
+                <div class="fw-bold">배송 완료일시</div>
+                <div class="muted"
+                     th:text="${inboundShipping.detail.endAt != null ? #temporals.format(inboundShipping.detail.endAt, 'yyyy.MM.dd HH:mm') : '-'}">2025.09.10 10:33
+                </div>
+            </div>
+
+            <!-- 반납 배송 액션 버튼 -->
+            <div class="mt-3 d-flex gap-2">
+                <form th:if="${inboundShipping.status.name() == 'PENDING'}"
+                      th:action="@{'/admin/rentals/' + ${rental.id} + '/return/shipping/start'}"
+                      method="post">
+                    <button type="submit" class="btn btn-primary btn-sm">반납 배송 시작</button>
+                </form>
+
+                <form th:if="${inboundShipping.status.name() == 'IN_DELIVERY'}"
+                      th:action="@{'/admin/rentals/' + ${rental.id} + '/return/shipping/complete'}"
+                      method="post">
+                    <button type="submit" class="btn btn-success btn-sm">반납 배송 완료</button>
+                </form>
+
+                <button th:if="${inboundShipping.status.name() == 'DELIVERED'}" type="button"
+                        class="btn btn-outline-secondary btn-sm" disabled>
+                    반납 배송 완료됨
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 검수/리포트 액션 -->
+    <div class="card mt-3">
+        <div class="card-body">
+            <h6 class="fw-bold mb-2">검수 및 리포트</h6>
+            <div class="d-flex gap-2">
+                <!-- 검수 완료: IN_RETURN && inbound DELIVERED -->
+                <form th:if="${rental.rentalStatus.name() == 'IN_RETURN' and inboundShipping != null and inboundShipping.status.name() == 'DELIVERED'}"
+                      th:action="@{'/admin/rentals/' + ${rental.id} + '/inspect/complete'}"
+                      method="post">
+                    <button type="submit" class="btn btn-dark btn-sm">검수 완료</button>
+                </form>
+
+                <!-- 리포트 작성 완료: COMPLETED && review AVAILABLE -->
+                <form th:if="${rental.rentalStatus.name() == 'COMPLETED' and rental.reviewStatus.name() == 'AVAILABLE'}"
+                      th:action="@{'/admin/rentals/' + ${rental.id} + '/review/complete'}"
+                      method="post">
+                    <button type="submit" class="btn btn-secondary btn-sm">리포트 작성 완료</button>
+                </form>
+
+                <button th:if="${rental.reviewStatus.name() == 'COMPLETED'}" type="button"
+                        class="btn btn-outline-secondary btn-sm" disabled>
+                    리포트 완료됨
+                </button>
             </div>
         </div>
     </div>

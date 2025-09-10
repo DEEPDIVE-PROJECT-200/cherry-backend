@@ -73,10 +73,20 @@ public class ShippingService {
 		}
 	}
 
-	public Shipping getOutboundShippingByRental(Long rentalId) {
-		return shippingRepository.findByRentalIdAndDirection(rentalId, Direction.OUTBOUND)
-			.orElseThrow(() -> new BusinessException(ShippingError.SHIPPING_NOT_FOUND));
-	}
+	/**
+	 * 어드민에서 배송 조회시 사용
+	 */
+	@Transactional(readOnly = true)
+    public Shipping getOutboundShippingByRental(Long rentalId) {
+        return shippingRepository.findByRentalIdAndDirection(rentalId, Direction.OUTBOUND)
+            .orElseThrow(() -> new BusinessException(ShippingError.SHIPPING_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public Shipping getInboundShippingByRentalOrNull(Long rentalId) {
+        return shippingRepository.findByRentalIdAndDirection(rentalId, Direction.INBOUND)
+            .orElse(null);
+    }
 
 	/**
 	 * 외부 배송사 API 호출 로직

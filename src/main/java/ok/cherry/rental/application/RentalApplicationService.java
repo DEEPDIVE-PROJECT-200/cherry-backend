@@ -88,6 +88,31 @@ public class RentalApplicationService {
 		return paymentService.getPaymentByRentalId(rental.getId(), providerId);
 	}
 
+	/**
+	 * 어드민에서 사용하는 조기 반납
+	 */
+    public void initiateEarlyReturn(Long rentalId) {
+        Rental rental = rentalService.findRentalById(rentalId);
+
+        // 활성 상태에서만 조기 반납 전환 가능
+        rental.inReturn();
+
+        // 기존 반납 배송이 없을 경우 생성
+        Shipping inbound = shippingService.getInboundShippingByRentalOrNull(rentalId);
+        if (inbound == null) {
+            Shipping outbound = shippingService.getOutboundShippingByRental(rentalId);
+            CreateShippingCommand cmd = CreateShippingCommand.of(
+                Direction.INBOUND,
+                outbound.getShippingInfo().getReceiver(),
+                outbound.getShippingInfo().getPhoneNumber(),
+                outbound.getShippingInfo().getAddress()
+            );
+            shippingService.createShipping(rental.getMember(), rental, cmd);
+        }
+
+        log.info("조기 반납 전환 완료 - 대여 ID: {}", rentalId);
+    }
+
 	private static void validateRentalOrderRequest(PlaceRentalOrderRequest request) {
 		if (!request.isDirectRental() && !request.isCartRental()) {
 			throw new BusinessException(RentalError.INVALID_RENTAL_REQUEST);

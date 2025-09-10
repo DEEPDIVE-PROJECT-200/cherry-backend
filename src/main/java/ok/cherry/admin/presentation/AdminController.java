@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import ok.cherry.member.domain.Member;
 import ok.cherry.product.application.ProductQueryService;
 import ok.cherry.product.application.dto.request.ProductCreateRequest;
 import ok.cherry.product.domain.Product;
+import ok.cherry.rental.application.RentalApplicationService;
 import ok.cherry.rental.application.RentalService;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.payment.application.PaymentService;
@@ -34,6 +36,7 @@ public class AdminController {
     private final RentalService rentalService;
     private final PaymentService paymentService;
     private final ShippingService shippingService;
+    private final RentalApplicationService rentalApplicationService;
 
     @GetMapping("/login")
     public String login() {
@@ -102,11 +105,59 @@ public class AdminController {
         Rental rental = rentalService.findRentalById(id);
         Payment payment = paymentService.getPaymentByRentalId(id);
         Shipping outboundShipping = shippingService.getOutboundShippingByRental(rental.getId());
+        Shipping inboundShipping = shippingService.getInboundShippingByRentalOrNull(rental.getId());
 
         model.addAttribute("rental", rental);
         model.addAttribute("payment", payment);
         model.addAttribute("outboundShipping", outboundShipping);
+        model.addAttribute("inboundShipping", inboundShipping);
 
         return "admin/rental-detail";
+    }
+
+    @PostMapping("/rentals/{id}/shipping/start")
+    public String startOutboundShipping(@PathVariable Long id) {
+        Shipping shipping = shippingService.getOutboundShippingByRental(id);
+        shippingService.startShipping(shipping.getId());
+        return "redirect:/admin/rentals/" + id;
+    }
+
+    @PostMapping("/rentals/{id}/shipping/complete")
+    public String completeOutboundShipping(@PathVariable Long id) {
+        Shipping shipping = shippingService.getOutboundShippingByRental(id);
+        shippingService.completeShipping(shipping.getId());
+        return "redirect:/admin/rentals/" + id;
+    }
+
+    @PostMapping("/rentals/{id}/return/shipping/start")
+    public String startInboundShipping(@PathVariable Long id) {
+        Shipping shipping = shippingService.getInboundShippingByRentalOrNull(id);
+        shippingService.startShipping(shipping.getId());
+        return "redirect:/admin/rentals/" + id;
+    }
+
+    @PostMapping("/rentals/{id}/return/shipping/complete")
+    public String completeInboundShipping(@PathVariable Long id) {
+        Shipping shipping = shippingService.getInboundShippingByRentalOrNull(id);
+        shippingService.completeShipping(shipping.getId());
+        return "redirect:/admin/rentals/" + id;
+    }
+
+    @PostMapping("/rentals/{id}/inspect/complete")
+    public String completeInspection(@PathVariable Long id) {
+        rentalApplicationService.completeRental(id);
+        return "redirect:/admin/rentals/" + id;
+    }
+
+    @PostMapping("/rentals/{id}/review/complete")
+    public String completeReview(@PathVariable Long id) {
+        rentalService.completeReview(id);
+        return "redirect:/admin/rentals/" + id;
+    }
+
+    @PostMapping("/rentals/{id}/return/initiate")
+    public String initiateEarlyReturn(@PathVariable Long id) {
+        rentalApplicationService.initiateEarlyReturn(id);
+        return "redirect:/admin/rentals/" + id;
     }
 }
