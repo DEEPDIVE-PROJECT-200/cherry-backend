@@ -282,7 +282,7 @@
                     th:classappend="${p == page.number} ? 'active'">
                     <a class="page-link"
                        th:text="${p + 1}"
-                       th:href="@{/admin/members(page=${p}, size=${page.size}, nickname=${nickname}, providerId=${providerId})}">
+                       th:href="@{/admin/members(page=${p}, size=${page.size}, nickname=${nickname}, emailAddress=${emailAddress})}">
                         1
                     </a>
                 </li>
@@ -290,14 +290,14 @@
                 <!-- 다음 -->
                 <li class="page-item" th:classappend="${!page.hasNext()} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/admin/members(page=${page.number + 1}, size=${page.size}, nickname=${nickname}, providerId=${providerId})}"
+                       th:href="@{/admin/members(page=${page.number + 1}, size=${page.size}, nickname=${nickname}, emailAddress=${emailAddress})}"
                        aria-label="Next">&rsaquo;</a>
                 </li>
 
                 <!-- 맨뒤 -->
                 <li class="page-item" th:classappend="${page.last} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/admin/members(page=${page.totalPages - 1}, size=${page.size}, nickname=${nickname}, providerId=${providerId})}"
+                       th:href="@{/admin/members(page=${page.totalPages - 1}, size=${page.size}, nickname=${nickname}, emailAddress=${emailAddress})}"
                        aria-label="Last">&raquo;</a>
                 </li>
             </ul>
