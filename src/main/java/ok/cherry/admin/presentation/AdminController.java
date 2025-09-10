@@ -51,7 +51,7 @@ public class AdminController {
 
     @GetMapping
     public String products(Model model) {
-        model.addAttribute("products", productQueryService.getAllProducts());
+        model.addAttribute("products", productQueryService.getProducts());
         return "admin/products";
     }
 

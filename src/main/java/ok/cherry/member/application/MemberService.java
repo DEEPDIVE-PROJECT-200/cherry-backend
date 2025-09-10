@@ -1,5 +1,7 @@
 package ok.cherry.member.application;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,5 +29,9 @@ public class MemberService {
 	public Member findMemberByProviderId(String providerId) {
 		return memberRepository.findByProviderId(providerId)
 			.orElseThrow(() -> new BusinessException(MemberError.USER_NOT_FOUND));
+	}
+
+	public Page<Member> search(String nickname, String emailAddress, Pageable pageable) {
+		return memberRepository.search(nickname, emailAddress, pageable);
 	}
 }
