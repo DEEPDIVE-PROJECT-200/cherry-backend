@@ -368,6 +368,7 @@ class RentalApplicationServiceTest {
 	@Test
 	@DisplayName("대여 Id로 관련된 결제 정보를 가져온다")
 	void getPaymentByRentalId_success() {
+		// given
 		Member savedMember = memberRepository.save(MemberBuilder.create());
 		Product savedProduct = productRepository.save(ProductBuilder.create());
 
