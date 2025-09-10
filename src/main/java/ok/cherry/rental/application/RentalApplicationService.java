@@ -19,6 +19,7 @@ import ok.cherry.member.application.MemberService;
 import ok.cherry.member.domain.Member;
 import ok.cherry.payment.application.PaymentService;
 import ok.cherry.payment.application.dto.command.CreatePaymentCommand;
+import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.payment.domain.Payment;
 import ok.cherry.product.application.ProductQueryService;
 import ok.cherry.product.domain.Product;
@@ -80,6 +81,11 @@ public class RentalApplicationService {
 
 		log.info("검수 완료 처리 - 대여 ID: {}", rentalId);
 		return RentalCompleteResponse.of(rentalId, rental.getRentalStatus());
+	}
+
+	public PaymentResponse getPaymentByRentalId(Long rentalId, String providerId) {
+		Rental rental = rentalService.getRental(rentalId, providerId);
+		return paymentService.getPaymentByRentalId(rental.getId(), providerId);
 	}
 
 	private static void validateRentalOrderRequest(PlaceRentalOrderRequest request) {

@@ -31,6 +31,14 @@ public class PaymentService {
 		return PaymentResponse.of(payment);
 	}
 
+	public PaymentResponse getPaymentByRentalId(Long rentalId, String providerId) {
+		Payment payment = paymentRepository.findByRentalId(rentalId)
+			.orElseThrow(() -> new BusinessException(PaymentError.PAYMENT_NOT_FOUND));
+
+		validatePaymentOwnership(providerId, payment);
+		return PaymentResponse.of(payment);
+	}
+
 	@Transactional
 	public Payment createPayment(
 		Member member,

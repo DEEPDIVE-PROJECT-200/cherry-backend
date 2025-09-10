@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
 import ok.cherry.rental.application.response.PlaceRentalOrderResponse;
 import ok.cherry.rental.application.response.RentalGetResponse;
@@ -136,4 +137,25 @@ public interface RentalControllerDoc {
 		PlaceRentalOrderRequest request,
 		@Parameter String providerId
 	);
+
+	@Operation(
+		method = "GET", summary = "대여 결제 정보 조회", description = "지정한 대여(rentalId)에 대한 결제 정보를 조회합니다.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200",
+			description = "결제 상세 조회 성공",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentResponse.class))),
+		@ApiResponse(responseCode = "401",
+			description = "인증되지 않은 사용자",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+		@ApiResponse(responseCode = "403",
+			description = "접근 권한이 없는 결제 정보",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class))),
+		@ApiResponse(responseCode = "404",
+			description = "존재하지 않는 결제 정보",
+			content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
+	})
+	ResponseEntity<PaymentResponse> getPaymentByRentalId(
+		@Parameter(description = "결제 정보를 조회할 대여 ID", required = true) Long rentalId, String providerId);
 }

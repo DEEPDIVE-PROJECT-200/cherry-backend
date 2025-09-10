@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import ok.cherry.global.swagger.rental.RentalControllerDoc;
+import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.rental.application.RentalApplicationService;
 import ok.cherry.rental.application.RentalService;
 import ok.cherry.rental.application.request.PlaceRentalOrderRequest;
@@ -55,5 +56,14 @@ public class RentalController implements RentalControllerDoc {
 
 		PlaceRentalOrderResponse response = rentalApplicationService.placeRentalOrder(providerId, request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
+	@GetMapping("/{rentalId}/payment")
+	public ResponseEntity<PaymentResponse> getPaymentByRentalId(
+		@PathVariable Long rentalId,
+		@AuthenticationPrincipal String providerId
+	) {
+		PaymentResponse response = rentalApplicationService.getPaymentByRentalId(rentalId, providerId);
+		return ResponseEntity.ok(response);
 	}
 }

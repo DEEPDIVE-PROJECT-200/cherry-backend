@@ -20,6 +20,7 @@ import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
 import ok.cherry.member.infrastructure.MemberRepository;
+import ok.cherry.payment.application.dto.response.PaymentResponse;
 import ok.cherry.payment.domain.Payment;
 import ok.cherry.payment.domain.type.PaymentMethod;
 import ok.cherry.payment.infrastructure.PaymentRepository;
@@ -362,6 +363,106 @@ class RentalApplicationServiceTest {
 		assertThatThrownBy(() -> rentalApplicationService.completeRental(rental.getId()))
 			.isInstanceOf(BusinessException.class)
 			.hasMessage(ShippingError.RETURN_SHIPPING_NOT_COMPLETED.getMessage());
+	}
+
+	@Test
+	@DisplayName("대여 Id로 관련된 결제 정보를 가져온다")
+	void getPaymentByRentalId_success() {
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+
+		LocalDate startAt = LocalDate.now();
+		LocalDate endAt = startAt.plusDays(6);
+
+		PlaceRentalOrderRequest request = createDirectRentalRequest(
+			savedProduct.getId(), startAt, endAt, Color.BLACK, PaymentMethod.KAKAO_PAY
+		);
+
+		PlaceRentalOrderResponse orderResponse = rentalApplicationService.placeRentalOrder(
+			savedMember.getProviderId(), request
+		);
+		flushAndClear();
+
+		// when
+		PaymentResponse response = rentalApplicationService.getPaymentByRentalId(
+			orderResponse.rentalId(),
+			savedMember.getProviderId()
+		);
+
+		// then
+		assertThat(response.paymentId()).isNotNull();
+		assertThat(response.memberId()).isEqualTo(savedMember.getId());
+		assertThat(response.rentalId()).isEqualTo(orderResponse.rentalId());
+		assertThat(response.paymentMethod()).isEqualTo(PaymentMethod.KAKAO_PAY);
+		assertThat(response.items()).hasSize(1);
+	}
+
+	@Test
+	@DisplayName("대여 Id로 결제 조회 시 대상 대여가 존재하지 않으면 예외가 발생한다")
+	void getPaymentByRentalId_fail_rental_not_found() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Long notExistRentalId = 999L;
+
+		// when & then
+		assertThatThrownBy(() -> rentalApplicationService.getPaymentByRentalId(
+			notExistRentalId,
+			savedMember.getProviderId()
+		))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(RentalError.RENTAL_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	@DisplayName("대여 Id로 결제 조회 시 소유자가 아니면 접근이 거부 된다")
+	void getPaymentByRentalId_fail_forbidden_access() {
+		// given
+		Member memberA = memberRepository.save(MemberBuilder.create());
+		Member memberB = memberRepository.save(MemberBuilder.builder()
+			.withEmail("other@other.com")
+			.withNickname("other")
+			.withProviderId("other")
+			.build()
+		);
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+
+		PlaceRentalOrderRequest request = createDirectRentalRequest(
+			savedProduct.getId(), LocalDate.now(), LocalDate.now().plusDays(6), Color.BLACK, PaymentMethod.KAKAO_PAY
+		);
+		PlaceRentalOrderResponse orderResponse = rentalApplicationService.placeRentalOrder(
+			memberA.getProviderId(), request
+		);
+
+		// when & then
+		assertThatThrownBy(() -> rentalApplicationService.getPaymentByRentalId(
+			orderResponse.rentalId(),
+			memberB.getProviderId()
+		))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(RentalError.FORBIDDEN_ACCESS.getMessage());
+	}
+
+	@Test
+	@DisplayName("대여 Id로 결제 조회 시 결제가 존재하지 않으면 예외가 발생한다")
+	void getPaymentByRentalId_fail_payment_not_found() {
+		// given
+		Member savedMember = memberRepository.save(MemberBuilder.create());
+		Product savedProduct = productRepository.save(ProductBuilder.create());
+		RentalItem rentalItem = RentalItemBuilder.builder().withProduct(savedProduct).build();
+		Rental savedRental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withMember(savedMember)
+				.withRentalItems(List.of(rentalItem))
+				.build()
+		);
+
+		// when & then
+		assertThatThrownBy(() -> rentalApplicationService.getPaymentByRentalId(
+			savedRental.getId(),
+			savedMember.getProviderId()
+		))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(ok.cherry.payment.exception.PaymentError.PAYMENT_NOT_FOUND.getMessage());
 	}
 
 	private PlaceRentalOrderRequest createDirectRentalRequest(
