@@ -89,6 +89,7 @@
             체험이 진행 중입니다. 조기 반납을 진행하시겠습니까?
         </div>
         <form th:action="@{'/admin/rentals/' + ${rental.id} + '/return/initiate'}" method="post" class="m-0">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit" class="btn btn-outline-danger btn-sm">조기 반납 생성</button>
         </form>
     </div>
@@ -175,12 +176,14 @@
                 <form th:if="${outboundShipping.status.name() == 'PENDING'}"
                       th:action="@{'/admin/rentals/' + ${rental.id} + '/shipping/start'}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-primary btn-sm">배송 시작</button>
                 </form>
 
                 <form th:if="${outboundShipping.status.name() == 'IN_DELIVERY'}"
                       th:action="@{'/admin/rentals/' + ${rental.id} + '/shipping/complete'}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-success btn-sm">배송 완료</button>
                 </form>
 
@@ -228,12 +231,14 @@
                 <form th:if="${inboundShipping.status.name() == 'PENDING'}"
                       th:action="@{'/admin/rentals/' + ${rental.id} + '/return/shipping/start'}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-primary btn-sm">반납 배송 시작</button>
                 </form>
 
                 <form th:if="${inboundShipping.status.name() == 'IN_DELIVERY'}"
                       th:action="@{'/admin/rentals/' + ${rental.id} + '/return/shipping/complete'}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-success btn-sm">반납 배송 완료</button>
                 </form>
 
@@ -254,6 +259,7 @@
                 <form th:if="${rental.rentalStatus.name() == 'IN_RETURN' and inboundShipping != null and inboundShipping.status.name() == 'DELIVERED'}"
                       th:action="@{'/admin/rentals/' + ${rental.id} + '/inspect/complete'}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-dark btn-sm">검수 완료</button>
                 </form>
 
@@ -261,6 +267,7 @@
                 <form th:if="${rental.rentalStatus.name() == 'COMPLETED' and rental.reviewStatus.name() == 'AVAILABLE'}"
                       th:action="@{'/admin/rentals/' + ${rental.id} + '/review/complete'}"
                       method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-secondary btn-sm">리포트 작성 완료</button>
                 </form>
 
