@@ -18,7 +18,7 @@ import ok.cherry.auth.jwt.TokenValidator;
 import ok.cherry.global.redis.AuthRedisRepository;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
