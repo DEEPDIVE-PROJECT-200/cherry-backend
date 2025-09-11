@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ok.cherry.global.swagger.shipping.ShippingControllerDoc;
 import ok.cherry.shipping.application.ShippingService;
 import ok.cherry.shipping.application.response.TrackingNumberResponse;
 
 @RestController
 @RequestMapping("/api/v1/shipping")
 @RequiredArgsConstructor
-public class ShippingController {
+public class ShippingController implements ShippingControllerDoc {
 
 	private final ShippingService shippingService;
 
