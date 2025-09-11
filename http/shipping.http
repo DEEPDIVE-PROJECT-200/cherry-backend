@@ -1,0 +1,2 @@
+### 대여 Id로 운송장 번호와 발송일 조회
+GET http://localhost:8080/api/v1/shipping/1
