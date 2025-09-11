@@ -51,6 +51,7 @@ class MemberApplicationServiceTest {
 
 		String originalEmail = savedMember.getEmail().address();
 		String originalNickname = savedMember.getNickname();
+		String originalProviderId = savedMember.getProviderId();
 
 		TokenResponse tokenResponse = authService.login(savedMember.getProviderId());
 		String accessToken = tokenResponse.accessToken();
@@ -63,7 +64,7 @@ class MemberApplicationServiceTest {
 			.orElseThrow();
 		assertThat(deactivatedMember.getMemberStatus()).isEqualTo(MemberStatus.DEACTIVATED);
 
-		// 이메일과 닉네임에 탈퇴일시가 포맷되어 저장되었는지 검증
+		// 이메일, 닉네임, providerId에 탈퇴일시가 포맷되어 저장되었는지 검증
 		LocalDateTime deactivatedAt = deactivatedMember.getDetail().getDeactivatedAt();
 		String formattedTime = deactivatedAt.format(DEACTIVATION_DATE_FORMATTER);
 
@@ -73,6 +74,7 @@ class MemberApplicationServiceTest {
 
 		assertThat(deactivatedMember.getEmail().address()).isEqualTo(localPart + formattedTime + domainPart);
 		assertThat(deactivatedMember.getNickname()).isEqualTo(originalNickname + formattedTime);
+		assertThat(deactivatedMember.getProviderId()).isEqualTo(originalProviderId + formattedTime);
 
 		// 로그아웃 되었는지 검증
 		assertThat(authRedisRepository.getRefreshToken(savedMember.getProviderId())).isNull();

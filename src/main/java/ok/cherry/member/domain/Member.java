@@ -34,7 +34,7 @@ public class Member {
 	@Column(nullable = false)
 	private Provider provider;
 
-	@Column(nullable = false, unique = true, updatable = false)
+	@Column(nullable = false, unique = true)
 	private String providerId;
 
 	@Embedded
@@ -103,5 +103,6 @@ public class Member {
 
 		this.email = new Email(localPart + formattedTime + domainPart);
 		this.nickname = this.nickname + formattedTime;
+		this.providerId = this.providerId + formattedTime;
 	}
 }
