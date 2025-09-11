@@ -58,3 +58,6 @@ kakao:
   client_id: ${KAKAO_CLIENT_ID}
   redirect_uri: ${KAKAO_REDIRECT_URL}
 
+admin:
+  username: ${CHERRY_ADMIN_ID}
+  password: ${CHERRY_ADMIN_PW}
