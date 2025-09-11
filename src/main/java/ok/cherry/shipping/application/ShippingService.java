@@ -9,6 +9,7 @@ import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.Rental;
 import ok.cherry.shipping.application.command.CreateShippingCommand;
+import ok.cherry.shipping.application.response.TrackingNumberResponse;
 import ok.cherry.shipping.domain.Shipping;
 import ok.cherry.shipping.domain.status.ShippingStatus;
 import ok.cherry.shipping.domain.type.Direction;
@@ -42,6 +43,12 @@ public class ShippingService {
 		callExternalShippingGateway(shipping);
 
 		return shippingRepository.save(shipping);
+	}
+
+	public TrackingNumberResponse getTrackingNumber(Long rentalId) {
+		Shipping shipping = shippingRepository.findByRentalIdAndDirection(rentalId, Direction.OUTBOUND)
+			.orElseThrow(() -> new BusinessException(ShippingError.SHIPPING_NOT_FOUND));
+		return TrackingNumberResponse.of(shipping.getTrackingNumber(), shipping.getDetail().getStartAt());
 	}
 
 	@Transactional
