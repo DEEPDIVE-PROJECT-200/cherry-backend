@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+import ok.cherry.global.exception.error.BusinessException;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
@@ -351,6 +352,47 @@ class ShippingServiceTest {
 		assertThatThrownBy(() -> shippingService.completeShipping(savedShipping.getId()))
 			.isInstanceOf(DomainException.class)
 			.hasMessage(ShippingError.NOT_IN_DELIVERY.getMessage());
+	}
+
+	@Test
+	@DisplayName("대여 Id로 운송장 번호와 발송일 조회에 성공한다")
+	void getTrackingNumber_success() {
+		// given
+		Member member = memberRepository.save(MemberBuilder.create());
+		Product product = productRepository.save(ProductBuilder.create());
+		Rental rental = rentalRepository.save(
+			RentalBuilder.builder()
+				.withMember(member)
+				.withProduct(product)
+				.build()
+		);
+		Shipping shipping = shippingRepository.save(
+			ShippingBuilder.builder()
+				.withRental(rental)
+				.withDirection(Direction.OUTBOUND)
+				.build()
+		);
+		shipping.startShipping();
+
+		// when
+		shippingService.getTrackingNumber(rental.getId());
+
+		// then
+		Shipping savedShipping = shippingRepository.findById(shipping.getId()).orElseThrow();
+		assertThat(savedShipping.getTrackingNumber()).matches("^\\d{20}$");
+		assertThat(savedShipping.getDetail().getStartAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("대여 Id로 OutBound 배송 정보를 찾을 수 없어 예외가 발생한다")
+	void getTrackingNumber_notFoundShipping() {
+		// given
+		Long nonExistRentalId = 999L;
+
+		// when & then
+		assertThatThrownBy(() -> shippingService.getTrackingNumber(nonExistRentalId))
+			.isInstanceOf(BusinessException.class)
+			.hasMessage(ShippingError.SHIPPING_NOT_FOUND.getMessage());
 	}
 
 	private void flushAndClear() {
