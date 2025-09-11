@@ -50,7 +50,7 @@ cookie:
   domain: .200cherry.shop
 
 cors:
-  allowed-origins: https://200-cherry.vercel.app
+  allowed-origins: https://200-cherry.vercel.app,https://server.200-cherry.shop
   allowed-methods: GET, POST, PUT, DELETE, OPTIONS, HEAD
   allowed-headers: "*"
 
@@ -61,3 +61,6 @@ kakao:
 admin:
   username: ${CHERRY_ADMIN_ID}
   password: ${CHERRY_ADMIN_PW}
+
+server:
+  forward-headers-strategy: FRAMEWORK
