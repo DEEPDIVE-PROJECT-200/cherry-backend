@@ -15,7 +15,7 @@ import ok.cherry.shipping.application.response.TrackingNumberResponse;
 @Tag(name = "Shipping")
 public interface ShippingControllerDoc {
 
-	@Operation(method = "GET", summary = "", description = "대여 Id로 배송 정보의 운송장 번호와 발송일을 조회합니다")
+	@Operation(method = "GET", summary = "운송장 번호 및 발송일 조회", description = "대여 Id로 배송 정보의 운송장 번호와 발송일을 조회합니다")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "운송장 번호 및 발송일 조회 성공",
 			content = @Content(mediaType = "application/json", schema = @Schema(implementation = TrackingNumberResponse.class))),
