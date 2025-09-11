@@ -23,6 +23,7 @@ import ok.cherry.rental.domain.status.RentalStatus;
 import ok.cherry.rental.infrastructure.RentalRepository;
 import ok.cherry.shipping.ShippingBuilder;
 import ok.cherry.shipping.application.command.CreateShippingCommand;
+import ok.cherry.shipping.application.response.TrackingNumberResponse;
 import ok.cherry.shipping.domain.Address;
 import ok.cherry.shipping.domain.Shipping;
 import ok.cherry.shipping.domain.status.ShippingStatus;
@@ -375,12 +376,12 @@ class ShippingServiceTest {
 		shipping.startShipping();
 
 		// when
-		shippingService.getTrackingNumber(rental.getId());
+		TrackingNumberResponse response = shippingService.getTrackingNumber(rental.getId());
 
 		// then
 		Shipping savedShipping = shippingRepository.findById(shipping.getId()).orElseThrow();
-		assertThat(savedShipping.getTrackingNumber()).matches("^\\d{20}$");
-		assertThat(savedShipping.getDetail().getStartAt()).isNotNull();
+		assertThat(response.trackingNumber()).isEqualTo(savedShipping.getTrackingNumber());
+		assertThat(response.startAt()).isEqualTo(savedShipping.getDetail().getStartAt().toLocalDate());
 	}
 
 	@Test
