@@ -35,6 +35,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("org.springframework.session:spring-session-data-redis")
 
     // S3
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.4.0")
