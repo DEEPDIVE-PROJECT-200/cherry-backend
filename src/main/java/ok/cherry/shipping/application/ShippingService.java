@@ -74,6 +74,21 @@ public class ShippingService {
 	}
 
 	/**
+	 * 어드민에서 배송 조회시 사용
+	 */
+	@Transactional(readOnly = true)
+    public Shipping getOutboundShippingByRental(Long rentalId) {
+        return shippingRepository.findByRentalIdAndDirection(rentalId, Direction.OUTBOUND)
+            .orElseThrow(() -> new BusinessException(ShippingError.SHIPPING_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public Shipping getInboundShippingByRentalOrNull(Long rentalId) {
+        return shippingRepository.findByRentalIdAndDirection(rentalId, Direction.INBOUND)
+            .orElse(null);
+    }
+
+	/**
 	 * 외부 배송사 API 호출 로직
 	 * 현재는 단순화하여 항상 성공으로 처리
 	 * @param shipping

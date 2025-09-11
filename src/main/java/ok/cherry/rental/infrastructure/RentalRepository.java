@@ -3,7 +3,9 @@ package ok.cherry.rental.infrastructure;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -39,4 +41,22 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 	List<Rental> findByRentalStatusAndDetail_EndAtBefore(RentalStatus rentalStatus, LocalDate today);
 
 	List<Rental> findByMemberId(Long memberId);
+
+	/**
+	 * Admin에서 체험 목록 조회시 사용
+	 */
+	@Query(
+		"SELECT r FROM Rental r JOIN r.member m "
+			+ "WHERE (:orderNumber IS NULL OR r.rentalNumber LIKE CONCAT('%', :orderNumber, '%')) "
+			+ "AND (:providerId IS NULL OR m.providerId LIKE CONCAT('%', :providerId, '%')) "
+			+ "AND (:startDate IS NULL OR r.detail.createdAt >= :startDate) "
+			+ "AND (:endDate IS NULL OR r.detail.createdAt < :endDate)"
+	)
+	Page<Rental> search(
+		@Param("orderNumber") String orderNumber,
+		@Param("providerId") String providerId,
+		@Param("startDate") LocalDateTime startDate,
+		@Param("endDate") LocalDateTime endDate,
+		Pageable pageable
+	);
 }

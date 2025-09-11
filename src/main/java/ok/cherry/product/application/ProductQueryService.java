@@ -55,4 +55,12 @@ public class ProductQueryService {
 		return productRepository.findById(productId)
 			.orElseThrow(() -> new BusinessException(ProductError.PRODUCT_NOT_FOUND));
 	}
+
+	/**
+	 * Admin에서 전체 상품을 조회할 때 사용
+	 * 이후 상품이 많아지면 페이징 처리 고려
+	 */
+	public List<Product> getProducts() {
+		return productRepository.findAll();
+	}
 }

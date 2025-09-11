@@ -16,7 +16,7 @@ import ok.cherry.product.infrastructure.ProductRepository;
 @Component
 @RequiredArgsConstructor
 @Transactional
-@Profile("dev")
+@Profile({"local", "dev"})
 public class ProductDataInitializer implements CommandLineRunner {
 
 	public static final long DAILY_RENTAL_PRICE = 500L;

@@ -2,8 +2,10 @@ package ok.cherry.rental.application;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -126,5 +128,25 @@ public class RentalService {
 		if (rentStartAt.isAfter(rentEndAt)) {
 			throw new BusinessException(RentalError.INVALID_RENTAL_PERIOD);
 		}
+	}
+
+	/**
+	 * Admin에서 체험 목록 조회시 사용
+	 */
+	@Transactional(readOnly = true)
+	public Page<Rental> search(String orderNumber, String providerId, String startDate, String endDate, Pageable pageable) {
+		String orderNumberFilter = (orderNumber == null || orderNumber.isBlank()) ? null : orderNumber;
+		String providerIdFilter = (providerId == null || providerId.isBlank()) ? null : providerId;
+
+		LocalDateTime from = null;
+		LocalDateTime to = null;
+		if (startDate != null && !startDate.isBlank()) {
+			from = LocalDate.parse(startDate).atStartOfDay();
+		}
+		if (endDate != null && !endDate.isBlank()) {
+			to = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
+		}
+
+		return rentalRepository.search(orderNumberFilter, providerIdFilter, from, to, pageable);
 	}
 }
