@@ -27,11 +27,6 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
-  security:
-    user:
-      name: ${CHERRY_ADMIN_ID}
-      password: ${CHERRY_ADMIN_PW}
-
   cloud:
     aws:
       credentials:
@@ -63,3 +58,6 @@ kakao:
   client_id: ${KAKAO_CLIENT_ID}
   redirect_uri: ${KAKAO_REDIRECT_URL}
 
+admin:
+  username: ${CHERRY_ADMIN_ID}
+  password: ${CHERRY_ADMIN_PW}
