@@ -48,4 +48,8 @@ public record ProductCreateRequest(
 	@NotEmpty(message = "최소 하나 이상의 상세 이미지가 필요합니다")
 	List<String> detailImages
 ) {
+
+	public static ProductCreateRequest empty() {
+		return new ProductCreateRequest(null, null, null, null, null, null, null);
+	}
 }

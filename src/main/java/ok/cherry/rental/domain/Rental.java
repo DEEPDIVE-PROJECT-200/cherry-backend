@@ -1,7 +1,7 @@
 package ok.cherry.rental.domain;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import ok.cherry.global.exception.error.DomainException;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.domain.status.ReviewStatus;
 import ok.cherry.rental.exception.RentalError;
 
 @Entity
@@ -52,6 +53,10 @@ public class Rental {
 	@Column(nullable = false)
 	private RentalStatus rentalStatus;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ReviewStatus reviewStatus;
+
 	@Embedded
 	private RentalDetail detail;
 
@@ -59,8 +64,8 @@ public class Rental {
 		Member member,
 		List<RentalItem> items,
 		String rentalNumber,
-		LocalDateTime startAt,
-		LocalDateTime endAt
+		LocalDate startAt,
+		LocalDate endAt
 	) {
 		validateRentalNumber(rentalNumber);
 
@@ -70,6 +75,7 @@ public class Rental {
 		rental.detail = RentalDetail.create(startAt, endAt);
 		rental.rentalNumber = rentalNumber;
 		rental.rentalStatus = RentalStatus.PENDING;
+		rental.reviewStatus = ReviewStatus.PENDING;
 
 		items.forEach(item -> {
 			item.setRental(rental);
@@ -77,6 +83,35 @@ public class Rental {
 		});
 
 		return rental;
+	}
+
+	/**
+	 * 생성: rentalStatus:PENDING, reviewStatus:PENDING
+	 * 배송 완료: rentalStatus:ACTIVE
+	 * 체험 종료(반납 신청): rentalStatus:IN_RETURN
+	 * 반납 완료: rentalStatus:COMPLETED, reviewStatus:AVAILABLE
+	 * 리뷰 작성: reviewStatus:COMPLETED
+	 */
+	public void active() {
+		validateIsPending();
+		this.rentalStatus = RentalStatus.ACTIVE;
+	}
+
+	public void inReturn() {
+		validateIsActive();
+		this.rentalStatus = RentalStatus.IN_RETURN;
+	}
+
+	public void complete() {
+		validateIsInReturn();
+		this.reviewStatus = ReviewStatus.AVAILABLE;
+		this.rentalStatus = RentalStatus.COMPLETED;
+	}
+
+	public void completeReview() {
+		validateIsCompleted();
+		validateReviewStatusIsAvailable();
+		this.reviewStatus = ReviewStatus.COMPLETED;
 	}
 
 	private static BigDecimal calculateTotalPrice(List<RentalItem> items) {
@@ -88,6 +123,36 @@ public class Rental {
 	private static void validateRentalNumber(String rentalNumber) {
 		if (rentalNumber == null || !rentalNumber.matches("^CH-\\d{20}$")) {
 			throw new DomainException(RentalError.INVALID_RENTAL_NUMBER);
+		}
+	}
+
+	private void validateIsPending() {
+		if (this.rentalStatus != RentalStatus.PENDING) {
+			throw new DomainException(RentalError.NOT_PENDING);
+		}
+	}
+
+	private void validateIsActive() {
+		if (this.rentalStatus != RentalStatus.ACTIVE) {
+			throw new DomainException(RentalError.NOT_ACTIVE);
+		}
+	}
+
+	private void validateIsInReturn() {
+		if (this.rentalStatus != RentalStatus.IN_RETURN) {
+			throw new DomainException(RentalError.NOT_IN_RETURN);
+		}
+	}
+
+	private void validateIsCompleted() {
+		if (this.rentalStatus != RentalStatus.COMPLETED) {
+			throw new DomainException(RentalError.NOT_COMPLETED);
+		}
+	}
+
+	private void validateReviewStatusIsAvailable() {
+		if (this.reviewStatus != ReviewStatus.AVAILABLE) {
+			throw new DomainException(RentalError.NOT_REVIEW_STATUS_AVAILABLE);
 		}
 	}
 }

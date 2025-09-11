@@ -1,9 +1,10 @@
 package ok.cherry.rental.domain;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,8 @@ import ok.cherry.member.MemberBuilder;
 import ok.cherry.member.domain.Member;
 import ok.cherry.rental.RentalBuilder;
 import ok.cherry.rental.RentalItemBuilder;
+import ok.cherry.rental.domain.status.RentalStatus;
+import ok.cherry.rental.domain.status.ReviewStatus;
 import ok.cherry.rental.exception.RentalError;
 
 class RentalTest {
@@ -25,8 +28,8 @@ class RentalTest {
 		Member member = MemberBuilder.create();
 		RentalItem rentalItem = RentalItemBuilder.create();
 		String rentalNumber = "CH-25090213363012345678";
-		LocalDateTime startAt = LocalDateTime.now();
-		LocalDateTime endAt = LocalDateTime.now().plusDays(7);
+		LocalDate startAt = LocalDate.now();
+		LocalDate endAt = LocalDate.now().plusDays(7);
 
 		// when
 		Rental rental = Rental.create(member, List.of(rentalItem), rentalNumber, startAt, endAt);
@@ -79,5 +82,60 @@ class RentalTest {
 		assertThatThrownBy(() -> RentalBuilder.builder().withRentalNumber(wrongRentalNumber).build())
 			.isInstanceOf(DomainException.class)
 			.hasMessage(RentalError.INVALID_RENTAL_NUMBER.getMessage());
+	}
+
+	@Test
+	@DisplayName("대여 활성화 시 대여 상태가 ACTIVE로 변경된다")
+	void active_success() {
+		// given
+		Rental rental = RentalBuilder.create();
+
+		// when
+		rental.active();
+
+		// then
+		assertThat(rental.getRentalStatus()).isEqualTo(RentalStatus.ACTIVE);
+	}
+
+	@Test
+	@DisplayName("대여 활성화 시 대여 상태가 PENDING이 아니면 예외가 발생한다")
+	void active_notPending() {
+		// given
+		Rental rental = RentalBuilder.create();
+		rental.active();
+
+		// when & then
+		assertThatThrownBy(() -> rental.active())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(RentalError.NOT_PENDING.getMessage());
+	}
+
+	@Test
+	@DisplayName("리뷰 작성 완료 시 리뷰 상태가 COMPLETED로 변경된다")
+	void completeReview_success() {
+		// given
+		Rental rental = RentalBuilder.create();
+		rental.active();
+		rental.inReturn();
+		rental.complete();
+
+		// when
+		rental.completeReview();
+
+		// then
+		assertThat(rental.getRentalStatus()).isEqualTo(RentalStatus.COMPLETED);
+		assertThat(rental.getReviewStatus()).isEqualTo(ReviewStatus.COMPLETED);
+	}
+
+	@Test
+	@DisplayName("리뷰 상태가 COMPLETE가 아니면 예외가 발생한다")
+	void completeReview_notCompleted() {
+		// given
+		Rental rental = RentalBuilder.create();
+
+		// when & then
+		assertThatThrownBy(() -> rental.completeReview())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(RentalError.NOT_COMPLETED.getMessage());
 	}
 }

@@ -1,0 +1,29 @@
+### 상품 생성
+POST http://localhost:8080/api/v1/product
+Content-Type: application/json
+
+{
+  "name": "Beoplay HX",
+  "brand": "BANG_OLUFSEN",
+  "colors": [
+    "BLACK",
+    "GOLD",
+    "TIMBER"
+  ],
+  "dailyRentalPrice": 500,
+  "launchedAt": "2021-04-06",
+  "thumbnailImages": [
+    "a6398f37-bd66-4685-b554-d7c2d2e36e62_01.jpg",
+    "c3b9852a-b5cc-4214-9e2b-1ea49529f95f_02.jpg"
+  ],
+  "detailImages": [
+    "b5fbd3fb-70d3-451d-b13c-159ffe15c7a4_01.jpg",
+    "7662bbcf-7c90-47cd-9ad9-c8267ba51cc6_02.jpg"
+  ]
+}
+
+### 상품 단건 조회
+GET http://localhost:8080/api/v1/product/1
+
+### 상품 목록 조회
+GET http://localhost:8080/api/v1/products?sortType=REGISTERED

@@ -58,10 +58,10 @@ public class Shipping {
 	public static Shipping create(
 		Member member,
 		Rental rental,
+		String trackingNumber,
 		Direction direction,
 		String receiver,
 		String phoneNumber,
-		String trackingNumber,
 		Address address
 	) {
 		validateTrackingNumber(trackingNumber);
@@ -69,17 +69,43 @@ public class Shipping {
 		Shipping shipping = new Shipping();
 		shipping.member = member;
 		shipping.rental = rental;
+		shipping.trackingNumber = trackingNumber;
 		shipping.direction = direction;
 		shipping.shippingInfo = ShippingInfo.create(receiver, phoneNumber, address);
-		shipping.trackingNumber = trackingNumber;
 		shipping.status = ShippingStatus.PENDING;
 		shipping.detail = ShippingDetail.create();
 		return shipping;
 	}
 
+	public void startShipping() {
+		validateIsPending();
+
+		this.detail.markStarted();
+		this.status = ShippingStatus.IN_DELIVERY;
+	}
+
+	public void completeShipping() {
+		validateIsInDelivery();
+
+		this.detail.markEnded();
+		this.status = ShippingStatus.DELIVERED;
+	}
+
 	private static void validateTrackingNumber(String trackingNumber) {
 		if (trackingNumber == null || !trackingNumber.matches("^\\d{20}$")) {
 			throw new DomainException(ShippingError.INVALID_TRACKING_NUMBER);
+		}
+	}
+
+	private void validateIsPending() {
+		if (this.status != ShippingStatus.PENDING) {
+			throw new DomainException(ShippingError.NOT_PENDING);
+		}
+	}
+
+	private void validateIsInDelivery() {
+		if (this.status != ShippingStatus.IN_DELIVERY) {
+			throw new DomainException(ShippingError.NOT_IN_DELIVERY);
 		}
 	}
 }

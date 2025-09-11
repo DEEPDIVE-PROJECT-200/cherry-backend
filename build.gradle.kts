@@ -50,6 +50,12 @@ dependencies {
     // API Documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
 
+    // QueryDSL
+    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+    annotationProcessor("com.querydsl:querydsl-apt:5.1.0:jakarta")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+
     // Database
     runtimeOnly("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -75,4 +81,24 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
     jvmArgs("-javaagent:${mockitoAgent.asPath}")
+}
+
+// QueryDSL 설정부
+val querydslDir = "${layout.buildDirectory.get().asFile}/generated/querydsl"
+
+sourceSets {
+    main {
+        java.srcDir(querydslDir)
+    }
+}
+
+tasks.withType<JavaCompile> {
+    options.generatedSourceOutputDirectory.set(file(querydslDir))
+}
+
+// QueryDSL 추가, 자동 생성된 Q 클래스 gradle clean 으로 제거
+tasks.named("clean") {
+    doLast {
+        delete(file(querydslDir))
+    }
 }

@@ -16,9 +16,15 @@ public class PaymentDetail {
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
+	private LocalDateTime completedAt;
+
 	static PaymentDetail create() {
 		PaymentDetail paymentDetail = new PaymentDetail();
 		paymentDetail.createdAt = LocalDateTime.now();
 		return paymentDetail;
+	}
+
+	void markCompleted() {
+		this.completedAt = LocalDateTime.now();
 	}
 }

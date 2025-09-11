@@ -25,4 +25,12 @@ public class ShippingDetail {
 		shippingDetail.createdAt = LocalDateTime.now();
 		return shippingDetail;
 	}
+
+	void markStarted() {
+		this.startAt = LocalDateTime.now();
+	}
+
+	void markEnded() {
+		this.endAt = LocalDateTime.now();
+	}
 }

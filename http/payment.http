@@ -1,0 +1,4 @@
+### 결제 내역 단건 조회
+# paymentId의 member와 accessToken의 member가 일치해야 합니다.
+GET http://localhost:8080/api/v1/payments/1
+Authorization: Bearer {{accessToken}}

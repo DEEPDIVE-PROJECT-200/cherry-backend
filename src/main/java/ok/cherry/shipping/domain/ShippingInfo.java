@@ -21,7 +21,7 @@ public class ShippingInfo {
 	@Embedded
 	private Address address;
 
-	static ShippingInfo create(String receiver, String phoneNumber, Address address) {
+	public static ShippingInfo create(String receiver, String phoneNumber, Address address) {
 		ShippingInfo shippingInfo = new ShippingInfo();
 		shippingInfo.receiver = receiver;
 		shippingInfo.phoneNumber = phoneNumber;

@@ -2,6 +2,10 @@ package ok.cherry.member.domain;
 
 import static java.util.Objects.*;
 
+import java.time.format.DateTimeFormatter;
+
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -19,6 +23,7 @@ import ok.cherry.member.exception.MemberError;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "member_status = 'ACTIVE'")
 public class Member {
 
 	@Id
@@ -68,6 +73,8 @@ public class Member {
 		validateIsActive();
 		this.memberStatus = MemberStatus.DEACTIVATED;
 		this.detail.deactivate();
+
+		deactivateFormatter();
 	}
 
 	public void updateEmail(String emailAddress) {
@@ -85,5 +92,16 @@ public class Member {
 		if (memberStatus != MemberStatus.ACTIVE) {
 			throw new DomainException(MemberError.NOT_ACTIVE);
 		}
+	}
+
+	private void deactivateFormatter() {
+		String formattedTime = this.detail.getDeactivatedAt().format(DateTimeFormatter.ofPattern("_yyyyMMddHHmmss"));
+
+		int atIndex = this.email.address().indexOf("@");
+		String localPart = this.email.address().substring(0, atIndex);
+		String domainPart = this.email.address().substring(atIndex);
+
+		this.email = new Email(localPart + formattedTime + domainPart);
+		this.nickname = this.nickname + formattedTime;
 	}
 }

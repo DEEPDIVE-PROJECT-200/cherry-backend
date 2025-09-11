@@ -1,6 +1,7 @@
 package ok.cherry.shipping.domain;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,10 +31,10 @@ class ShippingTest {
 		Shipping shipping = Shipping.create(
 			rental.getMember(),
 			rental,
+			trackingNumber,
 			direction,
 			receiver,
 			phoneNumber,
-			trackingNumber,
 			address
 		);
 
@@ -56,10 +57,10 @@ class ShippingTest {
 		Shipping shipping = Shipping.create(
 			rental.getMember(),
 			rental,
+			trackingNumber,
 			direction,
 			receiver,
 			phoneNumber,
-			trackingNumber,
 			address
 		);
 
@@ -82,10 +83,10 @@ class ShippingTest {
 		Shipping shipping = Shipping.create(
 			rental.getMember(),
 			rental,
+			trackingNumber,
 			direction,
 			receiver,
 			phoneNumber,
-			trackingNumber,
 			address
 		);
 
@@ -105,5 +106,61 @@ class ShippingTest {
 		assertThatThrownBy(() -> ShippingBuilder.builder().withTrackingNumber(trackingNumber).build())
 			.isInstanceOf(DomainException.class)
 			.hasMessage(ShippingError.INVALID_TRACKING_NUMBER.getMessage());
+	}
+
+	@Test
+	@DisplayName("배송 시작 시 배송 상태가 변경되고 배송 시작 시간이 생성된다")
+	void startShipping_success() {
+		// given
+		Shipping shipping = ShippingBuilder.create();
+
+		// when
+		shipping.startShipping();
+
+		// then
+		assertThat(shipping.getStatus()).isEqualTo(ShippingStatus.IN_DELIVERY);
+		assertThat(shipping.getDetail().getStartAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("배송 대기 중 상태가 아닐 때 배송 시작을 하는 경우 예외가 발생한다")
+	void startShipping_notPending() {
+		// given
+		Shipping shipping = ShippingBuilder.create();
+		shipping.startShipping();
+
+		// when & then
+		assertThatThrownBy(() -> shipping.startShipping())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(ShippingError.NOT_PENDING.getMessage());
+	}
+
+	@Test
+	@DisplayName("배송 완료 시 배송 상태가 변경되고 배송 완료 시간이 생성된다")
+	void completeShipping_success() {
+		// given
+		Shipping shipping = ShippingBuilder.create();
+		shipping.startShipping();
+
+		// when
+		shipping.completeShipping();
+
+		// then
+		assertThat(shipping.getStatus()).isEqualTo(ShippingStatus.DELIVERED);
+		assertThat(shipping.getDetail().getEndAt()).isNotNull();
+	}
+
+	@Test
+	@DisplayName("배송 중 상태가 아닐 때 배송 완료를 하는 경우 예외가 발생한다 ")
+	void completeShipping_notInDelivery() {
+		// given
+		Shipping shipping = ShippingBuilder.create();
+		shipping.startShipping();
+		shipping.completeShipping();
+
+		// when & then
+		assertThatThrownBy(() -> shipping.completeShipping())
+			.isInstanceOf(DomainException.class)
+			.hasMessage(ShippingError.NOT_IN_DELIVERY.getMessage());
 	}
 }

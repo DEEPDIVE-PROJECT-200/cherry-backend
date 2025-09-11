@@ -1,0 +1,31 @@
+### 이메일 중복 확인 - 사용 가능
+POST http://localhost:8080/api/v1/members/verify/email
+Content-Type: application/json
+
+{
+  "emailAddress": "test@test.com"
+}
+
+### 이메일 중복 확인 - 중복
+POST http://localhost:8080/api/v1/members/verify/email
+Content-Type: application/json
+
+{
+  "emailAddress": "test1@test.com"
+}
+
+### 닉네임 중복 확인 - 사용 가능
+POST http://localhost:8080/api/v1/members/verify/nickname
+Content-Type: application/json
+
+{
+  "nickname": "tester"
+}
+
+### 닉네임 중복 확인 - 중복
+POST http://localhost:8080/api/v1/members/verify/nickname
+Content-Type: application/json
+
+{
+  "nickname": "tester1"
+}

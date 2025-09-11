@@ -99,7 +99,7 @@ public class SwaggerConfig {
 				.name("Products")
 				.description("🎧 상품 API - 상품 조회, 등록, 수정, 삭제 API"),
 			new Tag()
-				.name("Rental")
+				.name("Rentals")
 				.description("🍒 대여 API - 상품 대여, 체험, 회수 API"),
 			new Tag()
 				.name("Payments")
