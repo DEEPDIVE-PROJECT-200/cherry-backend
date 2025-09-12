@@ -57,7 +57,17 @@ public class SecurityConfig {
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(PERMIT_URL_ARRAY).permitAll()
-				// todo: 추후 인증 관련 권한 설정
+				// auth
+				.requestMatchers("/api/v1/auth/signup", "/api/v1/auth/reissue",
+					"/test/token/**","/api/v1/oauth/callback").permitAll()
+				// cart
+				.requestMatchers("/api/v1/cart").permitAll()
+				// member
+				.requestMatchers("/api/v1/members/verify/**").permitAll()
+				// product
+				.requestMatchers("/api/v1/products/**", "api/v1/product/**").permitAll()
+				// shipping
+				.requestMatchers("/api/v1/shipping/**").permitAll()
 				.anyRequest().permitAll())
 			.addFilterBefore(new JwtFilter(tokenExtractor, tokenValidator, authRedisRepository),
 				UsernamePasswordAuthenticationFilter.class)
