@@ -280,19 +280,20 @@
             return headers;
         };
 
-        // 상태(분리)
+        // 상태(키만 저장)
         const state = {thumbs: [], details: []};
 
-        // 절대 URL 보정
+        // 절대 URL 보정: 렌더링 전용
         function toAbsoluteUrl(s) {
             if (!s) return s;
             if (/^https?:\/\//i.test(s)) return s;
-            if (s.startsWith('/')) return s;
+            // 키에 슬래시가 있어도 그대로 붙여서 사용
             const PUBLIC_BASE = 'https://cherry-dev-assets.s3.ap-northeast-2.amazonaws.com/';
+            // 키를 안전하게 인코딩(경로 단위)
             return PUBLIC_BASE + s.split('/').map(encodeURIComponent).join('/');
         }
 
-        // 업로드
+        // 업로드: 서버가 주는 fileName(키)을 그대로 반환
         async function uploadImage(file) {
             const fd = new FormData();
             fd.append('image', file);
@@ -300,7 +301,7 @@
             if (!res.ok) throw new Error('업로드 실패');
             const j = await res.json();
             if (!j.fileName) throw new Error('응답에 fileName 없음');
-            return toAbsoluteUrl(j.fileName);
+            return j.fileName;
         }
 
         // 공용: 개수/버튼 상태
@@ -315,19 +316,20 @@
             }
         }
 
-        // 렌더(리스트 + hidden + DnD + 삭제)
+        // 렌더(리스트 + hidden + DnD + 삭제) — items에는 "키"가 들어있음
         function renderGrid({items, gridEl, hiddenEl, countEl, uploadBtn, showFirstBadge}) {
             gridEl.innerHTML = '';
-            items.forEach((url, idx) => {
+            items.forEach((key, idx) => {
+                const absUrl = toAbsoluteUrl(key);
                 const card = document.createElement('div');
                 card.className = 'thumb';
                 card.draggable = true;
                 card.dataset.index = String(idx);
                 card.innerHTML = `
-        ${showFirstBadge && idx === 0 ? '<span class="badge-first">썸네일</span>' : ''}
-        <img src="${url}" alt="">
-        <button type="button" class="btn btn-sm btn-del">×</button>
-      `;
+          ${showFirstBadge && idx === 0 ? '<span class="badge-first">썸네일</span>' : ''}
+          <img src="${absUrl}" alt="">
+          <button type="button" class="btn btn-sm btn-del">×</button>
+        `;
 
                 // 삭제
                 card.querySelector('.btn-del').addEventListener('click', (e) => {
@@ -363,11 +365,11 @@
 
             // hidden inputs (서버 폴백)
             hiddenEl.innerHTML = '';
-            items.forEach(url => {
+            items.forEach(key => {
                 const i = document.createElement('input');
                 i.type = 'hidden';
                 i.name = showFirstBadge ? 'thumbnailImages' : 'detailImages';
-                i.value = url;
+                i.value = key;
                 hiddenEl.appendChild(i);
             });
 
@@ -384,8 +386,8 @@
             }
             try {
                 for (const f of list) {
-                    const url = await uploadImage(f);
-                    items.push(url);
+                    const key = await uploadImage(f);
+                    items.push(key);
                 }
                 render();
             } catch (e) {
@@ -461,7 +463,7 @@
             rerenderDetail();
         });
 
-        // ====== 색상 칩 (이벤트 위임) ======
+        // ====== 색상 칩 ======
         const colorPills = document.getElementById('colorPills');
         colorPills.addEventListener('click', (e) => {
             const pill = e.target.closest('.pill');
@@ -470,13 +472,12 @@
             input.checked = !input.checked;
             pill.classList.toggle('active', input.checked);
         });
-        // 초기 동기화
         colorPills.querySelectorAll('.pill').forEach(p => {
             const input = p.querySelector('input[type="checkbox"]');
             p.classList.toggle('active', input.checked);
         });
 
-        // ====== 저장(JSON) ======
+        // ====== 저장(JSON) — payload에는 키만 담김 ======
         const form = document.getElementById('productForm');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -484,7 +485,7 @@
             const name = form.querySelector('#name')?.value?.trim();
             const brand = form.querySelector('#brand')?.value;
             const price = Number(form.querySelector('#dailyRentalPrice')?.value);
-            const launchedAt = form.querySelector('#launchedAt')?.value?.trim(); // type=date → YYYY-MM-DD
+            const launchedAt = form.querySelector('#launchedAt')?.value?.trim(); // YYYY-MM-DD
             const colors = Array.from(form.querySelectorAll('input[name="colors"]:checked')).map(el => el.value);
 
             if (!name) return alert('상품명은 필수입니다.');
