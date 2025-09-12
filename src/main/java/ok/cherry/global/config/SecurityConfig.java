@@ -57,6 +57,8 @@ public class SecurityConfig {
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(PERMIT_URL_ARRAY).permitAll()
+				// s3
+				.requestMatchers("/api/v1/files/**").permitAll()
 				// auth
 				.requestMatchers("/api/v1/auth/signup", "/api/v1/auth/reissue",
 					"/test/token/**","/api/v1/oauth/callback").permitAll()
